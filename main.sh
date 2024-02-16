@@ -29,3 +29,11 @@ function remove_android_library_folder(){
 verify_free_disk_space
 remove_android_library_folder
 verify_free_disk_space
+
+echo "Verify other folders on /usr/local/lib"
+ls -la /usr/local/lib
+echo "---"
+
+echo "Verify size of /usr/local/lib"
+du -sh /usr/local/lib
+echo "---"
