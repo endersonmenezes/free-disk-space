@@ -76,7 +76,7 @@ fi
 # Functions
 
 function verify_free_disk_space(){
-    df -B1 $PRINCIPAL_DIR | awk 'NR==2 {print $4}'
+    df -B1 "$PRINCIPAL_DIR" | awk 'NR==2 {print $4}'
 }
 
 function convert_bytes_to_mb(){
@@ -84,7 +84,7 @@ function convert_bytes_to_mb(){
 }
 
 function verify_free_space_in_mb(){
-    convert_bytes_to_mb $(verify_free_disk_space)
+    convert_bytes_to_mb "$(verify_free_disk_space)"
 }
 
 function update_and_echo_free_space(){
@@ -97,7 +97,7 @@ function update_and_echo_free_space(){
         LINUX_TIMESTAMP_AFTER=$(date +%s)
         FREEUP_SPACE=$(echo "scale=2; $SPACE_AFTER - $SPACE_BEFORE" | bc)
         echo "FreeUp Space: $FREEUP_SPACE MB"
-        echo "Time Elapsed: $(($LINUX_TIMESTAMP_AFTER - $LINUX_TIMESTAMP_BEFORE)) seconds"
+        echo "Time Elapsed: $((LINUX_TIMESTAMP_AFTER - LINUX_TIMESTAMP_BEFORE)) seconds"
         TOTAL_FREE_SPACE=$(echo "scale=2; $TOTAL_FREE_SPACE + $FREEUP_SPACE" | bc)
     fi
 }
@@ -105,7 +105,7 @@ function update_and_echo_free_space(){
 function remove_android_library_folder(){
     echo "🤖 Removing Android Folder"
     update_and_echo_free_space "before"
-    sudo rm -rf /usr/local/lib/android || true
+    rm -rf /usr/local/lib/android || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -113,7 +113,7 @@ function remove_android_library_folder(){
 function remove_dot_net_library_folder(){
     echo "📄 Removing .NET Folder"
     update_and_echo_free_space "before"
-    sudo rm -rf /usr/share/dotnet || true
+    rm -rf /usr/share/dotnet || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -121,8 +121,8 @@ function remove_dot_net_library_folder(){
 function remove_haskell_library_folder(){
     echo "📄 Removing Haskell Folder"
     update_and_echo_free_space "before"
-    sudo rm -rf /opt/ghc || true
-    sudo rm -rf /usr/local/.ghcup || true
+    rm -rf /opt/ghc || true
+    rm -rf /usr/local/.ghcup || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -131,10 +131,10 @@ function remove_package(){
     PACKAGE_NAME=$1
     echo "📦 Removing $PACKAGE_NAME"
     update_and_echo_free_space "before"
-    sudo apt-get remove -y $PACKAGE_NAME --fix-missing > /dev/null
-    sudo apt-get autoremove -y > /dev/null
-    sudo apt-get clean > /dev/null
-    sudo apt-get update > /dev/null
+    apt-get remove -y "$PACKAGE_NAME" --fix-missing > /dev/null
+    apt-get autoremove -y > /dev/null
+    apt-get clean > /dev/null
+    apt-get update > /dev/null
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -142,7 +142,7 @@ function remove_package(){
 function remove_tool_cache(){
     echo "🧹 Removing Tool Cache"
     update_and_echo_free_space "before"
-    sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+    rm -rf "$AGENT_TOOLSDIRECTORY" || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -150,8 +150,8 @@ function remove_tool_cache(){
 function remove_swap_storage(){
     echo "🧹 Removing Swap Storage"
     update_and_echo_free_space "before"
-    sudo swapoff -a || true
-    sudo rm -f /mnt/swapfile || true
+    swapoff -a || true
+    rm -f "/mnt/swapfile" || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -171,7 +171,7 @@ if [[ $PACKAGES != "false" ]]; then
         remove_package "$PACKAGES"
     else
         for PACKAGE in $PACKAGES; do
-            remove_package $PACKAGE
+            remove_package "$PACKAGE"
         done
     fi
 fi
