@@ -34,8 +34,6 @@ runs:
       run: scripts/main.sh
       env:
         ANDROID_FILES: ${{ inputs.android }}
-        DOTNET_FILES: ${{ inputs.dotnet }}
-        HASKELL_FILES: ${{ inputs.haskell }}
 
     - shell: bash
       name: "Verify After Freeing Disk Space"
