@@ -166,6 +166,7 @@ if [[ $PACKAGES != "false" ]]; then
     fi
 fi
 remove_tool_cache
+remove_swap_storage
 echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 
 # Echo
