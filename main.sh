@@ -67,7 +67,7 @@ function update_and_echo_free_space(){
 }
 
 function remove_android_library_folder(){
-    echo " 🤖 Removing Android Folder"
+    echo "🤖 Removing Android Folder"
     update_and_echo_free_space "before"
     sudo rm -rf /usr/local/lib/android || true
     update_and_echo_free_space "after"
