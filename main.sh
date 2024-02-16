@@ -52,8 +52,7 @@ function verify_free_space_in_mb(){
 function update_and_echo_free_space(){
     if [ -z "$BEFORE" ]; then
         BEFORE=$(verify_free_space_in_mb)
-    fi
-    if [ -z "$AFTER" ]; then
+    elif [ -z "$AFTER" ]; then
         AFTER=$(verify_free_space_in_mb)
         CLEAN_SPACE=$(echo "scale=2; $AFTER - $BEFORE" | bc)
         echo "Free Space: $CLEAN_SPACE MB"
