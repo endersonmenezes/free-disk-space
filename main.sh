@@ -20,11 +20,13 @@ if [ -z "$PRINCIPAL_DIR" ]; then
     echo "Variable PRINCIPAL_DIR is not set"
     exit 0
 fi
-# 
 if [[ $TESTING == "true" ]]; then
     echo "Testing Mode"
     alias rm='echo rm'
 fi
+
+# Global Variables
+TOTAL_FREE_SPACE=0
 
 
 # Verify Common Packages
@@ -60,35 +62,41 @@ function update_and_echo_free_space(){
         FREEUP_SPACE=$(echo "scale=2; $SPACE_AFTER - $SPACE_BEFORE" | bc)
         echo "FreeUp Space: $FREEUP_SPACE MB"
         echo "Time Elapsed: $(($LINUX_TIMESTAMP_AFTER - $LINUX_TIMESTAMP_BEFORE)) seconds"
+        TOTAL_FREE_SPACE=$(echo "scale=2; $TOTAL_FREE_SPACE + $FREEUP_SPACE" | bc)
     fi
 }
 
 function remove_android_library_folder(){
-    echo "Removing Android Folder"
+    echo " 🤖 Removing Android Folder"
     update_and_echo_free_space "before"
     sudo rm -rf /usr/local/lib/android || true
     update_and_echo_free_space "after"
+    echo ""
 }
 
 function remove_dot_net_library_folder(){
-    echo "Removing .NET Folder"
+    echo "📄 Removing .NET Folder"
     update_and_echo_free_space "before"
     sudo rm -rf /usr/share/dotnet || true
     update_and_echo_free_space "after"
+    echo ""
 }
 
 function remove_haskell_library_folder(){
-    echo "Removing Haskell Folder"
+    echo "📄 Removing Haskell Folder"
     update_and_echo_free_space "before"
     sudo rm -rf /opt/ghc || true
     sudo rm -rf /usr/local/.ghcup || true
     update_and_echo_free_space "after"
+    echo ""
 }
 
 # Remove Libraries
 remove_android_library_folder
 remove_dot_net_library_folder
 remove_haskell_library_folder
+
+echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 
 ## -- Testing Zone -- ##
 
