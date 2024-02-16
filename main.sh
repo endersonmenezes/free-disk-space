@@ -68,3 +68,6 @@ echo "---"
 echo "Verify size of /opt"
 du -sh /opt
 
+echo "Verify apt list"
+apt list --installed
+
