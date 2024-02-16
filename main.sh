@@ -121,9 +121,27 @@ function remove_package(){
     PACKAGE_NAME=$1
     echo "📦 Removing $PACKAGE_NAME"
     update_and_echo_free_space "before"
-    sudo apt-get remove -y $PACKAGE_NAME > /dev/null
+    sudo apt-get remove -y $PACKAGE_NAME --fix-missing > /dev/null
     sudo apt-get autoremove -y > /dev/null
+    sudo apt-get clean > /dev/null
     sudo apt-get update > /dev/null
+    update_and_echo_free_space "after"
+    echo "-"
+}
+
+function remove_tool_cache(){
+    echo "🧹 Removing Tool Cache"
+    update_and_echo_free_space "before"
+    sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+    update_and_echo_free_space "after"
+    echo "-"
+}
+
+function remove_swap_storage(){
+    echo "🧹 Removing Swap Storage"
+    update_and_echo_free_space "before"
+    sudo swapoff -a || true
+    sudo rm -f /mnt/swapfile || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -147,32 +165,9 @@ if [[ $PACKAGES != "false" ]]; then
         done
     fi
 fi
+remove_tool_cache
 echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 
-## -- Testing Zone -- ##
-
-# echo "Verify other folders on /usr/local/lib"
-# ls -la /usr/local/lib
-# echo "---"
-
-# echo "Verify size of /usr/local/lib"
-# du -sh /usr/local/lib
-# echo "---"
-
-# echo "Verify other folder on /usr/share"
-# ls -la /usr/share
-# echo "---"
-
-# echo "Verify size of /usr/share"
-# du -sh /usr/share
-
-# echo "Verify other folder on /opt"
-# ls -la /opt
-# echo "---"
-
-# echo "Verify size of /opt"
-# du -sh /opt
-
-# echo "Verify apt list"
-dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
-
+# Echo
+echo "🎉 FreeUP Disk Space Finished"
+df -h
