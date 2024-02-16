@@ -123,5 +123,5 @@ echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 # du -sh /opt
 
 # echo "Verify apt list"
-# dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
 
