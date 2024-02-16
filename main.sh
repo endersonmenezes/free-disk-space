@@ -49,6 +49,19 @@ function verify_free_space_in_mb(){
     convert_bytes_to_mb $(verify_free_disk_space)
 }
 
+function update_and_echo_free_space(){
+    if [ -z "$BEFORE" ]; then
+        BEFORE=$(verify_free_space_in_mb)
+    fi
+    if [ -z "$AFTER" ]; then
+        AFTER=$(verify_free_space_in_mb)
+        CLEAN_SPACE=$(echo "scale=2; $AFTER - $BEFORE" | bc)
+        echo "Free Space: $CLEAN_SPACE MB"
+        unset AFTER
+        BEFORE=$(verify_free_space_in_mb)
+    fi
+}
+
 function remove_android_library_folder(){
     echo "Removing Android Folder"
     sudo rm -rf /usr/local/lib/android || true
@@ -65,15 +78,15 @@ function remove_haskell_library_folder(){
     sudo rm -rf /usr/local/.ghcup || true
 }
 
-echo "Actual Free Disk: $(verify_free_space_in_mb) MB"
+update_and_echo_free_space
 remove_android_library_folder
+update_and_echo_free_space
 
-echo "Actual Free Disk: $(verify_free_space_in_mb) MB"
 remove_dot_net_library_folder
+update_and_echo_free_space
 
-echo "Actual Free Disk: $(verify_free_space_in_mb) MB"
 remove_haskell_library_folder
-
+update_and_echo_free_space
 # echo "Verify other folders on /usr/local/lib"
 # ls -la /usr/local/lib
 # echo "---"
