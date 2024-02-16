@@ -18,6 +18,9 @@
 # TOOL_CACHE: Boolean (true or false)
 # SWAP_STORAGE: Boolean (true or false)
 
+# Environment Variables
+# AGENT_TOOLSDIRECTORY: String
+
 # Validate Variables
 if [[ -z "${PRINCIPAL_DIR}" ]]; then
     echo "Variable PRINCIPAL_DIR is not set"
