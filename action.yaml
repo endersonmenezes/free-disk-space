@@ -23,12 +23,6 @@ runs:
       uses: actions/checkout@v4
 
     - shell: bash
-      name: "Verify Disk Space"
-      id: verify-disk-space
-      run: |
-        df -h
-
-    - shell: bash
       name: "Free Disk Space"
       id: free-disk-space
       run: |
@@ -36,9 +30,3 @@ runs:
         sudo ./scripts/main.sh
       env:
         ANDROID_FILES: ${{ inputs.android }}
-
-    - shell: bash
-      name: "Verify After Freeing Disk Space"
-      id: verify-after-free-disk-space
-      run: |
-        df -h

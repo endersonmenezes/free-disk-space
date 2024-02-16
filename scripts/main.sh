@@ -16,9 +16,16 @@
 
 # Functions
 
+function verify_free_disk_space(){
+    echo "Verifying Free Disk Space"
+    df -h
+}
+
 function remove_android_library_folder(){
     echo "Removing Android Folder"
     sudo rm -rf /usr/local/lib/android || true
 }
 
+verify_free_disk_space
 remove_android_library_folder
+verify_free_disk_space
