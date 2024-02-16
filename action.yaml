@@ -61,7 +61,7 @@ runs:
     - shell: bash
       name: "Free Disk Space"
       id: free-disk-space
-      run: main.sh
+      run: main.sh | sudo bash
       env:
         PRINCIPAL_DIR: ${{ inputs.principal_dir }}
         ANDROID_FILES: ${{ inputs.remove_android }}
