@@ -16,16 +16,9 @@
 
 # Functions
 
-function remove_android_library(){
-    echo "Removing Android Libraries"
-    sudo apt-get remove --purge android* || true
-    sudo apt-get autoremove
-    sudo apt-get autoclean
-}
-
-function remove_android_folder(){
+function remove_android_library_folder(){
     echo "Removing Android Folder"
     sudo rm -rf /usr/local/lib/android || true
 }
 
-remove_android_library
+remove_android_library_folder
