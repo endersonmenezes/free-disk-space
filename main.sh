@@ -157,31 +157,35 @@ function remove_swap_storage(){
 }
 
 # Remove Libraries
-if [[ $ANDROID_FILES == "true" ]]; then
-    remove_android_library_folder
-fi
-if [[ $DOTNET_FILES == "true" ]]; then
-    remove_dot_net_library_folder
-fi
-if [[ $HASKELL_FILES == "true" ]]; then
-    remove_haskell_library_folder
-fi
-if [[ $PACKAGES != "false" ]]; then
-    if [[ $SIMULTANEOUS == "true" ]]; then
-        remove_package "$PACKAGES"
-    else
-        for PACKAGE in $PACKAGES; do
-            remove_package "$PACKAGE"
-        done
+function main(){
+    if [[ $ANDROID_FILES == "true" ]]; then
+        remove_android_library_folder
     fi
-fi
-if [[ $TOOL_CACHE == "true" ]]; then
-    remove_tool_cache
-fi
-if [[ $SWAP_STORAGE == "true" ]]; then
-    remove_swap_storage
-fi
-echo "Total Free Space: $TOTAL_FREE_SPACE MB"
+    if [[ $DOTNET_FILES == "true" ]]; then
+        remove_dot_net_library_folder
+    fi
+    if [[ $HASKELL_FILES == "true" ]]; then
+        remove_haskell_library_folder
+    fi
+    if [[ $PACKAGES != "false" ]]; then
+        if [[ $SIMULTANEOUS == "true" ]]; then
+            remove_package "$PACKAGES"
+        else
+            for PACKAGE in $PACKAGES; do
+                remove_package "$PACKAGE"
+            done
+        fi
+    fi
+    if [[ $TOOL_CACHE == "true" ]]; then
+        remove_tool_cache
+    fi
+    if [[ $SWAP_STORAGE == "true" ]]; then
+        remove_swap_storage
+    fi
+    echo "Total Free Space: $TOTAL_FREE_SPACE MB"
+}
+
+sh -c main
 
 # Echo
 echo "🎉 FreeUP Disk Space Finished"
