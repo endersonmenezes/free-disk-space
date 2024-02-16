@@ -71,7 +71,7 @@ function remove_android_library_folder(){
     update_and_echo_free_space "before"
     sudo rm -rf /usr/local/lib/android || true
     update_and_echo_free_space "after"
-    echo ""
+    echo "\n"
 }
 
 function remove_dot_net_library_folder(){
@@ -79,7 +79,7 @@ function remove_dot_net_library_folder(){
     update_and_echo_free_space "before"
     sudo rm -rf /usr/share/dotnet || true
     update_and_echo_free_space "after"
-    echo ""
+    echo "\n"
 }
 
 function remove_haskell_library_folder(){
@@ -88,16 +88,16 @@ function remove_haskell_library_folder(){
     sudo rm -rf /opt/ghc || true
     sudo rm -rf /usr/local/.ghcup || true
     update_and_echo_free_space "after"
-    echo ""
+    echo "\n"
 }
 
 function remove_azure_cli_packages(){
     echo "📦 Removing Azure CLI Packages"
     update_and_echo_free_space "before"
-    sudo apt-get remove -y azure-cli
-    sudo apt-get autoremove -y
+    sudo apt-get remove -y azure-cli > /dev/null
+    sudo apt-get autoremove -y > /dev/null
     update_and_echo_free_space "after"
-    echo ""
+    echo "\n"
 }
 
 # Remove Libraries
