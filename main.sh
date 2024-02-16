@@ -14,6 +14,7 @@
 # DOTNET_FILES: Boolean (true or false)
 # HASKELL_FILES: Boolean (true or false)
 # PACKAGES: String (separated by space)
+# SIMULTANEOUS: Boolean (true or false)
 
 # Validate Variables
 if [ -z "$PRINCIPAL_DIR" ]; then
@@ -45,6 +46,10 @@ if [[ $PACKAGES != "false" ]]; then
         echo "Variable PACKAGES is not a list of strings"
         exit 0
     fi
+fi
+if [ -z "$SIMULTANEOUS" ]; then
+    echo "Variable SIMULTANEOUS is not set"
+    exit 0
 fi
 
 # Global Variables
@@ -134,9 +139,13 @@ if [[ $HASKELL_FILES == "true" ]]; then
     remove_haskell_library_folder
 fi
 if [[ $PACKAGES != "false" ]]; then
-    for PACKAGE in $PACKAGES; do
-        remove_package $PACKAGE
-    done
+    if [[ $SIMULTANEOUS == "true" ]]; then
+        remove_package $PACKAGES
+    else
+        for PACKAGE in $PACKAGES; do
+            remove_package $PACKAGE
+        done
+    fi
 fi
 echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 

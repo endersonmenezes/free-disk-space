@@ -27,6 +27,10 @@ inputs:
     description: "Remove Packages (Eg. azure-cli google-cloud-cli) Read the documentation for more information"
     required: false
     default: "false"
+  remove_simultaneous:
+    description: "Remove Packages Simultaneously (Eg. azure-cli google-cloud-cli) Read the documentation for more information"
+    required: false
+    default: "false"
   
   
 
@@ -56,3 +60,4 @@ runs:
         DOTNET_FILES: ${{ inputs.remove_dotnet }}
         HASKELL_FILES: ${{ inputs.remove_haskell }}
         PACKAGES: ${{ inputs.remove_packages }}
+        SIMULTANEOUS: ${{ inputs.remove_simultaneous }}

@@ -4,8 +4,11 @@ on:
   - workflow_dispatch
 
 jobs:
-  free-disk-space:
-    runs-on: ubuntu-latest
+  free_disk_space:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Free Disk Space
         uses: endersonmenezes/free-disk-space@main
@@ -14,3 +17,4 @@ jobs:
           remove_dotnet: true
           remove_haskell: true
           remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox dotnet-* temurin-* llvm-* mysql-* libllvm*"
+          remove_simultaneous: true
