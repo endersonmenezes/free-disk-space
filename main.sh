@@ -118,6 +118,7 @@ function remove_package(){
     update_and_echo_free_space "before"
     sudo apt-get remove -y $PACKAGE_NAME > /dev/null
     sudo apt-get autoremove -y > /dev/null
+    sudo apt-get update > /dev/null
     update_and_echo_free_space "after"
     echo "-"
 }
