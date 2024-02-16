@@ -15,6 +15,8 @@
 # HASKELL_FILES: Boolean (true or false)
 # PACKAGES: String (separated by space)
 # SIMULTANEOUS: Boolean (true or false)
+# TOOL_CACHE: Boolean (true or false)
+# SWAP_STORAGE: Boolean (true or false)
 
 # Validate Variables
 if [ -z "$PRINCIPAL_DIR" ]; then
@@ -49,6 +51,14 @@ if [[ $PACKAGES != "false" ]]; then
 fi
 if [ -z "$SIMULTANEOUS" ]; then
     echo "Variable SIMULTANEOUS is not set"
+    exit 0
+fi
+if [ -z "$TOOL_CACHE" ]; then
+    echo "Variable TOOL_CACHE is not set"
+    exit 0
+fi
+if [ -z "$SWAP_STORAGE" ]; then
+    echo "Variable SWAP_STORAGE is not set"
     exit 0
 fi
 
@@ -165,8 +175,12 @@ if [[ $PACKAGES != "false" ]]; then
         done
     fi
 fi
-remove_tool_cache
-remove_swap_storage
+if [[ $TOOL_CACHE == "true" ]]; then
+    remove_tool_cache
+fi
+if [[ $SWAP_STORAGE == "true" ]]; then
+    remove_swap_storage
+fi
 echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 
 # Echo

@@ -23,6 +23,14 @@ inputs:
     description: "Remove Haskell Files"
     required: false
     default: "false"
+  remove_tool_cache:
+    description: "Remove Tool Cache"
+    required: false
+    default: "false"
+  remove_swap:
+    description: "Remove Swap"
+    required: false
+    default: "false"
   remove_packages:
     description: "Remove Packages (Eg. azure-cli google-cloud-cli) Read the documentation for more information"
     required: false
@@ -61,3 +69,5 @@ runs:
         HASKELL_FILES: ${{ inputs.remove_haskell }}
         PACKAGES: ${{ inputs.remove_packages }}
         SIMULTANEOUS: ${{ inputs.remove_simultaneous }}
+        TOOL_CACHE: ${{ inputs.remove_tool_cache }}
+        SWAP_STORAGE: ${{ inputs.remove_swap }}
