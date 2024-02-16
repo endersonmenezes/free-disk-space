@@ -69,5 +69,5 @@ echo "Verify size of /opt"
 du -sh /opt
 
 echo "Verify apt list"
-apt list --installed
+dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
 
