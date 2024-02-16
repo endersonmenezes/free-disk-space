@@ -26,6 +26,11 @@ function remove_android_library_folder(){
     sudo rm -rf /usr/local/lib/android || true
 }
 
+function remove_dot_net_library_folder(){
+    echo "Removing .NET Folder"
+    sudo rm -rf /usr/share/dotnet || true
+}
+
 verify_free_disk_space
 remove_android_library_folder
 verify_free_disk_space
@@ -37,3 +42,10 @@ echo "---"
 echo "Verify size of /usr/local/lib"
 du -sh /usr/local/lib
 echo "---"
+
+echo "Verify other folder on /usr/share"
+ls -la /usr/share
+echo "---"
+
+echo "Verify size of /usr/share"
+du -sh /usr/share
