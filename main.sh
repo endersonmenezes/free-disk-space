@@ -8,9 +8,19 @@
 # ---
 
 # Variables
+# PRINCIPAL_DIR: String
 # ANDROID_FILES: Boolean
-# DOTNET_FILES: Boolean
-# HASKELL_FILES: Boolean
+
+# Validate Variables
+if [ -z "$ANDROID_FILES" ]; then
+    echo "Variable ANDROID_FILES is not set"
+    exit 0
+fi
+if [ -z "$PRINCIPAL_DIR" ]; then
+    echo "Variable PRINCIPAL_DIR is not set"
+    exit 0
+fi
+
 
 # Verify Common Packages
 

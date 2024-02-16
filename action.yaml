@@ -6,10 +6,15 @@ branding:
   color: "gray-dark"
 
 inputs:
-  android:
-    description: "Remove Android runtime"
+  principal_dir:
+    description: "Principal Directory Mount Point"
     required: false
-    default: "true"
+    default: "/"
+  android:
+    description: "Remove Android Libraries and Files"
+    required: false
+    default: "false"
+
 # outputs:
 #   saved-space:
 #     description: "The amount of space saved"
@@ -30,4 +35,5 @@ runs:
       id: free-disk-space
       run: main.sh
       env:
+        PRINCIPAL_DIR: ${{ inputs.principal_dir }}
         ANDROID_FILES: ${{ inputs.android }}
