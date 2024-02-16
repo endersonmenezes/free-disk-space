@@ -9,13 +9,13 @@
 
 # Variables
 # PRINCIPAL_DIR: String
-# ANDROID_FILES: Boolean
+# TESTING: Boolean (true or false)
+# ANDROID_FILES: Boolean (true or false)
+# DOTNET_FILES: Boolean (true or false)
+# HASKELL_FILES: Boolean (true or false)
+# PACKAGES: String (separated by space)
 
 # Validate Variables
-if [ -z "$ANDROID_FILES" ]; then
-    echo "Variable ANDROID_FILES is not set"
-    exit 0
-fi
 if [ -z "$PRINCIPAL_DIR" ]; then
     echo "Variable PRINCIPAL_DIR is not set"
     exit 0
@@ -24,12 +24,33 @@ if [[ $TESTING == "true" ]]; then
     echo "Testing Mode"
     alias rm='echo rm'
 fi
+if [ -z "$ANDROID_FILES" ]; then
+    echo "Variable ANDROID_FILES is not set"
+    exit 0
+fi
+if [ -z "$DOTNET_FILES" ]; then
+    echo "Variable DOTNET_FILES is not set"
+    exit 0
+fi
+if [ -z "$HASKELL_FILES" ]; then
+    echo "Variable HASKELL_FILES is not set"
+    exit 0
+fi
+if [ -z "$PACKAGES" ]; then
+    echo "Variable PACKAGES is not set"
+    exit 0
+fi
+if [[ $PACKAGES != "false" ]]; then
+    if [[ $PACKAGES != *" "* ]]; then
+        echo "Variable PACKAGES is not a list of strings"
+        exit 0
+    fi
+fi
 
 # Global Variables
 TOTAL_FREE_SPACE=0
 
-
-# Verify Common Packages
+# Verify Needed Packages
 
 # Verify BC
 if ! [ -x "$(command -v bc)" ]; then
@@ -102,19 +123,18 @@ function remove_package(){
 }
 
 # Remove Libraries
-remove_android_library_folder
-remove_dot_net_library_folder
-remove_haskell_library_folder
-remove_package "azure-cli"
-remove_package "google-cloud-cli"
-remove_package "microsoft-edge-stable"
-remove_package "firefox"
-remove_package "dotnet-*"
-remove_package "temurin-*"
-remove_package "llvm-*"
-remove_package "mysql-server-core-8.0"
-remove_package "powershell"
-
+if [[ $ANDROID_FILES == "true" ]]; then
+    remove_android_library_folder
+fi
+if [[ $DOTNET_FILES == "true" ]]; then
+    remove_dot_net_library_folder
+fi
+if [[ $HASKELL_FILES == "true" ]]; then
+    remove_haskell_library_folder
+fi
+for PACKAGE in $PACKAGES; do
+    remove_package $PACKAGE
+done
 echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 
 ## -- Testing Zone -- ##

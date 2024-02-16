@@ -1,5 +1,6 @@
 name: "Free Disk Space (Ubuntu)"
 description: "A Simple Action to Free Up Disk Space on GitHub Hosted Runners"
+author: "Enderson Menezes <mail@enderson.dev>"
 
 branding:
   icon: "command"
@@ -10,10 +11,25 @@ inputs:
     description: "Principal Directory Mount Point"
     required: false
     default: "/"
-  android:
-    description: "Remove Android Libraries and Files"
+  remove_android:
+    description: "Remove Android Files"
     required: false
     default: "false"
+  remove_dotnet:
+    description: "Remove .NET Files"
+    required: false
+    default: "false"
+  remove_haskell:
+    description: "Remove Haskell Files"
+    required: false
+    default: "false"
+  remove_packages:
+    description: "Remove Packages (Eg. azure-cli google-cloud-cli) Read the documentation for more information"
+    required: false
+    default: "false"
+  
+  
+
 
 # outputs:
 #   saved-space:
@@ -36,4 +52,7 @@ runs:
       run: main.sh
       env:
         PRINCIPAL_DIR: ${{ inputs.principal_dir }}
-        ANDROID_FILES: ${{ inputs.android }}
+        ANDROID_FILES: ${{ inputs.remove_android }}
+        DOTNET_FILES: ${{ inputs.remove_dotnet }}
+        HASKELL_FILES: ${{ inputs.remove_haskell }}
+        PACKAGES: ${{ inputs.remove_packages }}
