@@ -184,7 +184,7 @@ function main(){
     fi
     echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 }
-
+export -f main
 sh -c main
 
 # Echo
