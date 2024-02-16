@@ -188,3 +188,6 @@ fi
 echo "Total Free Space: ${TOTAL_FREE_SPACE} MB"
 echo "🎉 FreeUP Disk Space Finished"
 df -h
+
+echo "List remaining packages"
+sudo apt list --installed
