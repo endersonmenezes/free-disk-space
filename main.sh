@@ -158,7 +158,7 @@ if [[ $HASKELL_FILES == "true" ]]; then
 fi
 if [[ $PACKAGES != "false" ]]; then
     if [[ $SIMULTANEOUS == "true" ]]; then
-        remove_package $PACKAGES
+        remove_package "$PACKAGES"
     else
         for PACKAGE in $PACKAGES; do
             remove_package $PACKAGE
