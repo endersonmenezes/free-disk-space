@@ -163,7 +163,7 @@ function remove_tool_cache(){
 function remove_swap_storage(){
     echo "🧹 Removing Swap Storage"
     update_and_echo_free_space "before"
-    swapoff -a || true
+    sudo swapoff -a || true
     sudo rm -f "/mnt/swapfile" || true
     update_and_echo_free_space "after"
     echo "-"
@@ -181,6 +181,7 @@ if [[ ${HASKELL_FILES} == "true" ]]; then
 fi
 if [[ ${PACKAGES} != "false" ]]; then
     if [[ ${SIMULTANEOUS} == "true" ]]; then
+        echo "DEBUG Packages: ${PACKAGES}"
         remove_package "${PACKAGES}"
     else
         for PACKAGE in ${PACKAGES}; do
