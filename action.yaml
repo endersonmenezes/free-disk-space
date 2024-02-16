@@ -23,7 +23,6 @@ runs:
       name: "Free Disk Space"
       id: free-disk-space
       run: |
-        chmod +x main.sh
-        sudo /main.sh
+        sudo main.sh
       env:
         ANDROID_FILES: ${{ inputs.android }}
