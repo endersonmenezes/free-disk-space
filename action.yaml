@@ -35,10 +35,6 @@ inputs:
     description: "Remove Packages (Eg. azure-cli google-cloud-cli) Read the documentation for more information"
     required: false
     default: "false"
-  remove_simultaneous:
-    description: "Remove Packages Simultaneously (Eg. azure-cli google-cloud-cli) Read the documentation for more information"
-    required: false
-    default: "false"
   testing:
     description: "Testing (Use to develop locally)"
     required: false
@@ -72,7 +68,6 @@ runs:
         DOTNET_FILES: ${{ inputs.remove_dotnet }}
         HASKELL_FILES: ${{ inputs.remove_haskell }}
         PACKAGES: ${{ inputs.remove_packages }}
-        SIMULTANEOUS: ${{ inputs.remove_simultaneous }}
         TOOL_CACHE: ${{ inputs.remove_tool_cache }}
         SWAP_STORAGE: ${{ inputs.remove_swap }}
         TESTING: ${{ inputs.testing }}

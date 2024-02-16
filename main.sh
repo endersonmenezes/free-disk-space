@@ -14,7 +14,6 @@
 # DOTNET_FILES: Boolean (true or false)
 # HASKELL_FILES: Boolean (true or false)
 # PACKAGES: String (separated by space)
-# SIMULTANEOUS: Boolean (true or false)
 # TOOL_CACHE: Boolean (true or false)
 # SWAP_STORAGE: Boolean (true or false)
 
@@ -54,10 +53,6 @@ if [[ ${PACKAGES} != "false" ]]; then
         echo "Variable PACKAGES is not a list of strings"
         exit 0
     fi
-fi
-if [[ -z "${SIMULTANEOUS}" ]]; then
-    echo "Variable SIMULTANEOUS is not set"
-    exit 0
 fi
 if [[ -z "${TOOL_CACHE}" ]]; then
     echo "Variable TOOL_CACHE is not set"
@@ -180,14 +175,9 @@ if [[ ${HASKELL_FILES} == "true" ]]; then
     remove_haskell_library_folder
 fi
 if [[ ${PACKAGES} != "false" ]]; then
-    if [[ ${SIMULTANEOUS} == "true" ]]; then
-        echo "DEBUG Packages: ${PACKAGES}"
-        remove_package "${PACKAGES}"
-    else
-        for PACKAGE in ${PACKAGES}; do
-            remove_package "${PACKAGE}"
-        done
-    fi
+    for PACKAGE in ${PACKAGES}; do
+        remove_package "${PACKAGE}"
+    done
 fi
 if [[ ${TOOL_CACHE} == "true" ]]; then
     remove_tool_cache
