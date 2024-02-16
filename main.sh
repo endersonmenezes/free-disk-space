@@ -115,7 +115,7 @@ function update_and_echo_free_space(){
 function remove_android_library_folder(){
     echo "🤖 Removing Android Folder"
     update_and_echo_free_space "before"
-    rm -rf /usr/local/lib/android || true
+    sudo rm -rf /usr/local/lib/android || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -123,7 +123,7 @@ function remove_android_library_folder(){
 function remove_dot_net_library_folder(){
     echo "📄 Removing .NET Folder"
     update_and_echo_free_space "before"
-    rm -rf /usr/share/dotnet || true
+    sudo rm -rf /usr/share/dotnet || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -131,8 +131,8 @@ function remove_dot_net_library_folder(){
 function remove_haskell_library_folder(){
     echo "📄 Removing Haskell Folder"
     update_and_echo_free_space "before"
-    rm -rf /opt/ghc || true
-    rm -rf /usr/local/.ghcup || true
+    sudo rm -rf /opt/ghc || true
+    sudo rm -rf /usr/local/.ghcup || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -141,10 +141,10 @@ function remove_package(){
     PACKAGE_NAME=$1
     echo "📦 Removing ${PACKAGE_NAME}"
     update_and_echo_free_space "before"
-    apt-get remove -y "${PACKAGE_NAME}" --fix-missing > /dev/null
-    apt-get autoremove -y > /dev/null
-    apt-get clean > /dev/null
-    apt-get update > /dev/null
+    sudo apt-get remove -y "${PACKAGE_NAME}" --fix-missing > /dev/null
+    sudo apt-get autoremove -y > /dev/null
+    sudo apt-get clean > /dev/null
+    sudo apt-get update > /dev/null
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -152,7 +152,7 @@ function remove_package(){
 function remove_tool_cache(){
     echo "🧹 Removing Tool Cache"
     update_and_echo_free_space "before"
-    rm -rf "${AGENT_TOOLSDIRECTORY}" || true
+    sudo rm -rf "${AGENT_TOOLSDIRECTORY}" || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -161,20 +161,20 @@ function remove_swap_storage(){
     echo "🧹 Removing Swap Storage"
     update_and_echo_free_space "before"
     swapoff -a || true
-    rm -f "/mnt/swapfile" || true
+    sudo rm -f "/mnt/swapfile" || true
     update_and_echo_free_space "after"
     echo "-"
 }
 
 # Remove Libraries
 if [[ ${ANDROID_FILES} == "true" ]]; then
-    sudo remove_android_library_folder
+    remove_android_library_folder
 fi
 if [[ ${DOTNET_FILES} == "true" ]]; then
-    sudo remove_dot_net_library_folder
+    remove_dot_net_library_folder
 fi
 if [[ ${HASKELL_FILES} == "true" ]]; then
-    sudo remove_haskell_library_folder
+    remove_haskell_library_folder
 fi
 if [[ ${PACKAGES} != "false" ]]; then
     if [[ ${SIMULTANEOUS} == "true" ]]; then
@@ -186,10 +186,10 @@ if [[ ${PACKAGES} != "false" ]]; then
     fi
 fi
 if [[ ${TOOL_CACHE} == "true" ]]; then
-    sudo remove_tool_cache
+    remove_tool_cache
 fi
 if [[ ${SWAP_STORAGE} == "true" ]]; then
-    sudo remove_swap_storage
+    remove_swap_storage
 fi
 echo "Total Free Space: ${TOTAL_FREE_SPACE} MB"
 echo "🎉 FreeUP Disk Space Finished"
