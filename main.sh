@@ -31,9 +31,20 @@ function remove_dot_net_library_folder(){
     sudo rm -rf /usr/share/dotnet || true
 }
 
+function remove_haskell_library_folder(){
+    echo "Removing Haskell Folder"
+    sudo rm -rf /opt/ghc || true
+    sudo rm -rf /usr/local/.ghcup || true
+}
+
 verify_free_disk_space
 remove_android_library_folder
+
 verify_free_disk_space
+remove_haskeel_library_folder
+
+verify_free_disk_space
+remove_haskell_library_folder
 
 echo "Verify other folders on /usr/local/lib"
 ls -la /usr/local/lib
@@ -49,3 +60,11 @@ echo "---"
 
 echo "Verify size of /usr/share"
 du -sh /usr/share
+
+echo "Verify other folder on /opt"
+ls -la /opt
+echo "---"
+
+echo "Verify size of /opt"
+du -sh /opt
+
