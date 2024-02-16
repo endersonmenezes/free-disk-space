@@ -116,7 +116,7 @@ function remove_package(){
     PACKAGE_NAME=$1
     echo "📦 Removing $PACKAGE_NAME"
     update_and_echo_free_space "before"
-    sudo dpkg --purge $PACKAGE_NAME > /dev/null
+    sudo apt-get remove -y $PACKAGE_NAME > /dev/null
     sudo apt-get autoremove -y > /dev/null
     update_and_echo_free_space "after"
     echo "-"
