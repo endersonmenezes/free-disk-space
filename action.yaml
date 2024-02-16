@@ -1,0 +1,40 @@
+name: "Free Disk Space (Ubuntu)"
+description: "A Simple Action to Free Up Disk Space on GitHub Hosted Runners"
+
+branding:
+  icon: "command"
+  color: "gray-dark"
+
+inputs:
+  android:
+    description: "Remove Android runtime"
+    required: false
+    default: "true"
+# outputs:
+#   saved-space:
+#     description: "The amount of space saved"
+#     value: ${{ steps.free-disk-space.outputs.saved-space }}
+
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      name: "Verify Disk Space"
+      id: verify-disk-space
+      run: |
+        df -h
+
+    - shell: bash
+      name: "Free Disk Space"
+      id: free-disk-space
+      run: scripts/main.sh
+      env:
+        ANDROID_FILES: ${{ inputs.android }}
+        DOTNET_FILES: ${{ inputs.dotnet }}
+        HASKELL_FILES: ${{ inputs.haskell }}
+
+    - shell: bash
+      name: "Verify After Freeing Disk Space"
+      id: verify-after-free-disk-space
+      run: |
+        df -h

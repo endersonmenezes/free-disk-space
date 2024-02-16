@@ -1,0 +1,15 @@
+name: Free Disk Space (Ubuntu)
+on:
+  - push
+  - workflow_dispatch
+
+jobs:
+  free-disk-space:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free Disk Space
+        uses: action.yaml
+        with:
+          android: true
+          dotnet: true
+          haskell: true
