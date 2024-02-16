@@ -7,7 +7,11 @@ jobs:
   free_disk_space:
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
+        os: [
+          ubuntu-latest, 
+          #ubuntu-22.04, 
+          #ubuntu-20.04
+        ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Free Disk Space
