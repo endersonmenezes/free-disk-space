@@ -19,9 +19,6 @@ runs:
   using: "composite"
   steps:
 
-    - name: checkout
-      uses: actions/checkout@v4
-
     - shell: bash
       name: "Free Disk Space"
       id: free-disk-space
