@@ -20,6 +20,11 @@ if [ -z "$PRINCIPAL_DIR" ]; then
     echo "Variable PRINCIPAL_DIR is not set"
     exit 0
 fi
+# 
+if [[ $TESTING == "true" ]]; then
+    echo "Testing Mode"
+    alias rm='echo rm'
+fi
 
 
 # Verify Common Packages
@@ -33,7 +38,6 @@ fi
 # Functions
 
 function verify_free_disk_space(){
-    echo "Verifying Free Disk Space on $PRINCIPAL_DIR"
     df -B1 $PRINCIPAL_DIR | awk 'NR==2 {print $4}'
 }
 
@@ -42,7 +46,7 @@ function convert_bytes_to_mb(){
 }
 
 function verify_free_space_in_mb(){
-    echo "$(convert_bytes_to_mb $verify_free_disk_space)"
+    convert_bytes_to_mb $(verify_free_disk_space)
 }
 
 function remove_android_library_folder(){
