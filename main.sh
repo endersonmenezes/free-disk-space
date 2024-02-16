@@ -50,42 +50,48 @@ function verify_free_space_in_mb(){
 }
 
 function update_and_echo_free_space(){
-    if [ -z "$BEFORE" ]; then
-        BEFORE=$(verify_free_space_in_mb)
-    elif [ -z "$AFTER" ]; then
-        AFTER=$(verify_free_space_in_mb)
-        CLEAN_SPACE=$(echo "scale=2; $AFTER - $BEFORE" | bc)
-        echo "Free Space: $CLEAN_SPACE MB"
-        unset AFTER
-        BEFORE=$(verify_free_space_in_mb)
+    IS_AFTER_OR_BEFORE=$1
+    if [ "$IS_AFTER_OR_BEFORE" == "before" ]; then
+        SPACE_BEFORE=$(verify_free_space_in_mb)
+        LINUX_TIMESTAMP_BEFORE=$(date +%s)
+    else
+        SPACE_AFTER=$(verify_free_space_in_mb)
+        LINUX_TIMESTAMP_AFTER=$(date +%s)
+        FREEUP_SPACE=$(echo "scale=2; $SPACE_AFTER - $SPACE_BEFORE" | bc)
+        echo "FreeUp Space: $FREEUP_SPACE MB"
+        echo "Time Elapsed: $(($LINUX_TIMESTAMP_AFTER - $LINUX_TIMESTAMP_BEFORE)) seconds"
     fi
 }
 
 function remove_android_library_folder(){
     echo "Removing Android Folder"
+    update_and_echo_free_space "before"
     sudo rm -rf /usr/local/lib/android || true
+    update_and_echo_free_space "after"
 }
 
 function remove_dot_net_library_folder(){
     echo "Removing .NET Folder"
+    update_and_echo_free_space "before"
     sudo rm -rf /usr/share/dotnet || true
+    update_and_echo_free_space "after"
 }
 
 function remove_haskell_library_folder(){
     echo "Removing Haskell Folder"
+    update_and_echo_free_space "before"
     sudo rm -rf /opt/ghc || true
     sudo rm -rf /usr/local/.ghcup || true
+    update_and_echo_free_space "after"
 }
 
-update_and_echo_free_space
+# Remove Libraries
 remove_android_library_folder
-update_and_echo_free_space
-
 remove_dot_net_library_folder
-update_and_echo_free_space
-
 remove_haskell_library_folder
-update_and_echo_free_space
+
+## -- Testing Zone -- ##
+
 # echo "Verify other folders on /usr/local/lib"
 # ls -la /usr/local/lib
 # echo "---"
