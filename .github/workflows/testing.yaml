@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk Space
-        uses: action.yaml
+        uses: ./action.yaml
         with:
           android: true
           dotnet: true
