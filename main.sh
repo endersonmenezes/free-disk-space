@@ -65,7 +65,7 @@ echo "Actual Free Disk: $(verify_free_space_in_mb) MB"
 remove_android_library_folder
 
 echo "Actual Free Disk: $(verify_free_space_in_mb) MB"
-remove_haskeel_library_folder
+remove_dot_net_library_folder
 
 echo "Actual Free Disk: $(verify_free_space_in_mb) MB"
 remove_haskell_library_folder
