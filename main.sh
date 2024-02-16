@@ -132,9 +132,11 @@ fi
 if [[ $HASKELL_FILES == "true" ]]; then
     remove_haskell_library_folder
 fi
-for PACKAGE in $PACKAGES; do
-    remove_package $PACKAGE
-done
+if [[ $PACKAGES != "false" ]]; then
+    for PACKAGE in $PACKAGES; do
+        remove_package $PACKAGE
+    done
+fi
 echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 
 ## -- Testing Zone -- ##
