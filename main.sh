@@ -91,10 +91,11 @@ function remove_haskell_library_folder(){
     echo "-"
 }
 
-function remove_azure_cli_packages(){
-    echo "📦 Removing Azure CLI Packages"
+function remove_package(){
+    PACKAGE_NAME=$1
+    echo "📦 Removing $PACKAGE_NAME"
     update_and_echo_free_space "before"
-    sudo apt-get remove -y azure-cli > /dev/null
+    sudo apt-get remove -y $PACKAGE_NAME > /dev/null
     sudo apt-get autoremove -y > /dev/null
     update_and_echo_free_space "after"
     echo "-"
@@ -104,7 +105,15 @@ function remove_azure_cli_packages(){
 remove_android_library_folder
 remove_dot_net_library_folder
 remove_haskell_library_folder
-remove_azure_cli_packages
+remove_package "azure-cli"
+remove_package "google-cloud-cli"
+remove_package "microsoft-edge-stable"
+remove_package "firefox"
+remove_package "dotnet-*"
+remove_package "temurin-*"
+remove_package "llvm-*"
+remove_package "mysql-server-core-8.0"
+remove_package "powershell"
 
 echo "Total Free Space: $TOTAL_FREE_SPACE MB"
 
