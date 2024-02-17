@@ -22,18 +22,9 @@ jobs:
           remove_haskell: true
           remove_tool_cache: true
           remove_swap: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox aspnetcore* dotnet* temurin-* *llvm* mysql*"
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* dotnet* temurin-* *llvm* mysql*"
           testing: false
 
       - name: Show all packages by size
         run: |
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n > packages-${{ matrix.os }}.txt
-
-      - name: Commit and push packages.txt
-        run: |
-          git config --global user.email "mail@enderson.dev"
-          git config --global user.name "Enderson Menezes BOT"
-          git add packages-${{ matrix.os }}.txt
-          git commit -m "Update packages-${{ matrix.os }}.txt"
-          git push origin HEAD:main
-          
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
