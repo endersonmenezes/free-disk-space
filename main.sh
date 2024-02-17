@@ -175,11 +175,14 @@ function remove_tool_cache(){
 }
 
 function remove_swap_storage(){
+    # eye emoji see swap
+    echo "👁️‍🗨️ See Swap"
+    free -h
     echo "🧹 Removing Swap Storage"
-    update_and_echo_free_space "before"
     sudo swapoff -a || true
     sudo rm -f "/mnt/swapfile" || true
-    update_and_echo_free_space "after"
+    echo "🧹 Removed Swap Storage"
+    free -h
     echo "-"
 }
 
