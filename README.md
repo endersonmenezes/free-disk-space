@@ -26,15 +26,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk Space
-        uses: endersonmenezes/free-disk-space@main
+        uses: endersonmenezes/free-disk-space@v2
         with:
           remove_android: true
           remove_dotnet: true
           remove_haskell: true
           remove_tool_cache: true
           remove_swap: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql*"
-          remove_packages_one_command: ${{ matrix.one_command }}
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
+          remove_packages_one_command: true
+          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
           testing: false
 ```
 
@@ -60,9 +61,18 @@ jobs:
 | package: *llvm* | 2467.68 MB | 14s |
 | package: mysql* | 347.55 MB | 5s |
 | package: dotnet-sdk-* | 3.31 MB | 4s |
+| folder: /usr/share/swift | 1865.47 MB | # |
+| folder: /usr/share/miniconda | 591.45 MB | 7s |
+| folder: /usr/share/az_9.3.0 | 344.33 MB | 1s |
+| folder: /usr/local/lib/node_modules | 1094.13 MB | 22s |
+| folder: /usr/local/share/chromium | 499.62 MB | 0s |
+| folder: /usr/local/share/powershell | 1118.54 MB | 0s |
 
-_The time can vary according to multiple factors this estimed time based on the run: [#96](https://github.com/endersonmenezes/free-disk-space/actions/runs/7941840875/job/21684563626)_
+_The time can vary according to multiple factors this estimed time based on the run: [#104](https://github.com/endersonmenezes/free-disk-space/actions/runs/7942324183)_
 
+_In our action you can see more folders and packages to delete, but is your responsibility to know what you are doing._
+
+_Initially I created this project with the intention of doing all this and then being able to use Docker and Python, our tests will prove this._
 
 ## Local Development
 
