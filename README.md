@@ -54,3 +54,7 @@ bash main.sh
 ```bash
 shellcheck main.sh -o all -e SC2033,SC2032
 ```
+
+## Contributing
+
+If you have any questions, please open an issue.
