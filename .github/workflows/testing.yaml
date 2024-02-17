@@ -52,5 +52,11 @@ jobs:
       - name: Show free disk space
         run: df -h
 
-      - name: Search for more size folders on /
-        run: sudo du -h --max-depth=1 / | sort -h
+      - name: Search on second 
+        run: |
+          FOLDERS=(/etc /opt /home /var /usr)
+          for folder in "${FOLDERS[@]}"; do
+            echo "Folder: $folder"
+            sudo du -h --max-depth=2 $folder | sort -h
+          done
+        
