@@ -23,7 +23,7 @@ jobs:
   
   free_disk_space:
     needs: shellcheck
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.actor == 'endersonmenezes')
+    if: github.event_name == 'push'
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
