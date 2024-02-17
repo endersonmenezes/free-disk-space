@@ -1,4 +1,4 @@
-name: "Free Disk Space (Ubuntu)"
+name: "Free Disk Space - Ubuntu Runners"
 description: "A Simple Action to Free Up Disk Space on GitHub Hosted Runners"
 author: "Enderson Menezes <mail@enderson.dev>"
 
