@@ -47,10 +47,10 @@ export TESTING=true
 bash main.sh
 ```
 
-### Shellcheck
+**Don't forget to export TESTING=true, it make a alias to `rm` command**
+
+## Shellcheck
 
 ```bash
 shellcheck main.sh -o all -e SC2033,SC2032
 ```
-
-**Don't forget to export TESTING=true, it make a alias to rm command**
