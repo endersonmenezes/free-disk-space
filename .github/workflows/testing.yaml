@@ -28,3 +28,6 @@ jobs:
       - name: Show all packages by size
         run: |
           dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+
+      - name: Show free disk space
+        run: df -h
