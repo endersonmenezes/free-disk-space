@@ -142,7 +142,6 @@ function remove_package(){
     sudo apt-get remove -y "${PACKAGE_NAME}" --fix-missing > /dev/null
     sudo apt-get autoremove -y > /dev/null
     sudo apt-get clean > /dev/null
-    sudo apt-get update > /dev/null
     update_and_echo_free_space "after"
     echo "-"
 }
