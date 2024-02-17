@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk Space
-        uses: endersonmenezes/free-disk-space@main
+        uses: endersonmenezes/free-disk-space@v1
         with:
           remove_android: true
           remove_dotnet: true
