@@ -11,7 +11,6 @@ on:
 jobs:
   shellcheck:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,14 +23,14 @@ jobs:
   
   free_disk_space:
     needs: shellcheck
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.actor == 'endersonmenezes')
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
         one_command: [true, false]
-
     runs-on: ${{ matrix.os }}
     steps:
-  
+
       - name: Free Disk Space
         uses: endersonmenezes/free-disk-space@main
         with:
