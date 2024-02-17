@@ -54,9 +54,10 @@ jobs:
 
       - name: Search on second 
         run: |
-          FOLDERS=(/etc /opt /home /var /usr)
+          FOLDERS=(/etc /opt /home /var /usr /usr/share /usr/lib /usr/bin /usr/local/lib /usr/local/bin /usr/local/share)
           for folder in "${FOLDERS[@]}"; do
             echo "Folder: $folder"
             sudo du -h --max-depth=2 $folder | sort -h
+            echo "-"
           done
         
