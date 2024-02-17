@@ -1,23 +1,36 @@
 name: Free Disk Space (Ubuntu)
+
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '*.md'
-  
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install shellcheck -y
+
+      - name: Run ShellCheck
+        run: shellcheck main.sh -o all -e SC2033,SC2032
+  
   free_disk_space:
+    needs: shellcheck
+    if: github.event_name == 'push'
     strategy:
       matrix:
-        os: [
-          ubuntu-latest, 
-          #ubuntu-22.04, 
-          #ubuntu-20.04
-        ]
+        os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
+        one_command: [true, false]
     runs-on: ${{ matrix.os }}
     steps:
+
       - name: Free Disk Space
         uses: endersonmenezes/free-disk-space@main
         with:
@@ -26,7 +39,8 @@ jobs:
           remove_haskell: true
           remove_tool_cache: true
           remove_swap: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* dotnet* temurin-* *llvm* mysql*"
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql*"
+          remove_packages_one_command: ${{ matrix.one_command }}
           testing: false
 
       - name: Show all packages by size
