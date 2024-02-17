@@ -27,7 +27,7 @@ jobs:
       - run: ls
           
       - name: Free Disk Space
-        uses: action.yaml
+        uses: ./action.yaml
         with:
           remove_android: true
           remove_dotnet: true
