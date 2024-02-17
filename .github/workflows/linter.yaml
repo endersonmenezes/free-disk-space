@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '*.md'
+    paths:
+      - main.sh
   pull_request:
     branches:
       - main
