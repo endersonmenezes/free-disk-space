@@ -14,6 +14,7 @@
 # DOTNET_FILES: Boolean (true or false)
 # HASKELL_FILES: Boolean (true or false)
 # PACKAGES: String (separated by space)
+# REMOVE_ONE_COMMAND: Boolean (true or false)
 # TOOL_CACHE: Boolean (true or false)
 # SWAP_STORAGE: Boolean (true or false)
 
@@ -53,6 +54,10 @@ if [[ ${PACKAGES} != "false" ]]; then
         echo "Variable PACKAGES is not a list of strings"
         exit 0
     fi
+fi
+if [[ -z "${REMOVE_ONE_COMMAND}" ]]; then
+    echo "Variable REMOVE_ONE_COMMAND is not set"
+    exit 0
 fi
 if [[ -z "${TOOL_CACHE}" ]]; then
     echo "Variable TOOL_CACHE is not set"
@@ -146,6 +151,22 @@ function remove_package(){
     echo "-"
 }
 
+function remove_multi_packages_one_command(){
+    PACKAGES_TO_REMOVE=$1
+    SET_PACKAGES=(${PACKAGES_TO_REMOVE})
+    MOUNT_COMMAND="sudo apt-get remove -y"
+    for PACKAGE in ${SET_PACKAGES[@]}; do
+        MOUNT_COMMAND="${MOUNT_COMMAND} ${PACKAGE}"
+    done
+    echo "📦 Removing ${PACKAGES_TO_REMOVE}"
+    update_and_echo_free_space "before"
+    ${MOUNT_COMMAND} --fix-missing > /dev/null
+    sudo apt-get autoremove -y > /dev/null
+    sudo apt-get clean > /dev/null
+    update_and_echo_free_space "after"
+    echo "-"
+}
+
 function remove_tool_cache(){
     echo "🧹 Removing Tool Cache"
     update_and_echo_free_space "before"
@@ -174,9 +195,13 @@ if [[ ${HASKELL_FILES} == "true" ]]; then
     remove_haskell_library_folder
 fi
 if [[ ${PACKAGES} != "false" ]]; then
-    for PACKAGE in ${PACKAGES}; do
-        remove_package "${PACKAGE}"
-    done
+    if [[ ${REMOVE_ONE_COMMAND} == "true" ]]; then
+        remove_multi_packages_one_command "${PACKAGES}"
+    else
+        for PACKAGE in ${PACKAGES}; do
+            remove_package "${PACKAGE}"
+        done
+    fi
 fi
 if [[ ${TOOL_CACHE} == "true" ]]; then
     remove_tool_cache

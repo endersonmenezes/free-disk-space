@@ -27,6 +27,7 @@ jobs:
           remove_tool_cache: true
           remove_swap: true
           remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* dotnet* temurin-* *llvm* mysql*"
+          remove_packages_one_command: true
           testing: false
 
       - name: Show all packages by size
