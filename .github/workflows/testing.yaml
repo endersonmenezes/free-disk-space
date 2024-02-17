@@ -1,16 +1,13 @@
 name: Free Disk Space (Ubuntu)
+
 on:
-  push:
-    branches:
+  workflow_run:
+    workflows: [ShellCheck]
+    types: [completed]
+    branches: 
       - main
-    paths-ignore:
-      - '*.md'
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - '*.md'
-  
+      - feat/*
+      - fix/*
 
 jobs:
   free_disk_space:
