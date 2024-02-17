@@ -2,6 +2,7 @@
 
 ![GitHub License](https://img.shields.io/github/license/endersonmenezes/free-disk-space?label=Project%20License)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/endersonmenezes/free-disk-space/linter.yaml?label=Linter%20CI)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/endersonmenezes/free-disk-space/testing.yaml?branch=v1&label=Build%20V1)
 
 
 ## Inspiration
