@@ -32,8 +32,7 @@ jobs:
           remove_haskell: true
           remove_tool_cache: true
           remove_swap: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox ^aspnetcore-.* ^dotnet-.* temurin-* ^llvm-.* ^mysql-.* ^llvm-.* "
-          remove_simultaneous: true
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox aspnetcore* dotnet* temurin-* *llvm* mysql*"
           testing: false
 ```
 
