@@ -26,14 +26,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk Space
-        uses: endersonmenezes/free-disk-space@v1
+        uses: endersonmenezes/free-disk-space@main
         with:
           remove_android: true
           remove_dotnet: true
           remove_haskell: true
           remove_tool_cache: true
           remove_swap: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* dotnet* temurin-* *llvm* mysql*"
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql*"
+          remove_packages_one_command: ${{ matrix.one_command }}
           testing: false
 ```
 
