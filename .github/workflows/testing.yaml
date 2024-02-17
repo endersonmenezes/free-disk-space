@@ -18,9 +18,12 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
   
       - name: Free Disk Space
-        uses: ./
+        uses: .
         with:
           remove_android: true
           remove_dotnet: true
