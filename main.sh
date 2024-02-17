@@ -153,9 +153,9 @@ function remove_package(){
 
 function remove_multi_packages_one_command(){
     PACKAGES_TO_REMOVE=$1
-    SET_PACKAGES=(${PACKAGES_TO_REMOVE})
+    SET_PACKAGES=$(read -a PACKAGES <<< "${PACKAGES_TO_REMOVE}")
     MOUNT_COMMAND="sudo apt-get remove -y"
-    for PACKAGE in ${SET_PACKAGES[@]}; do
+    for PACKAGE in "${SET_PACKAGES[@]}"; do
         MOUNT_COMMAND="${MOUNT_COMMAND} ${PACKAGE}"
     done
     echo "📦 Removing ${PACKAGES_TO_REMOVE}"
