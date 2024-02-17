@@ -23,7 +23,6 @@ jobs:
         run: shellcheck main.sh -o all -e SC2033,SC2032
   
   free_disk_space:
-    if: ${{ needs.shellcheck.result == 'success' }}
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
