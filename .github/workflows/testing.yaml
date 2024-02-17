@@ -43,6 +43,7 @@ jobs:
           remove_swap: true
           remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
           remove_packages_one_command: ${{ matrix.one_command }}
+          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
           testing: false
 
       - name: Show all packages by size
@@ -52,7 +53,7 @@ jobs:
       - name: Show free disk space
         run: df -h
 
-      - name: Search on second 
+      - name: Search more files
         run: |
           FOLDERS=(/etc /opt /home /var /usr /usr/share /usr/lib /usr/bin /usr/local/lib /usr/local/bin /usr/local/share)
           for folder in "${FOLDERS[@]}"; do

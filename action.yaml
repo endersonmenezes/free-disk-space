@@ -39,13 +39,14 @@ inputs:
     description: "Remove Packages (Eg. azure-cli google-cloud-cli) in one command"
     required: false
     default: "false"
+  remove_folders:
+    description: "Remove Folders (Eg. /usr/share/dotnet)"
+    required: false
+    default: "false"
   testing:
     description: "Testing (Use to develop locally)"
     required: false
     default: "false"
-  
-  
-
 
 # outputs:
 #   saved-space:
@@ -71,8 +72,9 @@ runs:
         ANDROID_FILES: ${{ inputs.remove_android }}
         DOTNET_FILES: ${{ inputs.remove_dotnet }}
         HASKELL_FILES: ${{ inputs.remove_haskell }}
-        PACKAGES: ${{ inputs.remove_packages }}
-        REMOVE_ONE_COMMAND: ${{ inputs.remove_packages_one_command }}
         TOOL_CACHE: ${{ inputs.remove_tool_cache }}
         SWAP_STORAGE: ${{ inputs.remove_swap }}
+        PACKAGES: ${{ inputs.remove_packages }}
+        REMOVE_ONE_COMMAND: ${{ inputs.remove_packages_one_command }}
+        REMOVE_FOLDERS: ${{ inputs.remove_folders }}
         TESTING: ${{ inputs.testing }}

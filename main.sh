@@ -13,10 +13,11 @@
 # ANDROID_FILES: Boolean (true or false)
 # DOTNET_FILES: Boolean (true or false)
 # HASKELL_FILES: Boolean (true or false)
-# PACKAGES: String (separated by space)
-# REMOVE_ONE_COMMAND: Boolean (true or false)
 # TOOL_CACHE: Boolean (true or false)
 # SWAP_STORAGE: Boolean (true or false)
+# PACKAGES: String (separated by space)
+# REMOVE_ONE_COMMAND: Boolean (true or false)
+# REMOVE_FOLDERS: String (separated by space)
 
 # Environment Variables
 # AGENT_TOOLSDIRECTORY: String
@@ -45,6 +46,14 @@ if [[ -z "${HASKELL_FILES}" ]]; then
     echo "Variable HASKELL_FILES is not set"
     exit 0
 fi
+if [[ -z "${TOOL_CACHE}" ]]; then
+    echo "Variable TOOL_CACHE is not set"
+    exit 0
+fi
+if [[ -z "${SWAP_STORAGE}" ]]; then
+    echo "Variable SWAP_STORAGE is not set"
+    exit 0
+fi
 if [[ -z "${PACKAGES}" ]]; then
     echo "Variable PACKAGES is not set"
     exit 0
@@ -59,12 +68,8 @@ if [[ -z "${REMOVE_ONE_COMMAND}" ]]; then
     echo "Variable REMOVE_ONE_COMMAND is not set"
     exit 0
 fi
-if [[ -z "${TOOL_CACHE}" ]]; then
-    echo "Variable TOOL_CACHE is not set"
-    exit 0
-fi
-if [[ -z "${SWAP_STORAGE}" ]]; then
-    echo "Variable SWAP_STORAGE is not set"
+if [[ -z "${REMOVE_FOLDERS}" ]]; then
+    echo "Variable REMOVE_FOLDERS is not set"
     exit 0
 fi
 if [[ -z "${AGENT_TOOLSDIRECTORY}" ]]; then
@@ -186,6 +191,14 @@ function remove_swap_storage(){
     echo "-"
 }
 
+function remove_folder(){
+    FOLDER=$1
+    echo "📁 Removing ${FOLDER}"
+    update_and_echo_free_space "before"
+    sudo rm -rf "${FOLDER}" || true
+    update_and_echo_free_space "after"
+}
+
 # Remove Libraries
 if [[ ${ANDROID_FILES} == "true" ]]; then
     remove_android_library_folder
@@ -210,5 +223,10 @@ if [[ ${TOOL_CACHE} == "true" ]]; then
 fi
 if [[ ${SWAP_STORAGE} == "true" ]]; then
     remove_swap_storage
+fi
+if [[ ${REMOVE_FOLDERS} != "false" ]]; then
+    for FOLDER in ${REMOVE_FOLDERS}; do
+        remove_folder "${FOLDER}"
+    done
 fi
 echo "Total Free Space: ${TOTAL_FREE_SPACE} MB"
