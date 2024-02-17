@@ -31,9 +31,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-
-      - name: Checkout
-        uses: actions/checkout@v4
   
       - name: Free Disk Space
         uses: endersonmenezes/free-disk-space@main
