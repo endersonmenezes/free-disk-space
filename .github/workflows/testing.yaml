@@ -24,7 +24,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - run: ls
+      - run: |
+          pwd
+          ls
+
           
       - name: Free Disk Space
         uses: ./action.yaml
