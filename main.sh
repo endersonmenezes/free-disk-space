@@ -48,7 +48,7 @@ if [[ -z "${PACKAGES}" ]]; then
     echo "Variable PACKAGES is not set"
     exit 0
 fi
-if [[ ${PACKAGES} != "false" ]]; then
+if [[ $PACKAGES != "false" ]]; then
     if [[ ${PACKAGES} != *" "* ]]; then
         echo "Variable PACKAGES is not a list of strings"
         exit 0
