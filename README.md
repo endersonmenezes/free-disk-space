@@ -59,6 +59,7 @@ jobs:
 | package: temurin-* | 989.17 MB | 11s |
 | package: *llvm* | 2467.68 MB | 14s |
 | package: mysql* | 347.55 MB | 5s |
+| package: dotnet-sdk-* | 3.31 MB | 4s |
 
 _The time can vary according to multiple factors this estimed time based on the run: [#96](https://github.com/endersonmenezes/free-disk-space/actions/runs/7941840875/job/21684563626)_
 
