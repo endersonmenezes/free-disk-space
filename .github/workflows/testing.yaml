@@ -23,15 +23,9 @@ jobs:
         ]
     runs-on: ${{ matrix.os }}
     steps:
-
-      - name: Set GitHub Path
-        run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
-        shell: bash
-        env:
-          GITHUB_ACTION_PATH: ${{ github.action_path }}
           
       - name: Free Disk Space
-        uses: ./action.yaml
+        uses: endersonmenezes/free-disk-space@feat/one-command-to-remove
         with:
           remove_android: true
           remove_dotnet: true
