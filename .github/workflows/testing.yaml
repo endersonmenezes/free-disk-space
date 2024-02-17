@@ -51,3 +51,6 @@ jobs:
 
       - name: Show free disk space
         run: df -h
+
+      - name: Search for more size folders on /
+        run: sudo du -h --max-depth=1 / | sort -h
