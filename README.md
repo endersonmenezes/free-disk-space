@@ -1,6 +1,7 @@
 # Free Disk Space - Action
 
 ![GitHub License](https://img.shields.io/github/license/endersonmenezes/free-disk-space)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/endersonmenezes/free-disk-space/linter.yaml)
 
 
 ## Inspiration
