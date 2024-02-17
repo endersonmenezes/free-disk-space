@@ -23,8 +23,20 @@ jobs:
         ]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Verify is PR or Push to export VAR_BRANCH
+        run: |
+          if [ -z "$GITHUB_HEAD_REF" ]; then
+            echo "This is a push"
+            
+          else
+            echo "This is a pull request"
+            # uses @branch
+            VAR_BRANCH=$(echo $GITHUB_HEAD_REF)
+          fi
+          
       - name: Free Disk Space
         uses: endersonmenezes/free-disk-space@main
+        if: ${{ github.event_name == 'push' }}
         with:
           remove_android: true
           remove_dotnet: true
@@ -34,6 +46,20 @@ jobs:
           remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* dotnet* temurin-* *llvm* mysql*"
           remove_packages_one_command: true
           testing: false
+
+      - name: PR Free Disk Space
+        uses: endersonmenezes/pr-free-disk-space@${{ github.branch }}
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          remove_android: true
+          remove_dotnet: true
+          remove_haskell: true
+          remove_tool_cache: true
+          remove_swap: true
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* dotnet* temurin-* *llvm* mysql*"
+          remove_packages_one_command: true
+          testing: false
+        
 
       - name: Show all packages by size
         run: |
