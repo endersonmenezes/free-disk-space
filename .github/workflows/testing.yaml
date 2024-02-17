@@ -15,17 +15,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04]
         one_command: [true, false]
+
     runs-on: ${{ matrix.os }}
     steps:
-
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - run: |
-          pwd
-          ls
-
-          
+  
       - name: Free Disk Space
         uses: .
         with:
