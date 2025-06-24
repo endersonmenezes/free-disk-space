@@ -29,7 +29,7 @@ jobs:
   
   free_disk_space:
     needs: shellcheck
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04]
