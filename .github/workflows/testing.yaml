@@ -216,9 +216,9 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          # Quick test for PR validation
+          # Quick test for PR validation - .NET
           - os: ubuntu-latest
-            test_name: "quick_validation"
+            test_name: "quick_dotnet"
             principal_dir: "/"
             remove_android: false
             remove_dotnet: true
@@ -227,6 +227,45 @@ jobs:
             remove_swap: false
             remove_packages: "false"
             remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Quick test for PR validation - Android
+          - os: ubuntu-latest
+            test_name: "quick_android"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Quick test for PR validation - Haskell
+          - os: ubuntu-latest
+            test_name: "quick_haskell"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: true
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test specific packages removal
+          - os: ubuntu-latest
+            test_name: "quick_packages"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "azure-cli google-cloud-cli firefox"
+            remove_packages_one_command: true
             remove_folders: "false"
             
           # Test with testing mode enabled
@@ -248,6 +287,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check initial disk space and installed content
+        run: |
+          echo "=== INITIAL DISK SPACE ==="
+          df -h
+          echo ""
+          echo "=== CHECKING FOR .NET CONTENT ==="
+          find /usr/share -name "*dotnet*" -type d 2>/dev/null || echo "No .NET directories found in /usr/share"
+          dpkg -l | grep -i dotnet || echo "No .NET packages found"
+          echo ""
+          echo "=== CHECKING FOR ANDROID CONTENT ==="
+          find /usr/local -name "*android*" -type d 2>/dev/null || echo "No Android directories found in /usr/local"
+          find /opt -name "*android*" -type d 2>/dev/null || echo "No Android directories found in /opt"
+          echo ""
+          echo "=== CHECKING FOR HASKELL CONTENT ==="
+          find /opt -name "*ghc*" -type d 2>/dev/null || echo "No Haskell GHC directories found"
+          dpkg -l | grep -i haskell || echo "No Haskell packages found"
+          echo ""
+          echo "=== CHECKING FOR PACKAGES ==="
+          dpkg -l | grep -E "(azure-cli|google-cloud-cli|firefox)" || echo "Target packages not found"
+
+      - name: Free Disk Space (with timing)
+        run: |
+          start_time=$(date +%s)
+          echo "Starting cleanup at $(date)"
+        shell: bash
+
       - name: Free Disk Space
         uses: ./
         with:
@@ -262,6 +327,46 @@ jobs:
           remove_folders: ${{ matrix.remove_folders }}
           testing: ${{ matrix.testing || false }}
 
-      - name: Show free disk space
-        run: df -h
+      - name: Check cleanup results and timing
+        run: |
+          echo "Cleanup completed at $(date)"
+          echo ""
+          echo "=== FINAL DISK SPACE ==="
+          df -h
+          echo ""
+          echo "=== CHECKING WHAT WAS REMOVED ==="
+          
+          if [ "${{ matrix.remove_dotnet }}" = "true" ]; then
+            echo "Checking for remaining .NET content:"
+            find /usr/share -name "*dotnet*" -type d 2>/dev/null || echo "✅ No .NET directories found (removed successfully)"
+            dpkg -l | grep -i dotnet || echo "✅ No .NET packages found (removed successfully)"
+          fi
+          
+          if [ "${{ matrix.remove_android }}" = "true" ]; then
+            echo "Checking for remaining Android content:"
+            find /usr/local -name "*android*" -type d 2>/dev/null || echo "✅ No Android directories found (removed successfully)"
+            find /opt -name "*android*" -type d 2>/dev/null || echo "✅ No Android directories found (removed successfully)"
+          fi
+          
+          if [ "${{ matrix.remove_haskell }}" = "true" ]; then
+            echo "Checking for remaining Haskell content:"
+            find /opt -name "*ghc*" -type d 2>/dev/null || echo "✅ No Haskell GHC directories found (removed successfully)"
+            dpkg -l | grep -i haskell || echo "✅ No Haskell packages found (removed successfully)"
+          fi
+          
+          if [ "${{ matrix.remove_packages }}" != "false" ] && [ "${{ matrix.remove_packages }}" != "" ]; then
+            echo "Checking for remaining target packages:"
+            dpkg -l | grep -E "(azure-cli|google-cloud-cli|firefox)" || echo "✅ Target packages removed successfully"
+          fi
+
+      - name: Show disk usage by major directories
+        run: |
+          echo "=== DISK USAGE BY MAJOR DIRECTORIES ==="
+          for dir in /usr /opt /var /home; do
+            if [ -d "$dir" ]; then
+              echo "Directory: $dir"
+              sudo du -sh "$dir" 2>/dev/null || echo "Cannot access $dir"
+              echo ""
+            fi
+          done
         
