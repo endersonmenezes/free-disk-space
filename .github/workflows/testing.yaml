@@ -220,8 +220,8 @@ jobs:
           - os: ubuntu-latest
             test_name: "quick_validation"
             principal_dir: "/"
-            remove_android: true
-            remove_dotnet: false
+            remove_android: false
+            remove_dotnet: true
             remove_haskell: false
             remove_tool_cache: false
             remove_swap: false
