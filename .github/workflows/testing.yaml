@@ -9,6 +9,10 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+  schedule:
+    # Runs every 15 days at 02:00 UTC
+    - cron: '0 2 */15 * *'
 
 jobs:
   shellcheck:
