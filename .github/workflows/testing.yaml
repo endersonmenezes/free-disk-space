@@ -32,7 +32,7 @@ jobs:
     if: github.event_name == 'push'
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-20.04]
+        os: [ubuntu-22.04, ubuntu-24.04]
         one_command: [true, false]
     runs-on: ${{ matrix.os }}
     steps:
