@@ -41,38 +41,45 @@ jobs:
 
 ## Size Savings
 
-`Updated at: 17/02/2024`
+`Updated at: 01/08/2025`
 
 | Option | Estimated Size | Time (For some cases) |
 | ------ | -------------- | ---- |
-| remove_android | 9036.34 MB | 64s~79s |
-| remove_dotnet | 1583.80 MB | 1s-2s |
-| remove_haskell | 5384.87 MB | 3s-5s |
-| remove_tool_cache | 9009.73 MB | 4s-6s |
+| remove_android | 9543.16 MB | 52s |
+| remove_dotnet | 32.32 MB MB | 4s |
+| remove_haskell | 6460.36 MB | 2s-3s |
+| remove_tool_cache | 4844.27 MB | 17s |
 | remove_swap | # | # |
-| remove_packages_one_command (Example Provided) | 6846.01 MB | 101s |
-| package: azure-cli | 857.67 MB | 27s |
-| package: google-cloud-cli | 1002.64 MB | 77s |
-| package: microsoft-edge-stable | 553.15 MB | 4s |
-| package: google-chrome-stable | 324.53 MB | 4s |
-| package: firefox | 240.50 MB | 5s |
-| package: postgresql* | 61.51 MB | 7s |
-| package: temurin-* | 989.17 MB | 11s |
-| package: *llvm* | 2467.68 MB | 14s |
-| package: mysql* | 347.55 MB | 5s |
-| package: dotnet-sdk-* | 3.31 MB | 4s |
-| folder: /usr/share/swift | 1865.47 MB | # |
-| folder: /usr/share/miniconda | 591.45 MB | 7s |
-| folder: /usr/share/az_9.3.0 | 344.33 MB | 1s |
-| folder: /usr/local/lib/node_modules | 1094.13 MB | 22s |
-| folder: /usr/local/share/chromium | 499.62 MB | 0s |
-| folder: /usr/local/share/powershell | 1118.54 MB | 0s |
+| remove_packages_one_command (Example Provided) | 7495.33 MB | 94s |
+| folder: /usr/share/swift | 2773.80 MB | # |
+| folder: /usr/share/miniconda | 736.06 MB | 9s |
+| folder: /usr/share/az | 495.38 MB | 1s |
+| folder: /usr/local/lib/node_modules | 463.80 MB | 10s |
+| folder: /usr/local/share/chromium | 592.81 MB | 0s |
+| folder: /usr/local/share/powershell | 1244.12 MB | 0s |
+| folder: /usr/local/aws-cli | 248.41 MB | 1s |
+| folder: /usr/local/aws-sam-cli | 189.50 MB | 1s |
 
-_The time can vary according to multiple factors this estimed time based on the run: [#104](https://github.com/endersonmenezes/free-disk-space/actions/runs/7942324183)_
+_The time can vary according to multiple factors this estimed time based on the run: [#134](https://github.com/endersonmenezes/free-disk-space/actions/runs/16681335178/job/47220484686)_
 
 _In our action you can see more folders and packages to delete, but is your responsibility to know what you are doing._
 
 _Initially I created this project with the intention of doing all this and then being able to use Docker and Python, our tests will prove this._
+
+### Disk After
+
+```text
+Run df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root        72G   11G   62G  15% /
+tmpfs           7.9G   84K  7.9G   1% /dev/shm
+tmpfs           3.2G  1.1M  3.2G   1% /run
+tmpfs           5.0M     0  5.0M   0% /run/lock
+/dev/sda16      881M   60M  760M   8% /boot
+/dev/sda15      105M  6.2M   99M   6% /boot/efi
+/dev/sdb1        74G   28K   70G   1% /mnt
+tmpfs           1.6G   12K  1.6G   1% /run/user/1001
+```
 
 ## Local Development
 
