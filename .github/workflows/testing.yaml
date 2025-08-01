@@ -35,7 +35,7 @@ jobs:
     needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     strategy:
-      max-parallel: 2
+      max-parallel: 10
       matrix:
         include:
           # Basic usage test
@@ -167,6 +167,7 @@ jobs:
             remove_packages: ""
             remove_packages_one_command: true
             remove_folders: "false"
+  
     runs-on: ${{ matrix.os }}
     name: Test ${{ matrix.test_name }} on ${{ matrix.os }}
     steps:
@@ -213,7 +214,7 @@ jobs:
     needs: shellcheck
     if: github.event_name == 'pull_request'
     strategy:
-      max-parallel: 1
+      max-parallel: 10
       matrix:
         include:
           # Quick test for PR validation - .NET
@@ -281,6 +282,21 @@ jobs:
             remove_packages_one_command: false
             remove_folders: "false"
             testing: true
+
+          # Large removal test
+          - os: ubuntu-latest
+            test_name: "large_removal"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: true
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            testing: true
+
     runs-on: ${{ matrix.os }}
     name: Quick test ${{ matrix.test_name }} on ${{ matrix.os }}
     steps:
