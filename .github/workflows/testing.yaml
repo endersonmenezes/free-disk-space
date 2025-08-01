@@ -382,8 +382,11 @@ jobs:
           for dir in /usr /opt /var /home; do
             if [ -d "$dir" ]; then
               echo "Directory: $dir"
+              echo "Total size:"
               sudo du -sh "$dir" 2>/dev/null || echo "Cannot access $dir"
-              echo ""
+              echo "Breakdown (2 levels deep):"
+              sudo du -h --max-depth=2 "$dir" 2>/dev/null | sort -hr | head -20 || echo "Cannot access subdirectories of $dir"
+              echo "----------------------------------------"
             fi
           done
         
