@@ -20,6 +20,7 @@ concurrency:
 
 jobs:
   shellcheck:
+    name: "Bashscript Linter"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
