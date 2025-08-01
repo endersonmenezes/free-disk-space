@@ -131,7 +131,7 @@ function remove_android_library_folder(){
     sudo rm -rf /home/runner/Android || true
     
     # Remove Android packages if they exist
-    ANDROID_PACKAGES=$(dpkg -l | grep -E "^ii.*(android|adb)" | awk '{print $2}' | tr '\n' ' ')
+    ANDROID_PACKAGES=$(dpkg -l | grep -E "^ii.*(android|adb)" | awk '{print $2}' | tr '\n' ' ' || true)
     if [[ -n "${ANDROID_PACKAGES}" ]]; then
         echo "Removing Android packages: ${ANDROID_PACKAGES}"
         sudo apt-get remove -y "${ANDROID_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
@@ -154,7 +154,7 @@ function remove_dot_net_library_folder(){
     sudo rm -rf /usr/share/doc/dotnet-* || true
     
     # Remove .NET packages if they exist
-    DOTNET_PACKAGES=$(dpkg -l | grep -E "^ii.*dotnet" | awk '{print $2}' | tr '\n' ' ')
+    DOTNET_PACKAGES=$(dpkg -l | grep -E "^ii.*dotnet" | awk '{print $2}' | tr '\n' ' ' || true)
     if [[ -n "${DOTNET_PACKAGES}" ]]; then
         echo "Removing .NET packages: ${DOTNET_PACKAGES}"
         sudo apt-get remove -y "${DOTNET_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
@@ -178,7 +178,7 @@ function remove_haskell_library_folder(){
     sudo rm -rf /home/runner/.cabal || true
     
     # Remove Haskell packages if they exist
-    HASKELL_PACKAGES=$(dpkg -l | grep -E "^ii.*(ghc|haskell|cabal)" | awk '{print $2}' | tr '\n' ' ')
+    HASKELL_PACKAGES=$(dpkg -l | grep -E "^ii.*(ghc|haskell|cabal)" | awk '{print $2}' | tr '\n' ' ' || true)
     if [[ -n "${HASKELL_PACKAGES}" ]]; then
         echo "Removing Haskell packages: ${HASKELL_PACKAGES}"
         sudo apt-get remove -y "${HASKELL_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
