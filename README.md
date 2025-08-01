@@ -95,3 +95,7 @@ shellcheck main.sh -o all -e SC2033,SC2032
 ## Contributing
 
 If you have any questions, please open an issue.
+
+## Acknowledgements
+
+This project, despite being on my personal profile purely formally, is part of an NGO we have in Brazil, responsible for helping young people and adults learn to program and tackle real-world projects. Learn more at [codaqui.dev](https://codaqui.dev).
