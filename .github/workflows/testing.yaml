@@ -400,7 +400,7 @@ jobs:
           done
 
           echo "=== View installed packages and their sizes ==="
-          apt list --installed 2>/dev/null | awk -F'[/]' '{print $1}' | xargs -I{} sh -c 'dpkg-query -Wf "${Installed-Size}\t${Package}\n" | sort -nr | head -50'
+          dpkg-query -Wf '${Status}\t${Installed-Size}\t${Package}\n' | grep "^install ok installed" | awk '{print $4"\t"$5}' | sort -nr | head -50
 
           echo "=== Files in /usr/bin folder ==="
           ls -lh /usr/bin 2>/dev/null | awk 'NF > 1 && $9 != "" {print $9 " - " $5}' | head -20 || echo "Cannot access /usr/bin"
