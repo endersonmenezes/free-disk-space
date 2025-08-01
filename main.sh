@@ -123,7 +123,22 @@ function update_and_echo_free_space(){
 function remove_android_library_folder(){
     echo "🤖 Removing Android Folder"
     update_and_echo_free_space "before"
+    
+    # Remove Android SDK directories (common locations)
     sudo rm -rf /usr/local/lib/android || true
+    sudo rm -rf /opt/android || true
+    sudo rm -rf /usr/local/android-sdk || true
+    sudo rm -rf /home/runner/Android || true
+    
+    # Remove Android packages if they exist
+    ANDROID_PACKAGES=$(dpkg -l | grep -E "^ii.*(android|adb)" | awk '{print $2}' | tr '\n' ' ' || true)
+    if [[ -n "${ANDROID_PACKAGES}" ]]; then
+        echo "Removing Android packages: ${ANDROID_PACKAGES}"
+        sudo apt-get remove -y "${ANDROID_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
+        sudo apt-get autoremove -y > /dev/null 2>&1 || true
+        sudo apt-get clean > /dev/null 2>&1 || true
+    fi
+    
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -131,7 +146,22 @@ function remove_android_library_folder(){
 function remove_dot_net_library_folder(){
     echo "📄 Removing .NET Folder"
     update_and_echo_free_space "before"
+    
+    # Remove .NET installation directories
     sudo rm -rf /usr/share/dotnet || true
+    
+    # Remove .NET documentation directories
+    sudo rm -rf /usr/share/doc/dotnet-* || true
+    
+    # Remove .NET packages if they exist
+    DOTNET_PACKAGES=$(dpkg -l | grep -E "^ii.*dotnet" | awk '{print $2}' | tr '\n' ' ' || true)
+    if [[ -n "${DOTNET_PACKAGES}" ]]; then
+        echo "Removing .NET packages: ${DOTNET_PACKAGES}"
+        sudo apt-get remove -y "${DOTNET_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
+        sudo apt-get autoremove -y > /dev/null 2>&1 || true
+        sudo apt-get clean > /dev/null 2>&1 || true
+    fi
+    
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -139,8 +169,23 @@ function remove_dot_net_library_folder(){
 function remove_haskell_library_folder(){
     echo "📄 Removing Haskell Folder"
     update_and_echo_free_space "before"
+    
+    # Remove Haskell directories
     sudo rm -rf /opt/ghc || true
     sudo rm -rf /usr/local/.ghcup || true
+    sudo rm -rf /opt/cabal || true
+    sudo rm -rf /home/runner/.ghcup || true
+    sudo rm -rf /home/runner/.cabal || true
+    
+    # Remove Haskell packages if they exist
+    HASKELL_PACKAGES=$(dpkg -l | grep -E "^ii.*(ghc|haskell|cabal)" | awk '{print $2}' | tr '\n' ' ' || true)
+    if [[ -n "${HASKELL_PACKAGES}" ]]; then
+        echo "Removing Haskell packages: ${HASKELL_PACKAGES}"
+        sudo apt-get remove -y "${HASKELL_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
+        sudo apt-get autoremove -y > /dev/null 2>&1 || true
+        sudo apt-get clean > /dev/null 2>&1 || true
+    fi
+    
     update_and_echo_free_space "after"
     echo "-"
 }

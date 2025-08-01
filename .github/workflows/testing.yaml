@@ -14,8 +14,13 @@ on:
     # Runs every 15 days at 02:00 UTC
     - cron: '0 2 */15 * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   shellcheck:
+    name: "Bashscript Linter"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -31,23 +36,171 @@ jobs:
     needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     strategy:
+      max-parallel: 10
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04]
-        one_command: [true, false]
+        include:
+          # Basic usage test
+          - os: ubuntu-latest
+            test_name: "basic"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Full cleanup test
+          - os: ubuntu-latest
+            test_name: "full"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: true
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox"
+            remove_packages_one_command: true
+            remove_folders: "/usr/share/swift /usr/share/miniconda"
+            
+          # Package removal test (one command)
+          - os: ubuntu-latest
+            test_name: "packages_one_command"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
+            remove_packages_one_command: true
+            remove_folders: "false"
+            
+          # Package removal test (individual commands)
+          - os: ubuntu-latest
+            test_name: "packages_individual"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "postgresql* temurin-* *llvm*"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Folders removal test
+          - os: ubuntu-latest
+            test_name: "folders"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "/usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
+            
+          # Tool cache and swap test
+          - os: ubuntu-latest
+            test_name: "tool_cache_swap"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test with custom principal directory
+          - os: ubuntu-latest
+            test_name: "custom_principal_dir"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test Haskell removal specifically
+          - os: ubuntu-latest
+            test_name: "haskell_only"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: true
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test mixed packages and folders
+          - os: ubuntu-latest
+            test_name: "mixed_packages_folders"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: true
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "azure-cli google-cloud-cli"
+            remove_packages_one_command: false
+            remove_folders: "/usr/share/swift"
+            
+          # Test edge case - empty packages string
+          - os: ubuntu-latest
+            test_name: "empty_packages"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: ""
+            remove_packages_one_command: true
+            remove_folders: "false"
+
+          # Large removal
+          - os: ubuntu-latest
+            test_name: "large_removal"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: true
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-* julia*"
+            remove_packages_one_command: true
+            remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
+            testing: "false"
+
     runs-on: ${{ matrix.os }}
+    name: Test ${{ matrix.test_name }} on ${{ matrix.os }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Free Disk Space
         uses: endersonmenezes/free-disk-space@main
         with:
-          remove_android: true
-          remove_dotnet: true
-          remove_haskell: true
-          remove_tool_cache: true
-          remove_swap: true
-          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
-          remove_packages_one_command: ${{ matrix.one_command }}
-          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
+          principal_dir: ${{ matrix.principal_dir }}
+          remove_android: ${{ matrix.remove_android }}
+          remove_dotnet: ${{ matrix.remove_dotnet }}
+          remove_haskell: ${{ matrix.remove_haskell }}
+          remove_tool_cache: ${{ matrix.remove_tool_cache }}
+          remove_swap: ${{ matrix.remove_swap }}
+          remove_packages: ${{ matrix.remove_packages }}
+          remove_packages_one_command: ${{ matrix.remove_packages_one_command }}
+          remove_folders: ${{ matrix.remove_folders }}
           testing: false
 
       - name: Show all packages by size
@@ -71,4 +224,200 @@ jobs:
 
       - name: Run Python Hello World
         run: python -c "print('Hello, World!')"
-        
+
+  quick_tests:
+    needs: shellcheck
+    if: github.event_name == 'pull_request'
+    strategy:
+      max-parallel: 10
+      matrix:
+        include:
+          # Quick test for PR validation - .NET
+          - os: ubuntu-latest
+            test_name: "quick_dotnet"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: true
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Quick test for PR validation - Android
+          - os: ubuntu-latest
+            test_name: "quick_android"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Quick test for PR validation - Haskell
+          - os: ubuntu-latest
+            test_name: "quick_haskell"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: true
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test specific packages removal
+          - os: ubuntu-latest
+            test_name: "quick_packages"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "azure-cli google-cloud-cli firefox"
+            remove_packages_one_command: true
+            remove_folders: "false"
+            
+          # Test with testing mode enabled
+          - os: ubuntu-latest
+            test_name: "testing_mode"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            testing: true
+
+          # Large removal test
+          - os: ubuntu-latest
+            test_name: "large_removal"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: true
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-* julia*"
+            remove_packages_one_command: false
+            remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
+            testing: true
+
+    runs-on: ${{ matrix.os }}
+    name: Quick test ${{ matrix.test_name }} on ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: APT Updated
+        run: |
+          sudo apt-get update -y
+
+      - name: Check initial disk space and installed content
+        run: |
+          echo "=== INITIAL DISK SPACE ==="
+          df -h
+          echo ""
+          echo "=== CHECKING FOR .NET CONTENT ==="
+          find /usr/share -name "*dotnet*" -type d 2>/dev/null || echo "No .NET directories found in /usr/share"
+          dpkg -l | grep -i dotnet || echo "No .NET packages found"
+          echo ""
+          echo "=== CHECKING FOR ANDROID CONTENT ==="
+          find /usr/local -name "*android*" -type d 2>/dev/null || echo "No Android directories found in /usr/local"
+          find /opt -name "*android*" -type d 2>/dev/null || echo "No Android directories found in /opt"
+          echo ""
+          echo "=== CHECKING FOR HASKELL CONTENT ==="
+          find /opt -name "*ghc*" -type d 2>/dev/null || echo "No Haskell GHC directories found"
+          dpkg -l | grep -i haskell || echo "No Haskell packages found"
+          echo ""
+          echo "=== CHECKING FOR PACKAGES ==="
+          dpkg -l | grep -E "(azure-cli|google-cloud-cli|firefox)" || echo "Target packages not found"
+
+      - name: Free Disk Space (with timing)
+        run: |
+          start_time=$(date +%s)
+          echo "Starting cleanup at $(date)"
+        shell: bash
+
+      - name: Free Disk Space
+        uses: ./
+        with:
+          principal_dir: ${{ matrix.principal_dir }}
+          remove_android: ${{ matrix.remove_android }}
+          remove_dotnet: ${{ matrix.remove_dotnet }}
+          remove_haskell: ${{ matrix.remove_haskell }}
+          remove_tool_cache: ${{ matrix.remove_tool_cache }}
+          remove_swap: ${{ matrix.remove_swap }}
+          remove_packages: ${{ matrix.remove_packages }}
+          remove_packages_one_command: ${{ matrix.remove_packages_one_command }}
+          remove_folders: ${{ matrix.remove_folders }}
+          testing: ${{ matrix.testing || false }}
+
+      - name: Check cleanup results and timing
+        run: |
+          echo "Cleanup completed at $(date)"
+          echo ""
+          echo "=== FINAL DISK SPACE ==="
+          df -h
+          echo ""
+          echo "=== CHECKING WHAT WAS REMOVED ==="
+          
+          if [ "${{ matrix.remove_dotnet }}" = "true" ]; then
+            echo "Checking for remaining .NET content:"
+            find /usr/share -name "*dotnet*" -type d 2>/dev/null || echo "✅ No .NET directories found (removed successfully)"
+            dpkg -l | grep -i dotnet || echo "✅ No .NET packages found (removed successfully)"
+          fi
+          
+          if [ "${{ matrix.remove_android }}" = "true" ]; then
+            echo "Checking for remaining Android content:"
+            find /usr/local -name "*android*" -type d 2>/dev/null || echo "✅ No Android directories found (removed successfully)"
+            find /opt -name "*android*" -type d 2>/dev/null || echo "✅ No Android directories found (removed successfully)"
+          fi
+          
+          if [ "${{ matrix.remove_haskell }}" = "true" ]; then
+            echo "Checking for remaining Haskell content:"
+            find /opt -name "*ghc*" -type d 2>/dev/null || echo "✅ No Haskell GHC directories found (removed successfully)"
+            dpkg -l | grep -i haskell || echo "✅ No Haskell packages found (removed successfully)"
+          fi
+          
+          if [ "${{ matrix.remove_packages }}" != "false" ] && [ "${{ matrix.remove_packages }}" != "" ]; then
+            echo "Checking for remaining target packages:"
+            dpkg -l | grep -E "(azure-cli|google-cloud-cli|firefox)" || echo "✅ Target packages removed successfully"
+          fi
+
+      - name: Show disk usage by major directories
+        run: |
+          echo "=== APT Update ==="
+          sudo apt-get autoremove -y
+          sudo apt-get autoclean
+          sudo dpkg --configure -a
+
+          echo "=== DISK USAGE BY MAJOR DIRECTORIES ==="
+          for dir in /usr /opt /var /home /usr/local; do
+            if [ -d "$dir" ]; then
+              echo "Directory: $dir"
+              echo "Total size:"
+              sudo du -sh "$dir" 2>/dev/null || echo "Cannot access $dir"
+              echo "Breakdown (2 levels deep):"
+              sudo du -h --max-depth=2 "$dir" 2>/dev/null | sort -hr | head -20 || echo "Cannot access subdirectories of $dir"
+              echo "----------------------------------------"
+            fi
+          done
+
+          echo "=== View installed packages and their sizes ==="
+          dpkg-query -Wf '${Status}\t${Installed-Size}\t${Package}\n' | grep "^install ok installed" | awk '{print $4"\t"$5}' | sort -nr | head -50
+
+          echo "=== Files in /usr/bin folder ==="
+          ls -lh /usr/bin 2>/dev/null | awk 'NF > 1 && $9 != "" {print $9 " - " $5}' | head -20 || echo "Cannot access /usr/bin"
+          
+          echo "=== Files in /usr/local/bin folder ==="
+          ls -lh /usr/local/bin 2>/dev/null | awk 'NF > 1 && $9 != "" {print $9 " - " $5}' | head -20 || echo "Cannot access /usr/local/bin"
