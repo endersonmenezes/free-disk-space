@@ -379,7 +379,7 @@ jobs:
       - name: Show disk usage by major directories
         run: |
           echo "=== DISK USAGE BY MAJOR DIRECTORIES ==="
-          for dir in /usr /opt /var /home /usr/local /usr/bin; do
+          for dir in /usr /opt /var /home /usr/local; do
             if [ -d "$dir" ]; then
               echo "Directory: $dir"
               echo "Total size:"
@@ -389,4 +389,16 @@ jobs:
               echo "----------------------------------------"
             fi
           done
-        
+
+          echo "=== View installed packages and your sizes ==="
+          dpkg -l | awk '{print $2}' | while read pkg; do
+            size=$(dpkg-query -W --showformat='${Installed-Size}' "$pkg" 2>/dev/null)
+            if [ -n "$size" ]; then
+              echo "Package: $pkg - Size: ${size}K"
+            fi
+          done
+
+          echo "=== ls on bin folder ==="
+          ls -lh /usr/bin | awk '{print $9 " - " $5}'
+          echo "=== ls on local bin folder ==="
+          ls -lh /usr/local/bin | awk '{print $9 " - " $5}'
