@@ -33,7 +33,7 @@ if [[ -z "${TESTING}" ]]; then
 fi
 if [[ ${TESTING} == "true" ]]; then
     echo "Testing Mode"
-    echo "We are running com GitHub Branch: $GITHUB_REF"
+    echo "We are running com GitHub Branch: ${GITHUB_REF}"
     alias rm='echo rm'
 fi
 if [[ -z "${ANDROID_FILES}" ]]; then
