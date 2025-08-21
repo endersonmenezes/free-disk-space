@@ -89,32 +89,11 @@ TOTAL_FREE_SPACE=0
 
 # Verify Needed Packages
 
-# Verify BC and install if needed
+# Verify BC
 COMMAND_BC=$(command -v bc)
 if ! [[ -x "${COMMAND_BC}" ]]; then
-    echo 'bc is not installed. Attempting to install...' >&2
-    # Try to install bc on ubuntu
-    COMMAND_APT_GET=$(command -v apt-get)
-    if [[ -x "${COMMAND_APT_GET}" ]]; then
-        echo "Installing bc on Ubuntu..."
-        sudo apt-get update
-        sudo apt-get install -y bc
-        # Verify installation was successful
-        COMMAND_BC=$(command -v bc)
-        if ! [[ -x "${COMMAND_BC}" ]]; then
-            echo 'Error: Failed to install bc.' >&2
-            exit 1
-        fi
-    else
-        echo 'Error: bc is not installed and apt-get is not available to install it.' >&2
-        exit 1
-    fi
-else
-    if [[ ${TESTING} == "true" ]]; then
-        echo "Found bc at: ${COMMAND_BC}"
-    fi
-    sudo chmod +x "${COMMAND_BC}"
-    alias bc='${COMMAND_BC}'
+    echo 'bc is not installed.'
+    exit 1
 fi
 
 # Functions
