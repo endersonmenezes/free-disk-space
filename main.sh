@@ -95,6 +95,9 @@ if ! [[ -x "${COMMAND_BC}" ]]; then
     echo 'bc is not installed.'
     exit 1
 fi
+if [[ ${TESTING} == "true" ]]; then
+    echo "Testing Mode"
+fi
 
 # Functions
 
