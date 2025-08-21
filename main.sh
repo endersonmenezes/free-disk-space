@@ -97,6 +97,7 @@ if ! [[ -x "${COMMAND_BC}" ]]; then
 fi
 if [[ ${TESTING} == "true" ]]; then
     echo "Testing Mode"
+    echo "Path for 'bc': ${COMMAND_BC}"
     sudo apt-get install -y bc
 fi
 
