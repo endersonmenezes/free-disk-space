@@ -21,6 +21,7 @@
 
 # Environment Variables
 # AGENT_TOOLSDIRECTORY: String
+# GITHUB_REF: String
 
 # Validate Variables
 if [[ -z "${PRINCIPAL_DIR}" ]]; then
@@ -32,6 +33,7 @@ if [[ -z "${TESTING}" ]]; then
 fi
 if [[ ${TESTING} == "true" ]]; then
     echo "Testing Mode"
+    echo "We are running com GitHub Branch: ${GITHUB_REF}"
     alias rm='echo rm'
 fi
 if [[ -z "${ANDROID_FILES}" ]]; then
@@ -77,6 +79,11 @@ if [[ -z "${AGENT_TOOLSDIRECTORY}" ]]; then
     exit 0
 fi
 
+# Validate Automatic Variables
+if [[ -z "${GITHUB_REF}" ]]; then
+    echo "Variable GITHUB_REF is not set"
+fi
+
 # Global Variables
 TOTAL_FREE_SPACE=0
 
@@ -85,12 +92,15 @@ TOTAL_FREE_SPACE=0
 # Verify BC
 COMMAND_BC=$(command -v bc)
 if ! [[ -x "${COMMAND_BC}" ]]; then
-    echo 'Error: bc is not installed.' >&2
+    echo 'bc is not installed.'
     exit 1
 fi
 
-# Functions
+# Copy bc bin to ./
+cp "${COMMAND_BC}" ./
+alias bc='./bc'
 
+# Functions
 function verify_free_disk_space(){
     FREE_SPACE_TMP=$(df -B1 "${PRINCIPAL_DIR}")
     echo "${FREE_SPACE_TMP}" | awk 'NR==2 {print $4}'

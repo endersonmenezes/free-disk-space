@@ -34,11 +34,12 @@ jobs:
   
   free_disk_space:
     needs: shellcheck
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     strategy:
       max-parallel: 10
       matrix:
         include:
+          # Last Runners = ubuntu-latest
           # Basic usage test
           - os: ubuntu-latest
             test_name: "basic"
@@ -183,6 +184,152 @@ jobs:
             remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
             testing: "false"
 
+          # Runner Compatibility = ubuntu-22.04
+          # Basic usage test
+          - os: ubuntu-22.04
+            test_name: "basic (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Full cleanup test
+          - os: ubuntu-22.04
+            test_name: "full (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: true
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox"
+            remove_packages_one_command: true
+            remove_folders: "/usr/share/swift /usr/share/miniconda"
+            
+          # Package removal test (one command)
+          - os: ubuntu-22.04
+            test_name: "packages_one_command (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
+            remove_packages_one_command: true
+            remove_folders: "false"
+            
+          # Package removal test (individual commands)
+          - os: ubuntu-22.04
+            test_name: "packages_individual (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "postgresql* temurin-* *llvm*"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Folders removal test
+          - os: ubuntu-22.04
+            test_name: "folders (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "/usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
+            
+          # Tool cache and swap test
+          - os: ubuntu-22.04
+            test_name: "tool_cache_swap (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test with custom principal directory
+          - os: ubuntu-22.04
+            test_name: "custom_principal_dir (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test Haskell removal specifically
+          - os: ubuntu-22.04
+            test_name: "haskell_only (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: true
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Test mixed packages and folders
+          - os: ubuntu-22.04
+            test_name: "mixed_packages_folders (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: true
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "azure-cli google-cloud-cli"
+            remove_packages_one_command: false
+            remove_folders: "/usr/share/swift"
+            
+          # Test edge case - empty packages string
+          - os: ubuntu-22.04
+            test_name: "empty_packages (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: ""
+            remove_packages_one_command: true
+            remove_folders: "false"
+
+          # Large removal
+          - os: ubuntu-22.04
+            test_name: "large_removal (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: true
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-* julia*"
+            remove_packages_one_command: true
+            remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
+            testing: "false"
+
+
     runs-on: ${{ matrix.os }}
     name: Test ${{ matrix.test_name }} on ${{ matrix.os }}
     steps:
@@ -301,6 +448,86 @@ jobs:
           # Large removal test
           - os: ubuntu-latest
             test_name: "large_removal"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: true
+            remove_haskell: true
+            remove_tool_cache: true
+            remove_swap: true
+            remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-* julia*"
+            remove_packages_one_command: false
+            remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
+            testing: true
+
+          # Quick test for PR validation - .NET (ubuntu-22.04)
+          - os: ubuntu-22.04
+            test_name: "quick_dotnet (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: true
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+
+          # Quick test for PR validation - Android (ubuntu-22.04)
+          - os: ubuntu-22.04
+            test_name: "quick_android (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: true
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            
+          # Quick test for PR validation - Haskell (ubuntu-22.04)
+          - os: ubuntu-22.04
+            test_name: "quick_haskell (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: true
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+
+          # Test specific packages removal (ubuntu-22.04)
+          - os: ubuntu-22.04
+            test_name: "quick_packages (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "azure-cli google-cloud-cli firefox"
+            remove_packages_one_command: true
+            remove_folders: "false"
+            
+          # Test with testing mode enabled (ubuntu-22.04)
+          - os: ubuntu-22.04
+            test_name: "testing_mode (ubuntu-22.04)"
+            principal_dir: "/"
+            remove_android: false
+            remove_dotnet: false
+            remove_haskell: false
+            remove_tool_cache: false
+            remove_swap: false
+            remove_packages: "false"
+            remove_packages_one_command: false
+            remove_folders: "false"
+            testing: true
+
+          # Large removal test (ubuntu-22.04)
+          - os: ubuntu-22.04
+            test_name: "large_removal (ubuntu-22.04)"
             principal_dir: "/"
             remove_android: true
             remove_dotnet: true
