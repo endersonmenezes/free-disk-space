@@ -91,6 +91,8 @@ TOTAL_FREE_SPACE=0
 
 # Verify BC and install if needed
 COMMAND_BC=$(command -v bc)
+# Debug Line
+echo "Found bc at: ${COMMAND_BC}"
 if ! [[ -x "${COMMAND_BC}" ]]; then
     echo 'bc is not installed. Attempting to install...' >&2
     # Try to install bc on ubuntu
