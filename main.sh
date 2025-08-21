@@ -82,11 +82,25 @@ TOTAL_FREE_SPACE=0
 
 # Verify Needed Packages
 
-# Verify BC
+# Verify BC and install if needed
 COMMAND_BC=$(command -v bc)
 if ! [[ -x "${COMMAND_BC}" ]]; then
-    echo 'Error: bc is not installed.' >&2
-    exit 1
+    echo 'bc is not installed. Attempting to install...' >&2
+    # Try to install bc on ubuntu
+    if [[ -x "$(command -v apt-get)" ]]; then
+        echo "Installing bc on Ubuntu..."
+        sudo apt-get update
+        sudo apt-get install -y bc
+        # Verify installation was successful
+        COMMAND_BC=$(command -v bc)
+        if ! [[ -x "${COMMAND_BC}" ]]; then
+            echo 'Error: Failed to install bc.' >&2
+            exit 1
+        fi
+    else
+        echo 'Error: bc is not installed and apt-get is not available to install it.' >&2
+        exit 1
+    fi
 fi
 
 # Functions
