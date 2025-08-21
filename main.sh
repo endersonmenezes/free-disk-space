@@ -87,7 +87,8 @@ COMMAND_BC=$(command -v bc)
 if ! [[ -x "${COMMAND_BC}" ]]; then
     echo 'bc is not installed. Attempting to install...' >&2
     # Try to install bc on ubuntu
-    if [[ -x "$(command -v apt-get)" ]]; then
+    COMMAND_APT_GET=$(command -v apt-get)
+    if [[ -x "${COMMAND_APT_GET}" ]]; then
         echo "Installing bc on Ubuntu..."
         sudo apt-get update
         sudo apt-get install -y bc

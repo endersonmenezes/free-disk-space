@@ -3,6 +3,10 @@
 ![GitHub License](https://img.shields.io/github/license/endersonmenezes/free-disk-space?label=Project%20License)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/endersonmenezes/free-disk-space/testing.yaml)
 
+## Compatibility
+
+- Ubuntu 22.04 - Tested on 21/08/2025.
+- Ubuntu Latest (24.04) - Tested on 21/08/2025.
 
 ## Inspiration
 
