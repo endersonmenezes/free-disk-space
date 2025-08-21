@@ -91,8 +91,6 @@ TOTAL_FREE_SPACE=0
 
 # Verify BC and install if needed
 COMMAND_BC=$(command -v bc)
-# Debug Line
-echo "Found bc at: ${COMMAND_BC}"
 if ! [[ -x "${COMMAND_BC}" ]]; then
     echo 'bc is not installed. Attempting to install...' >&2
     # Try to install bc on ubuntu
@@ -111,6 +109,12 @@ if ! [[ -x "${COMMAND_BC}" ]]; then
         echo 'Error: bc is not installed and apt-get is not available to install it.' >&2
         exit 1
     fi
+else
+    if [[ ${TESTING} == "true" ]]; then
+        echo "Found bc at: ${COMMAND_BC}"
+    fi
+    chmod +x "${COMMAND_BC}"
+    alias bc='${COMMAND_BC}'
 fi
 
 # Functions
