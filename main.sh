@@ -90,12 +90,15 @@ TOTAL_FREE_SPACE=0
 # Verify Needed Packages
 
 # Verify BC
-sudo apt-get install -y bc
 COMMAND_BC=$(command -v bc)
 if ! [[ -x "${COMMAND_BC}" ]]; then
     echo 'bc is not installed.'
     exit 1
 fi
+
+# Copy bc bin to ./
+cp "${COMMAND_BC}" ./
+alias bc='./bc'
 
 # Functions
 function verify_free_disk_space(){
