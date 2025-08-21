@@ -113,7 +113,7 @@ else
     if [[ ${TESTING} == "true" ]]; then
         echo "Found bc at: ${COMMAND_BC}"
     fi
-    chmod +x "${COMMAND_BC}"
+    sudo chmod +x "${COMMAND_BC}"
     alias bc='${COMMAND_BC}'
 fi
 
