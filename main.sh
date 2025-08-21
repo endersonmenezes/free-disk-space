@@ -90,19 +90,14 @@ TOTAL_FREE_SPACE=0
 # Verify Needed Packages
 
 # Verify BC
+sudo apt-get install -y bc
 COMMAND_BC=$(command -v bc)
 if ! [[ -x "${COMMAND_BC}" ]]; then
     echo 'bc is not installed.'
     exit 1
 fi
-if [[ ${TESTING} == "true" ]]; then
-    echo "Testing Mode"
-    echo "Path for 'bc': ${COMMAND_BC}"
-    sudo apt-get install -y bc
-fi
 
 # Functions
-
 function verify_free_disk_space(){
     FREE_SPACE_TMP=$(df -B1 "${PRINCIPAL_DIR}")
     echo "${FREE_SPACE_TMP}" | awk 'NR==2 {print $4}'
