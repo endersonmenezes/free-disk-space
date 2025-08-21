@@ -21,6 +21,7 @@
 
 # Environment Variables
 # AGENT_TOOLSDIRECTORY: String
+# GITHUB_REF: String
 
 # Validate Variables
 if [[ -z "${PRINCIPAL_DIR}" ]]; then
@@ -76,6 +77,11 @@ fi
 if [[ -z "${AGENT_TOOLSDIRECTORY}" ]]; then
     echo "Variable AGENT_TOOLSDIRECTORY is not set"
     exit 0
+fi
+
+# Validate Automatic Variables
+if [[ -z "${GITHUB_REF}" ]]; then
+    echo "Variable GITHUB_REF is not set"
 fi
 
 # Global Variables
