@@ -26,11 +26,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install ShellCheck
-        run: sudo apt-get install shellcheck -y
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-      - name: Run ShellCheck
-        run: shellcheck main.sh -o all -e SC2033,SC2032
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
   
   free_disk_space:
     needs: shellcheck
