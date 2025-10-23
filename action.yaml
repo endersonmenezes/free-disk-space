@@ -43,6 +43,14 @@ inputs:
     description: "Remove Folders (Eg. /usr/share/dotnet)"
     required: false
     default: "false"
+  rm_cmd:
+    description: "Whether to use rm (safe, default) or rmz (faster)."
+    required: false
+    default: "rm"
+  rmz_version:
+    description: "Version of rmz to use if rmz is selected as rm_cmd."
+    required: false
+    default: "3.1.1"
   testing:
     description: "Testing (Use to develop locally)"
     required: false
@@ -77,4 +85,6 @@ runs:
         PACKAGES: ${{ inputs.remove_packages }}
         REMOVE_ONE_COMMAND: ${{ inputs.remove_packages_one_command }}
         REMOVE_FOLDERS: ${{ inputs.remove_folders }}
+        RM_CMD: ${{ inputs.rm_cmd }}
+        RMZ_VERSION: ${{ inputs.rmz_version }}
         TESTING: ${{ inputs.testing }}

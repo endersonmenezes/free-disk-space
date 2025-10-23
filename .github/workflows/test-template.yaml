@@ -1,0 +1,96 @@
+name: Test Template
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        required: true
+        type: string
+      principal_dir:
+        required: false
+        type: string
+        default: "/"
+      remove_android:
+        required: false
+        type: boolean
+        default: false
+      remove_dotnet:
+        required: false
+        type: boolean
+        default: false
+      remove_haskell:
+        required: false
+        type: boolean
+        default: false
+      remove_tool_cache:
+        required: false
+        type: boolean
+        default: false
+      remove_swap:
+        required: false
+        type: boolean
+        default: false
+      remove_packages:
+        required: false
+        type: string
+        default: "false"
+      remove_packages_one_command:
+        required: false
+        type: boolean
+        default: false
+      remove_folders:
+        required: false
+        type: string
+        default: "false"
+      testing:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        rm_cmd: [rm, rmz]
+    runs-on: ubuntu-latest
+    name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Free Disk Space
+        uses: ./
+        with:
+          principal_dir: ${{ inputs.principal_dir }}
+          remove_android: ${{ inputs.remove_android }}
+          remove_dotnet: ${{ inputs.remove_dotnet }}
+          remove_haskell: ${{ inputs.remove_haskell }}
+          remove_tool_cache: ${{ inputs.remove_tool_cache }}
+          remove_swap: ${{ inputs.remove_swap }}
+          remove_packages: ${{ inputs.remove_packages }}
+          remove_packages_one_command: ${{ inputs.remove_packages_one_command }}
+          remove_folders: ${{ inputs.remove_folders }}
+          testing: ${{ inputs.testing }}
+          rm_cmd: ${{ matrix.rm_cmd }}
+
+      - name: Show all packages by size
+        run: |
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+
+      - name: Show free disk space
+        run: df -h
+
+      - name: Search more files
+        run: |
+          FOLDERS=(/etc /opt /home /var /usr /usr/share /usr/lib /usr/bin /usr/local/lib /usr/local/bin /usr/local/share)
+          for folder in "${FOLDERS[@]}"; do
+            echo "Folder: $folder"
+            sudo du -h --max-depth=2 "$folder" | sort -h
+            echo "-"
+          done
+
+      - name: Docker Hello World
+        run: docker run hello-world
+
+      - name: Run Python Hello World
+        run: python -c "print('Hello, World!')"
