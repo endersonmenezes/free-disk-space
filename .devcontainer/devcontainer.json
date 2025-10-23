@@ -1,0 +1,22 @@
+{
+  "name": "free-disk-space devcontainer",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "runArgs": [
+    "--privileged"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2.12.4": {},
+    "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
+    "ghcr.io/devcontainers-extra/features/shellcheck:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "me-dutour-mathieu.vscode-github-actions",
+        "ms-vscode-remote.remote-containers",
+        "timonwong.shellcheck"
+      ]
+    }
+  },
+  "postCreateCommand": "pre-commit install"
+}
