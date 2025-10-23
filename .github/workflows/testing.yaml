@@ -158,3 +158,92 @@ jobs:
     with:
       job_name: "Testing mode"
       testing: true
+
+  # Individual folder tests for accurate Size Savings table
+  test_folder_swift:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/share/swift"
+      remove_folders: "/usr/share/swift"
+
+  test_folder_miniconda:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/share/miniconda"
+      remove_folders: "/usr/share/miniconda"
+
+  test_folder_az:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/share/az*"
+      remove_folders: "/usr/share/az*"
+
+  test_folder_node_modules:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/local/lib/node_modules"
+      remove_folders: "/usr/local/lib/node_modules"
+
+  test_folder_chromium:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/local/share/chromium"
+      remove_folders: "/usr/local/share/chromium"
+
+  test_folder_powershell:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/local/share/powershell"
+      remove_folders: "/usr/local/share/powershell"
+
+  test_folder_aws_cli:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/local/aws-cli"
+      remove_folders: "/usr/local/aws-cli"
+
+  test_folder_aws_sam_cli:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/local/aws-sam-cli"
+      remove_folders: "/usr/local/aws-sam-cli"
+
+  test_folder_julia:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/local/julia"
+      remove_folders: "/usr/local/julia"
+
+  test_folder_gradle:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/share/gradle"
+      remove_folders: "/usr/share/gradle"
+
+  test_folder_glade:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Folder: /usr/share/glade*"
+      remove_folders: "/usr/share/glade*"
