@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Exit on error and unset variables
+set -e
+set -u
+set -o pipefail
+
+# Inherit errexit in command substitutions (bash 4.4+)
+shopt -s inherit_errexit 2>/dev/null || true
+
 # ---
 # Script to FreeUP Disk Space on Linux Systems
 # Author: Enderson Menezes
@@ -24,63 +32,63 @@
 # GITHUB_REF: String
 
 # Validate Variables
-if [[ -z "${PRINCIPAL_DIR}" ]]; then
+if [[ -z "${PRINCIPAL_DIR:-}" ]]; then
     echo "Variable PRINCIPAL_DIR is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${TESTING}" ]]; then
+if [[ -z "${TESTING:-}" ]]; then
     TESTING="false"
 fi
 if [[ ${TESTING} == "true" ]]; then
     echo "Testing Mode"
-    echo "We are running com GitHub Branch: ${GITHUB_REF}"
+    echo "We are running com GitHub Branch: ${GITHUB_REF:-}"
     alias rm='echo rm'
 fi
-if [[ -z "${ANDROID_FILES}" ]]; then
+if [[ -z "${ANDROID_FILES:-}" ]]; then
     echo "Variable ANDROID_FILES is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${DOTNET_FILES}" ]]; then
+if [[ -z "${DOTNET_FILES:-}" ]]; then
     echo "Variable DOTNET_FILES is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${HASKELL_FILES}" ]]; then
+if [[ -z "${HASKELL_FILES:-}" ]]; then
     echo "Variable HASKELL_FILES is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${TOOL_CACHE}" ]]; then
+if [[ -z "${TOOL_CACHE:-}" ]]; then
     echo "Variable TOOL_CACHE is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${SWAP_STORAGE}" ]]; then
+if [[ -z "${SWAP_STORAGE:-}" ]]; then
     echo "Variable SWAP_STORAGE is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${PACKAGES}" ]]; then
+if [[ -z "${PACKAGES:-}" ]]; then
     echo "Variable PACKAGES is not set"
-    exit 0
+    exit 1
 fi
 if [[ ${PACKAGES} != "false" ]]; then
     if [[ ${PACKAGES} != *" "* ]]; then
         echo "Variable PACKAGES is not a list of strings"
-        exit 0
+        exit 1
     fi
 fi
-if [[ -z "${REMOVE_ONE_COMMAND}" ]]; then
+if [[ -z "${REMOVE_ONE_COMMAND:-}" ]]; then
     echo "Variable REMOVE_ONE_COMMAND is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${REMOVE_FOLDERS}" ]]; then
+if [[ -z "${REMOVE_FOLDERS:-}" ]]; then
     echo "Variable REMOVE_FOLDERS is not set"
-    exit 0
+    exit 1
 fi
-if [[ -z "${AGENT_TOOLSDIRECTORY}" ]]; then
+if [[ -z "${AGENT_TOOLSDIRECTORY:-}" ]]; then
     echo "Variable AGENT_TOOLSDIRECTORY is not set"
-    exit 0
+    exit 1
 fi
 
 # Validate Automatic Variables
-if [[ -z "${GITHUB_REF}" ]]; then
+if [[ -z "${GITHUB_REF:-}" ]]; then
     echo "Variable GITHUB_REF is not set"
 fi
 
