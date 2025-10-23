@@ -99,6 +99,18 @@ bash main.sh
 
 ## Shellcheck
 
+This project uses [pre-commit](https://pre-commit.com/) for shellcheck linting. To run shellcheck:
+
+```bash
+# Install pre-commit (if not already installed)
+pip install pre-commit
+
+# Run pre-commit hooks on all files
+pre-commit run --all-files
+```
+
+Alternatively, you can run shellcheck directly:
+
 ```bash
 shellcheck main.sh -o all -e SC2033,SC2032
 ```
