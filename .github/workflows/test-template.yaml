@@ -52,8 +52,11 @@ jobs:
     strategy:
       matrix:
         rm_cmd: [rm, rmz]
-    runs-on: ubuntu-latest
-    name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }}
+        runner: 
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -13,7 +13,7 @@ repos:
 
   # 2️⃣ GitHub Actions workflow validation (only for .github/workflows)
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.1
+    rev: v1.7.8
     hooks:
       - id: actionlint
         files: ^\.github/workflows/.*\.ya?ml$
