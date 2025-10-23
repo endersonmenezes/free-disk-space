@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+    -   id: shellcheck
+
+  # 1️⃣ Basic YAML syntax validation for all YAML files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        files: \.ya?ml$
+
+  # 2️⃣ GitHub Actions workflow validation (only for .github/workflows)
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.1
+    hooks:
+      - id: actionlint
+        files: ^\.github/workflows/.*\.ya?ml$
