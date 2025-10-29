@@ -18,6 +18,8 @@
 # PACKAGES: String (separated by space)
 # REMOVE_ONE_COMMAND: Boolean (true or false)
 # REMOVE_FOLDERS: String (separated by space)
+# RM_CMD: String (rm or rmz)
+# RMZ_VERSION: String (default: 3.1.1)
 
 # Environment Variables
 # AGENT_TOOLSDIRECTORY: String
@@ -33,8 +35,7 @@ if [[ -z "${TESTING}" ]]; then
 fi
 if [[ ${TESTING} == "true" ]]; then
     echo "Testing Mode"
-    echo "We are running com GitHub Branch: ${GITHUB_REF}"
-    alias rm='echo rm'
+    echo "We are running on GitHub Branch: ${GITHUB_REF}"
 fi
 if [[ -z "${ANDROID_FILES}" ]]; then
     echo "Variable ANDROID_FILES is not set"
@@ -74,6 +75,26 @@ if [[ -z "${REMOVE_FOLDERS}" ]]; then
     echo "Variable REMOVE_FOLDERS is not set"
     exit 0
 fi
+if [[ -z "${RM_CMD}" ]]; then
+    echo "Variable RM_CMD is not set"
+    exit 0
+fi
+if [[ "${RM_CMD}" != "rm" && "${RM_CMD}" != "rmz" ]]; then
+    echo "Variable RM_CMD must be either 'rm' or 'rmz'"
+    exit 0
+fi
+if [[ "${RM_CMD}" == "rmz" ]]; then
+    if [[ -z "${RMZ_VERSION}" ]]; then
+        echo "Variable RMZ_VERSION is required when RM_CMD=rmz"
+        exit 0
+    fi
+    if ! [[ "${RMZ_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "RMZ_VERSION must be a semantic version like X.Y.Z (got: ${RMZ_VERSION})"
+        exit 0
+    fi
+fi
+
+# Validate Environment Variables
 if [[ -z "${AGENT_TOOLSDIRECTORY}" ]]; then
     echo "Variable AGENT_TOOLSDIRECTORY is not set"
     exit 0
@@ -93,14 +114,65 @@ TOTAL_FREE_SPACE=0
 COMMAND_BC=$(command -v bc)
 if ! [[ -x "${COMMAND_BC}" ]]; then
     echo 'bc is not installed.'
-    exit 1
+    exit 0
 fi
 
 # Copy bc bin to ./
 cp "${COMMAND_BC}" ./
 alias bc='./bc'
 
+# Setup rmz if needed
+if [[ "${RM_CMD}" == "rmz" ]]; then
+    echo "Installing rmz"
+    arch="$(uname -m)"
+    case "${arch}" in
+        x86_64|amd64) ASSET="x86_64-unknown-linux-gnu-rmz" ;;
+        aarch64|arm64) ASSET="aarch64-unknown-linux-gnu-rmz" ;;
+        *) echo "Unsupported arch: ${arch}"; exit 0 ;;
+    esac
+
+    RMZ_RELEASE_URL="https://github.com/SUPERCILEX/fuc/releases/download/${RMZ_VERSION}/${ASSET}"
+
+    # Download to a temporary file first so curl failures are detected, then install atomically
+    tmpfile=$(mktemp)
+    if ! curl -fsSL -o "${tmpfile}" "${RMZ_RELEASE_URL}"; then
+        echo "Failed to download rmz from ${RMZ_RELEASE_URL}"
+        rm -f "${tmpfile}"
+        exit 0
+    fi
+    sudo install -m 0755 "${tmpfile}" /usr/local/bin/rmz
+    rm -f "${tmpfile}"
+
+    # Verify rmz is present and executable (same style as bc check)
+    COMMAND_RMZ=$(command -v rmz || true)
+    if ! [[ -x "${COMMAND_RMZ}" ]]; then
+        echo 'rmz is not installed or not executable.'
+        exit 0
+    fi
+fi
+
+# If testing mode is enabled, run_rm will echo the commands (see run_rm definition).
+
 # Functions
+
+function run_rm() {
+    # RM wrapper: use RM_CMD to run either rm or rmz. In testing mode the command is echoed.
+    if [[ "${TESTING:-false}" == "true" ]]; then
+        if [[ "${RM_CMD}" == "rmz" ]]; then
+            echo rmz "$@"
+        else
+            echo rm -r "$@"
+        fi
+        return 0
+    fi
+
+    if [[ "${RM_CMD}" == "rmz" ]]; then
+        sudo rmz "$@"
+    else
+        sudo rm -r "$@"
+    fi
+}
+
 function verify_free_disk_space(){
     FREE_SPACE_TMP=$(df -B1 "${PRINCIPAL_DIR}")
     echo "${FREE_SPACE_TMP}" | awk 'NR==2 {print $4}'
@@ -135,10 +207,10 @@ function remove_android_library_folder(){
     update_and_echo_free_space "before"
     
     # Remove Android SDK directories (common locations)
-    sudo rm -rf /usr/local/lib/android || true
-    sudo rm -rf /opt/android || true
-    sudo rm -rf /usr/local/android-sdk || true
-    sudo rm -rf /home/runner/Android || true
+    run_rm -f /usr/local/lib/android || true
+    run_rm -f /opt/android || true
+    run_rm -f /usr/local/android-sdk || true
+    run_rm -f /home/runner/Android || true
     
     # Remove Android packages if they exist
     ANDROID_PACKAGES=$(dpkg -l | grep -E "^ii.*(android|adb)" | awk '{print $2}' | tr '\n' ' ' || true)
@@ -158,10 +230,10 @@ function remove_dot_net_library_folder(){
     update_and_echo_free_space "before"
     
     # Remove .NET installation directories
-    sudo rm -rf /usr/share/dotnet || true
+    run_rm -f /usr/share/dotnet || true
     
     # Remove .NET documentation directories
-    sudo rm -rf /usr/share/doc/dotnet-* || true
+    run_rm -f /usr/share/doc/dotnet-* || true
     
     # Remove .NET packages if they exist
     DOTNET_PACKAGES=$(dpkg -l | grep -E "^ii.*dotnet" | awk '{print $2}' | tr '\n' ' ' || true)
@@ -181,11 +253,11 @@ function remove_haskell_library_folder(){
     update_and_echo_free_space "before"
     
     # Remove Haskell directories
-    sudo rm -rf /opt/ghc || true
-    sudo rm -rf /usr/local/.ghcup || true
-    sudo rm -rf /opt/cabal || true
-    sudo rm -rf /home/runner/.ghcup || true
-    sudo rm -rf /home/runner/.cabal || true
+    run_rm -f /opt/ghc || true
+    run_rm -f /usr/local/.ghcup || true
+    run_rm -f /opt/cabal || true
+    run_rm -f /home/runner/.ghcup || true
+    run_rm -f /home/runner/.cabal || true
     
     # Remove Haskell packages if they exist
     HASKELL_PACKAGES=$(dpkg -l | grep -E "^ii.*(ghc|haskell|cabal)" | awk '{print $2}' | tr '\n' ' ' || true)
@@ -229,7 +301,7 @@ function remove_multi_packages_one_command(){
 function remove_tool_cache(){
     echo "🧹 Removing Tool Cache"
     update_and_echo_free_space "before"
-    sudo rm -rf "${AGENT_TOOLSDIRECTORY}" || true
+    run_rm -f "${AGENT_TOOLSDIRECTORY}" || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -240,7 +312,7 @@ function remove_swap_storage(){
     free -h
     echo "🧹 Removing Swap Storage"
     sudo swapoff -a || true
-    sudo rm -f "/mnt/swapfile" || true
+    run_rm -f "/mnt/swapfile" || true
     echo "🧹 Removed Swap Storage"
     free -h
     echo "-"
@@ -250,7 +322,7 @@ function remove_folder(){
     FOLDER=$1
     echo "📁 Removing ${FOLDER}"
     update_and_echo_free_space "before"
-    sudo rm -rf "${FOLDER}" || true
+    run_rm -f "${FOLDER}" || true
     update_and_echo_free_space "after"
 }
 

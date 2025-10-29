@@ -1,0 +1,166 @@
+name: Quick Test Template
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        required: true
+        type: string
+      principal_dir:
+        required: false
+        type: string
+        default: "/"
+      remove_android:
+        required: false
+        type: boolean
+        default: false
+      remove_dotnet:
+        required: false
+        type: boolean
+        default: false
+      remove_haskell:
+        required: false
+        type: boolean
+        default: false
+      remove_tool_cache:
+        required: false
+        type: boolean
+        default: false
+      remove_swap:
+        required: false
+        type: boolean
+        default: false
+      remove_packages:
+        required: false
+        type: string
+        default: "false"
+      remove_packages_one_command:
+        required: false
+        type: boolean
+        default: false
+      remove_folders:
+        required: false
+        type: string
+        default: "false"
+      testing:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  quick_test:
+    strategy:
+      matrix:
+        rm_cmd: [rm, rmz]
+        runner: 
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: APT Updated
+        run: |
+          sudo apt-get update -y
+
+      - name: Check initial disk space and installed content
+        run: |
+          echo "=== INITIAL DISK SPACE ==="
+          df -h
+          echo ""
+          echo "=== CHECKING FOR .NET CONTENT ==="
+          find /usr/share -name "*dotnet*" -type d 2>/dev/null || echo "No .NET directories found in /usr/share"
+          dpkg -l | grep -i dotnet || echo "No .NET packages found"
+          echo ""
+          echo "=== CHECKING FOR ANDROID CONTENT ==="
+          find /usr/local -name "*android*" -type d 2>/dev/null || echo "No Android directories found in /usr/local"
+          find /opt -name "*android*" -type d 2>/dev/null || echo "No Android directories found in /opt"
+          echo ""
+          echo "=== CHECKING FOR HASKELL CONTENT ==="
+          find /opt -name "*ghc*" -type d 2>/dev/null || echo "No Haskell GHC directories found"
+          dpkg -l | grep -i haskell || echo "No Haskell packages found"
+          echo ""
+          echo "=== CHECKING FOR PACKAGES ==="
+          dpkg -l | grep -E "(azure-cli|google-cloud-cli|firefox)" || echo "Target packages not found"
+
+      - name: Free Disk Space (with timing)
+        run: |
+          echo "Starting cleanup at $(date)"
+        shell: bash
+
+      - name: Free Disk Space
+        uses: ./
+        with:
+          principal_dir: ${{ inputs.principal_dir }}
+          remove_android: ${{ inputs.remove_android }}
+          remove_dotnet: ${{ inputs.remove_dotnet }}
+          remove_haskell: ${{ inputs.remove_haskell }}
+          remove_tool_cache: ${{ inputs.remove_tool_cache }}
+          remove_swap: ${{ inputs.remove_swap }}
+          remove_packages: ${{ inputs.remove_packages }}
+          remove_packages_one_command: ${{ inputs.remove_packages_one_command }}
+          remove_folders: ${{ inputs.remove_folders }}
+          testing: ${{ inputs.testing }}
+          rm_cmd: ${{ matrix.rm_cmd }}
+
+      - name: Check cleanup results and timing
+        run: |
+          echo "Cleanup completed at $(date)"
+          echo ""
+          echo "=== FINAL DISK SPACE ==="
+          df -h
+          echo ""
+          echo "=== CHECKING WHAT WAS REMOVED ==="
+          
+          if [ "${{ inputs.remove_dotnet }}" = "true" ]; then
+            echo "Checking for remaining .NET content:"
+            find /usr/share -name "*dotnet*" -type d 2>/dev/null || echo "✅ No .NET directories found (removed successfully)"
+            dpkg -l | grep -i dotnet || echo "✅ No .NET packages found (removed successfully)"
+          fi
+          
+          if [ "${{ inputs.remove_android }}" = "true" ]; then
+            echo "Checking for remaining Android content:"
+            find /usr/local -name "*android*" -type d 2>/dev/null || echo "✅ No Android directories found (removed successfully)"
+            find /opt -name "*android*" -type d 2>/dev/null || echo "✅ No Android directories found (removed successfully)"
+          fi
+          
+          if [ "${{ inputs.remove_haskell }}" = "true" ]; then
+            echo "Checking for remaining Haskell content:"
+            find /opt -name "*ghc*" -type d 2>/dev/null || echo "✅ No Haskell GHC directories found (removed successfully)"
+            dpkg -l | grep -i haskell || echo "✅ No Haskell packages found (removed successfully)"
+          fi
+          
+          if [ "${{ inputs.remove_packages }}" != "false" ] && [ "${{ inputs.remove_packages }}" != "" ]; then
+            echo "Checking for remaining target packages:"
+            dpkg -l | grep -E "(azure-cli|google-cloud-cli|firefox)" || echo "✅ Target packages removed successfully"
+          fi
+
+      - name: Show disk usage by major directories
+        run: |
+          echo "=== APT Update ==="
+          sudo apt-get autoremove -y
+          sudo apt-get autoclean
+          sudo dpkg --configure -a
+
+          echo "=== DISK USAGE BY MAJOR DIRECTORIES ==="
+          for dir in /usr /opt /var /home /usr/local; do
+            if [ -d "$dir" ]; then
+              echo "Directory: $dir"
+              echo "Total size:"
+              sudo du -sh "$dir" 2>/dev/null || echo "Cannot access $dir"
+              echo "Breakdown (2 levels deep):"
+              sudo du -h --max-depth=2 "$dir" 2>/dev/null | sort -hr | head -20 || echo "Cannot access subdirectories of $dir"
+              echo "----------------------------------------"
+            fi
+          done
+
+          echo "=== View installed packages and their sizes ==="
+          dpkg-query -Wf '${Status}\t${Installed-Size}\t${Package}\n' | grep "^install ok installed" | awk '{print $4"\t"$5}' | sort -nr | head -50
+
+          echo "=== Files in /usr/bin folder ==="
+          find /usr/bin -maxdepth 1 -type f -printf '%s %f\n' 2>/dev/null | sort -hr | head -20 | numfmt --to=iec-i --suffix=B --field=1 || echo "Cannot access /usr/bin"
+          
+          echo "=== Files in /usr/local/bin folder ==="
+          find /usr/local/bin -maxdepth 1 -type f -printf '%s %f\n' 2>/dev/null | sort -hr | head -20 | numfmt --to=iec-i --suffix=B --field=1 || echo "Cannot access /usr/local/bin"
