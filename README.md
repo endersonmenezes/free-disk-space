@@ -24,7 +24,7 @@ A GitHub Action to free disk space on Ubuntu runners by removing unnecessary sof
 ## Compatibility
 
 - Ubuntu 22.04 - Tested on 21/08/2025.
-- Ubuntu Latest (24.04) - Tested on 21/08/2025.
+- Ubuntu Latest (24.04) - Tested on 30/10/2025.
 
 ## Available Options
 
@@ -318,7 +318,7 @@ This project, despite being on my personal profile purely formally, is part of a
 
 ## Changelog
 
-### v3.0.0 (2025-XX-XX) 🚀 (Work In Progress)
+### v3.0.0 (2025-10-30) 🚀
 
 **New Features:**
 - ✨ Added `rmz` support for faster file deletion (up to 3x faster)
