@@ -70,6 +70,7 @@ jobs:
         run: |
           INITIAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
           echo "space=${INITIAL_SPACE}" >> $GITHUB_OUTPUT
+          echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
 
       - name: Free Disk Space
         id: free_space
@@ -94,15 +95,6 @@ jobs:
       - name: Show free disk space
         run: df -h
 
-      - name: Search more files
-        run: |
-          FOLDERS=(/etc /opt /home /var /usr /usr/share /usr/lib /usr/bin /usr/local/lib /usr/local/bin /usr/local/share)
-          for folder in "${FOLDERS[@]}"; do
-            echo "Folder: $folder"
-            sudo du -h --max-depth=2 "$folder" | sort -h
-            echo "-"
-          done
-
       - name: Docker Hello World
         run: docker run hello-world
 
@@ -114,6 +106,11 @@ jobs:
         run: |
           FINAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
           echo "space=${FINAL_SPACE}" >> $GITHUB_OUTPUT
+          
+          END_TIME=$(date +%s)
+          START_TIME=${{ steps.initial_space.outputs.start_time }}
+          DURATION=$((END_TIME - START_TIME))
+          echo "duration=${DURATION}" >> $GITHUB_OUTPUT
 
       - name: Generate test summary
         id: generate_summary
@@ -122,6 +119,7 @@ jobs:
           INITIAL=${{ steps.initial_space.outputs.space }}
           FINAL=${{ steps.final_space.outputs.space }}
           FREED=$((FINAL - INITIAL))
+          DURATION=${{ steps.final_space.outputs.duration }}
           
           # Cria diretório para summaries
           mkdir -p test-summaries
@@ -142,6 +140,7 @@ jobs:
             "initial_space_gb": ${INITIAL},
             "final_space_gb": ${FINAL},
             "freed_space_gb": ${FREED},
+            "duration_seconds": ${DURATION},
             "options": {
               "remove_android": ${{ inputs.remove_android }},
               "remove_dotnet": ${{ inputs.remove_dotnet }},

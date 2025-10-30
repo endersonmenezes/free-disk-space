@@ -1,0 +1,49 @@
+name: Search Biggest Folders Template
+
+on:
+  workflow_call:
+
+jobs:
+  search_biggest_folders:
+    strategy:
+      matrix:
+        runner: 
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    name: Search biggest folders on ${{ matrix.runner }}
+    steps:
+      - name: Show initial disk space
+        run: df -h
+
+      - name: Search biggest folders (for historical reference)
+        run: |
+          echo "=== SEARCHING BIGGEST FOLDERS ==="
+          FOLDERS=(/etc /opt /home /var /usr /usr/share /usr/lib /usr/bin /usr/local/lib /usr/local/bin /usr/local/share)
+          
+          for folder in "${FOLDERS[@]}"; do
+            if [ -d "$folder" ]; then
+              echo ""
+              echo "📁 Folder: $folder"
+              echo "Total size:"
+              sudo du -sh "$folder" 2>/dev/null || echo "Cannot access $folder"
+              echo ""
+              echo "Breakdown (2 levels deep):"
+              sudo du -h --max-depth=2 "$folder" 2>/dev/null | sort -hr | head -20 || echo "Cannot access subdirectories of $folder"
+              echo "=========================================="
+            fi
+          done
+
+      - name: Show all packages by size
+        run: |
+          echo "=== TOP 50 PACKAGES BY SIZE ==="
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -50
+
+      - name: Show biggest files in key directories
+        run: |
+          echo "=== BIGGEST FILES IN /usr/bin ==="
+          find /usr/bin -maxdepth 1 -type f -printf '%s %f\n' 2>/dev/null | sort -hr | head -20 | numfmt --to=iec-i --suffix=B --field=1 || echo "Cannot access /usr/bin"
+          
+          echo ""
+          echo "=== BIGGEST FILES IN /usr/local/bin ==="
+          find /usr/local/bin -maxdepth 1 -type f -printf '%s %f\n' 2>/dev/null | sort -hr | head -20 | numfmt --to=iec-i --suffix=B --field=1 || echo "Cannot access /usr/local/bin"

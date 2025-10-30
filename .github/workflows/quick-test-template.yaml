@@ -70,6 +70,7 @@ jobs:
         run: |
           INITIAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
           echo "space=${INITIAL_SPACE}" >> $GITHUB_OUTPUT
+          echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
 
       - name: APT Updated
         run: |
@@ -180,6 +181,11 @@ jobs:
         run: |
           FINAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
           echo "space=${FINAL_SPACE}" >> $GITHUB_OUTPUT
+          
+          END_TIME=$(date +%s)
+          START_TIME=${{ steps.initial_space.outputs.start_time }}
+          DURATION=$((END_TIME - START_TIME))
+          echo "duration=${DURATION}" >> $GITHUB_OUTPUT
 
       - name: Generate test summary
         id: generate_summary
@@ -188,6 +194,7 @@ jobs:
           INITIAL=${{ steps.initial_space.outputs.space }}
           FINAL=${{ steps.final_space.outputs.space }}
           FREED=$((FINAL - INITIAL))
+          DURATION=${{ steps.final_space.outputs.duration }}
           
           # Cria diretório para summaries
           mkdir -p test-summaries
@@ -208,6 +215,7 @@ jobs:
             "initial_space_gb": ${INITIAL},
             "final_space_gb": ${FINAL},
             "freed_space_gb": ${FREED},
+            "duration_seconds": ${DURATION},
             "options": {
               "remove_android": ${{ inputs.remove_android }},
               "remove_dotnet": ${{ inputs.remove_dotnet }},
