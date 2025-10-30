@@ -247,3 +247,150 @@ jobs:
     with:
       job_name: "Folder: /usr/share/glade*"
       remove_folders: "/usr/share/glade*"
+
+  # Consolidated Summary Job
+  consolidated_summary:
+    name: "📊 Test Summary Report"
+    runs-on: ubuntu-latest
+    if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'pull_request')
+    needs: 
+      - test_basic
+      - test_full
+      - test_packages_one_command
+      - test_packages_individual
+      - test_folders
+      - test_tool_cache_swap
+      - test_haskell
+      - test_large_removal
+      - quick_test_dotnet
+      - quick_test_android
+      - quick_test_packages
+      - quick_test_testing_mode
+      - test_folder_swift
+      - test_folder_miniconda
+      - test_folder_az
+      - test_folder_node_modules
+      - test_folder_chromium
+      - test_folder_powershell
+      - test_folder_aws_cli
+      - test_folder_aws_sam_cli
+      - test_folder_julia
+      - test_folder_gradle
+      - test_folder_glade
+    steps:
+      - name: Download all test summaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-summary-*
+          path: all-summaries
+          merge-multiple: true
+
+      - name: Generate consolidated report
+        run: |
+          echo "# 📊 Free Disk Space - Test Results Summary" > $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Run:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u +%Y-%m-%d\ %H:%M:%S) UTC" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Verifica se existem summaries
+          if [ ! -d "all-summaries" ] || [ -z "$(ls -A all-summaries 2>/dev/null)" ]; then
+            echo "⚠️ No test summaries found" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          
+          echo "## 📈 Results by Test Type" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Processa os arquivos JSON
+          for json_file in all-summaries/*.json; do
+            if [ -f "$json_file" ]; then
+              JOB_NAME=$(jq -r '.job_name' "$json_file")
+              RUNNER=$(jq -r '.runner' "$json_file")
+              RM_CMD=$(jq -r '.rm_cmd' "$json_file")
+              FREED=$(jq -r '.freed_space_gb' "$json_file")
+              INITIAL=$(jq -r '.initial_space_gb' "$json_file")
+              FINAL=$(jq -r '.final_space_gb' "$json_file")
+              
+              # Cria seção para cada teste
+              echo "### 🧪 $JOB_NAME" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+              echo "| **Runner** | \`$RUNNER\` |" >> $GITHUB_STEP_SUMMARY
+              echo "| **Removal Command** | \`$RM_CMD\` |" >> $GITHUB_STEP_SUMMARY
+              echo "| **Initial Space** | ${INITIAL} GB |" >> $GITHUB_STEP_SUMMARY
+              echo "| **Final Space** | ${FINAL} GB |" >> $GITHUB_STEP_SUMMARY
+              
+              # Calcula e formata o espaço liberado
+              if [ "$FREED" -gt 0 ]; then
+                echo "| **Space Freed** | ✅ **${FREED} GB** |" >> $GITHUB_STEP_SUMMARY
+              elif [ "$FREED" -lt 0 ]; then
+                echo "| **Space Freed** | ⚠️ **${FREED} GB** (negative) |" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "| **Space Freed** | ℹ️ **${FREED} GB** |" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              # Mostra opções ativas
+              echo "<details>" >> $GITHUB_STEP_SUMMARY
+              echo "<summary>📋 Configuration Options</summary>" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+              jq '.options' "$json_file" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "</details>" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+          # Estatísticas gerais
+          echo "## 📊 Overall Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          TOTAL_TESTS=$(ls -1 all-summaries/*.json 2>/dev/null | wc -l)
+          TOTAL_FREED=$(jq -s 'map(.freed_space_gb) | add' all-summaries/*.json)
+          AVG_FREED=$(jq -s 'map(.freed_space_gb) | add / length' all-summaries/*.json)
+          MAX_FREED=$(jq -s 'map(.freed_space_gb) | max' all-summaries/*.json)
+          MIN_FREED=$(jq -s 'map(.freed_space_gb) | min' all-summaries/*.json)
+          
+          echo "| Statistic | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Tests | $TOTAL_TESTS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Space Freed | ${TOTAL_FREED} GB |" >> $GITHUB_STEP_SUMMARY
+          echo "| Average Freed per Test | ${AVG_FREED} GB |" >> $GITHUB_STEP_SUMMARY
+          echo "| Maximum Freed | ${MAX_FREED} GB |" >> $GITHUB_STEP_SUMMARY
+          echo "| Minimum Freed | ${MIN_FREED} GB |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Comparação rm vs rmz
+          echo "## ⚡ Performance Comparison: rm vs rmz" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          RM_AVG=$(jq -s 'map(select(.rm_cmd == "rm") | .freed_space_gb) | add / length' all-summaries/*.json)
+          RMZ_AVG=$(jq -s 'map(select(.rm_cmd == "rmz") | .freed_space_gb) | add / length' all-summaries/*.json)
+          
+          echo "| Command | Average Space Freed |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|---------------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| \`rm\` | ${RM_AVG} GB |" >> $GITHUB_STEP_SUMMARY
+          echo "| \`rmz\` | ${RMZ_AVG} GB |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Comparação por runner
+          echo "## 🖥️ Results by Runner" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for runner in $(jq -r '.runner' all-summaries/*.json | sort -u); do
+            RUNNER_AVG=$(jq -s --arg runner "$runner" 'map(select(.runner == $runner) | .freed_space_gb) | add / length' all-summaries/*.json)
+            RUNNER_COUNT=$(jq -s --arg runner "$runner" 'map(select(.runner == $runner)) | length' all-summaries/*.json)
+            
+            echo "- **$runner**: ${RUNNER_AVG} GB average (${RUNNER_COUNT} tests)" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Generated automatically by Free Disk Space test suite*" >> $GITHUB_STEP_SUMMARY

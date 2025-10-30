@@ -46,6 +46,10 @@ on:
         required: false
         type: boolean
         default: false
+      generate_summary:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   test:
@@ -61,7 +65,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Get initial disk space
+        id: initial_space
+        run: |
+          INITIAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
+          echo "space=${INITIAL_SPACE}" >> $GITHUB_OUTPUT
+
       - name: Free Disk Space
+        id: free_space
         uses: ./
         with:
           principal_dir: ${{ inputs.principal_dir }}
@@ -97,3 +108,57 @@ jobs:
 
       - name: Run Python Hello World
         run: python -c "print('Hello, World!')"
+
+      - name: Get final disk space
+        id: final_space
+        run: |
+          FINAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
+          echo "space=${FINAL_SPACE}" >> $GITHUB_OUTPUT
+
+      - name: Generate test summary
+        if: ${{ inputs.generate_summary }}
+        run: |
+          INITIAL=${{ steps.initial_space.outputs.space }}
+          FINAL=${{ steps.final_space.outputs.space }}
+          FREED=$((FINAL - INITIAL))
+          
+          # Cria diretório para summaries
+          mkdir -p test-summaries
+          
+          # Gera identificador único para este teste
+          TEST_ID="${{ inputs.job_name }}-${{ matrix.rm_cmd }}-${{ matrix.runner }}"
+          TEST_ID_CLEAN=$(echo "$TEST_ID" | sed 's/[^a-zA-Z0-9-]/_/g')
+          
+          # Gera arquivo de summary
+          cat > "test-summaries/${TEST_ID_CLEAN}.json" << EOF
+          {
+            "job_name": "${{ inputs.job_name }}",
+            "runner": "${{ matrix.runner }}",
+            "rm_cmd": "${{ matrix.rm_cmd }}",
+            "initial_space_gb": ${INITIAL},
+            "final_space_gb": ${FINAL},
+            "freed_space_gb": ${FREED},
+            "options": {
+              "remove_android": ${{ inputs.remove_android }},
+              "remove_dotnet": ${{ inputs.remove_dotnet }},
+              "remove_haskell": ${{ inputs.remove_haskell }},
+              "remove_tool_cache": ${{ inputs.remove_tool_cache }},
+              "remove_swap": ${{ inputs.remove_swap }},
+              "remove_packages": "${{ inputs.remove_packages }}",
+              "remove_packages_one_command": ${{ inputs.remove_packages_one_command }},
+              "remove_folders": "${{ inputs.remove_folders }}",
+              "testing": ${{ inputs.testing }}
+            },
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          
+          echo "✅ Summary gerado: ${TEST_ID_CLEAN}.json"
+
+      - name: Upload test summary
+        if: ${{ inputs.generate_summary }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-summary-${{ inputs.job_name }}-${{ matrix.rm_cmd }}-${{ matrix.runner }}
+          path: test-summaries/*.json
+          retention-days: 7
