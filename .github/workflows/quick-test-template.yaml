@@ -182,6 +182,7 @@ jobs:
           echo "space=${FINAL_SPACE}" >> $GITHUB_OUTPUT
 
       - name: Generate test summary
+        id: generate_summary
         if: ${{ inputs.generate_summary }}
         run: |
           INITIAL=${{ steps.initial_space.outputs.space }}
@@ -194,6 +195,9 @@ jobs:
           # Gera identificador único para este teste
           TEST_ID="${{ inputs.job_name }}-${{ matrix.rm_cmd }}-${{ matrix.runner }}"
           TEST_ID_CLEAN=$(echo "$TEST_ID" | sed 's/[^a-zA-Z0-9-]/_/g')
+          
+          # Exporta o nome sanitizado para uso no upload do artefato
+          echo "artifact_name=${TEST_ID_CLEAN}" >> $GITHUB_OUTPUT
           
           # Gera arquivo de summary
           cat > "test-summaries/${TEST_ID_CLEAN}.json" << EOF
@@ -225,6 +229,6 @@ jobs:
         if: ${{ inputs.generate_summary }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-summary-${{ inputs.job_name }}-${{ matrix.rm_cmd }}-${{ matrix.runner }}
+          name: test-summary-${{ steps.generate_summary.outputs.artifact_name }}
           path: test-summaries/*.json
           retention-days: 7
