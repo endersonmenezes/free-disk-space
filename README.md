@@ -316,7 +316,21 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 
 This project, despite being on my personal profile purely formally, is part of an NGO we have in Brazil, responsible for helping young people and adults learn to program and tackle real-world projects. Learn more at [codaqui.dev](https://codaqui.dev).
 
-## Changelog
+## Changelog (YYYY-MM-DD)
+
+### v3.1.0 (2025-12-08)
+
+**CI/CD Improvements:**
+- 🔧 Changed linter runner from `ubuntu-latest` to `ubuntu-slim` for faster execution
+- 📊 Enhanced `search_biggest` job with multi-runner matrix (`ubuntu-24.04`, `ubuntu-22.04`, `ubuntu-24.04-arm`, `ubuntu-slim`)
+- 📦 Added listing of top 50 packages by size and biggest files in key directories
+
+**Test Reorganization:**
+- 🧪 Added use case-based tests: Docker Build, Python/ML, Node.js, Java/JVM, Remove Browsers, Remove Cloud CLIs, Remove LLVM
+- 🗂️ Replaced low-impact folder tests with high-impact ones (`/opt/hostedtoolcache`, `/usr/share/dotnet`, `/usr/local/.ghcup`, `/usr/local/lib/android`)
+
+**Cleanup:**
+- 🧹 Centralized package size listing in `search_biggest` job
 
 ### v3.0.0 (2025-10-30) 🚀
 
