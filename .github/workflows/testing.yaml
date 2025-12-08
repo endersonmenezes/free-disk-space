@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-latest, ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-slim]
+        runner: [ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-slim]
     steps:
       - name: Show initial disk space
         run: |
@@ -206,7 +206,96 @@ jobs:
       remove_packages_one_command: true
       remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
 
-  # Step 5: Individual folder tests (for Size Savings table)
+  # Use Case: Docker/Container Build (removes Android SDK 12GB + unused tools)
+  test_usecase_docker:
+    needs: [shellcheck, search_biggest]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "UseCase: Docker Build"
+      remove_android: true
+      remove_dotnet: true
+      remove_haskell: true
+      remove_packages: "google-cloud-cli azure-cli firefox google-chrome-stable microsoft-edge-stable"
+      remove_packages_one_command: true
+      remove_folders: "/usr/share/swift /usr/local/share/chromium /opt/hostedtoolcache"
+
+  # Use Case: Python/ML Workflow (keeps Python, removes others)
+  test_usecase_python_ml:
+    needs: [shellcheck, search_biggest]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "UseCase: Python/ML"
+      remove_android: true
+      remove_dotnet: true
+      remove_haskell: true
+      remove_packages: "temurin-* *llvm* firefox google-chrome-stable microsoft-edge-stable"
+      remove_packages_one_command: true
+      remove_folders: "/usr/share/swift /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
+
+  # Use Case: Node.js Project (keeps Node, removes heavy packages)
+  test_usecase_nodejs:
+    needs: [shellcheck, search_biggest]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "UseCase: Node.js"
+      remove_android: true
+      remove_dotnet: true
+      remove_haskell: true
+      remove_packages: "temurin-* google-cloud-cli azure-cli postgresql* mysql*"
+      remove_packages_one_command: true
+      remove_folders: "/usr/share/swift /usr/share/miniconda /usr/local/share/powershell"
+
+  # Use Case: Java/JVM Project (keeps JDKs, removes others)
+  test_usecase_java:
+    needs: [shellcheck, search_biggest]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "UseCase: Java/JVM"
+      remove_android: true
+      remove_dotnet: true
+      remove_haskell: true
+      remove_packages: "*llvm* google-cloud-cli azure-cli firefox google-chrome-stable microsoft-edge-stable"
+      remove_packages_one_command: true
+      remove_folders: "/usr/share/swift /usr/share/miniconda /usr/local/lib/node_modules /usr/local/share/powershell"
+
+  # Use Case: Remove all browsers (saves ~1.5GB)
+  test_usecase_browsers:
+    needs: [shellcheck, search_biggest]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "UseCase: Remove Browsers"
+      remove_packages: "firefox google-chrome-stable microsoft-edge-stable chromium*"
+      remove_packages_one_command: true
+      remove_folders: "/usr/local/share/chromium /usr/lib/firefox"
+
+  # Use Case: Remove cloud CLIs (saves ~1.5GB)
+  test_usecase_cloud_tools:
+    needs: [shellcheck, search_biggest]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "UseCase: Remove Cloud CLIs"
+      remove_packages: "azure-cli google-cloud-cli google-cloud-cli-anthoscli"
+      remove_packages_one_command: true
+      remove_folders: "/usr/share/az* /usr/lib/google-cloud-sdk /opt/az /opt/google-cloud-sdk"
+
+  # Use Case: Remove LLVM/Clang toolchain (saves ~2GB)
+  test_usecase_llvm:
+    needs: [shellcheck, search_biggest]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "UseCase: Remove LLVM"
+      remove_packages: "*llvm* clang* libclang*"
+      remove_packages_one_command: true
+      remove_folders: "/usr/lib/llvm-*"
+
+  # Step 5: Individual folder tests (for Size Savings table - only folders with >1GB savings)
   test_folder_swift:
     needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -214,38 +303,6 @@ jobs:
     with:
       job_name: "Folder /usr/share/swift"
       remove_folders: "/usr/share/swift"
-
-  test_folder_miniconda:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    uses: ./.github/workflows/test-template.yaml
-    with:
-      job_name: "Folder /usr/share/miniconda"
-      remove_folders: "/usr/share/miniconda"
-
-  test_folder_az:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    uses: ./.github/workflows/test-template.yaml
-    with:
-      job_name: "Folder /usr/share/az"
-      remove_folders: "/usr/share/az*"
-
-  test_folder_node_modules:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    uses: ./.github/workflows/test-template.yaml
-    with:
-      job_name: "Folder /usr/local/lib/node_modules"
-      remove_folders: "/usr/local/lib/node_modules"
-
-  test_folder_chromium:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    uses: ./.github/workflows/test-template.yaml
-    with:
-      job_name: "Folder: /usr/local/share/chromium"
-      remove_folders: "/usr/local/share/chromium"
 
   test_folder_powershell:
     needs: [shellcheck, search_biggest]
@@ -255,45 +312,38 @@ jobs:
       job_name: "Folder /usr/local/share/powershell"
       remove_folders: "/usr/local/share/powershell"
 
-  test_folder_aws_cli:
+  # Test /opt folders (hostedtoolcache is huge on x86_64)
+  test_folder_hostedtoolcache:
     needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
-      job_name: "Folder /usr/local/aws-cli"
-      remove_folders: "/usr/local/aws-cli"
+      job_name: "Folder /opt/hostedtoolcache"
+      remove_folders: "/opt/hostedtoolcache"
 
-  test_folder_aws_sam_cli:
+  test_folder_dotnet:
     needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
-      job_name: "Folder /usr/local/aws-sam-cli"
-      remove_folders: "/usr/local/aws-sam-cli"
+      job_name: "Folder /usr/share/dotnet"
+      remove_folders: "/usr/share/dotnet"
 
-  test_folder_julia:
+  test_folder_ghcup:
     needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
-      job_name: "Folder /usr/local/julia"
-      remove_folders: "/usr/local/julia"
+      job_name: "Folder /usr/local/.ghcup"
+      remove_folders: "/usr/local/.ghcup"
 
-  test_folder_gradle:
+  test_folder_android:
     needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
-      job_name: "Folder /usr/share/gradle"
-      remove_folders: "/usr/share/gradle"
-
-  test_folder_glade:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    uses: ./.github/workflows/test-template.yaml
-    with:
-      job_name: "Folder /usr/share/glade"
-      remove_folders: "/usr/share/glade*"
+      job_name: "Folder /usr/local/lib/android"
+      remove_folders: "/usr/local/lib/android"
 
   # Step 6: Consolidated Summary
   consolidated_summary:
@@ -301,29 +351,35 @@ jobs:
     runs-on: ubuntu-latest
     if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'pull_request')
     needs: 
+      # Core tests
       - test_basic
       - test_full
+      - test_large_removal
       - test_packages_one_command
       - test_packages_individual
       - test_folders
       - test_tool_cache_swap
       - test_haskell
-      - test_large_removal
+      # Use case tests
+      - test_usecase_docker
+      - test_usecase_python_ml
+      - test_usecase_nodejs
+      - test_usecase_java
+      - test_usecase_browsers
+      - test_usecase_cloud_tools
+      - test_usecase_llvm
+      # Quick tests (PRs only)
       - quick_test_dotnet
       - quick_test_android
       - quick_test_packages
       - quick_test_testing_mode
+      # Folder tests (only high-impact folders)
       - test_folder_swift
-      - test_folder_miniconda
-      - test_folder_az
-      - test_folder_node_modules
-      - test_folder_chromium
       - test_folder_powershell
-      - test_folder_aws_cli
-      - test_folder_aws_sam_cli
-      - test_folder_julia
-      - test_folder_gradle
-      - test_folder_glade
+      - test_folder_hostedtoolcache
+      - test_folder_dotnet
+      - test_folder_ghcup
+      - test_folder_android
     steps:
       - name: Download all test summaries
         uses: actions/download-artifact@v4
