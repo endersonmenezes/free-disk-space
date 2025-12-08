@@ -59,7 +59,6 @@ jobs:
         runner: 
           - ubuntu-latest
           - ubuntu-24.04-arm
-          - ubuntu-slim
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
     steps:
