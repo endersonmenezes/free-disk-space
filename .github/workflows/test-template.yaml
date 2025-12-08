@@ -59,6 +59,7 @@ jobs:
         runner: 
           - ubuntu-latest
           - ubuntu-24.04-arm
+          - ubuntu-slim
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
     steps:
@@ -87,10 +88,6 @@ jobs:
           remove_folders: ${{ inputs.remove_folders }}
           testing: ${{ inputs.testing }}
           rm_cmd: ${{ matrix.rm_cmd }}
-
-      - name: Show all packages by size
-        run: |
-          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
 
       - name: Show free disk space
         run: df -h

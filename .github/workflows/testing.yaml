@@ -33,12 +33,55 @@ jobs:
       - name: Run ShellCheck
         run: shellcheck main.sh -o all -e SC2033,SC2032
   
-  # Step 2: Search biggest folders (historical reference)
-  search_biggest_folders:
-    name: "📂 Search Biggest Folders"
+  # Step 2: Search biggest folders and packages
+  search_biggest:
+    name: "🔍 Search Biggest (${{ matrix.runner }})"
     needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    uses: ./.github/workflows/search-folders-template.yaml
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-slim]
+    steps:
+      - name: Show initial disk space
+        run: |
+          echo "🖥️ Runner: ${{ matrix.runner }}"
+          echo "================================"
+          df -h
+
+      - name: Search biggest folders
+        run: |
+          echo "=== 📂 SEARCHING BIGGEST FOLDERS ==="
+          FOLDERS=(/etc /opt /home /var /usr /usr/share /usr/lib /usr/bin /usr/local/lib /usr/local/bin /usr/local/share)
+          
+          for folder in "${FOLDERS[@]}"; do
+            if [ -d "$folder" ]; then
+              echo ""
+              echo "📁 Folder: $folder"
+              echo "Total size:"
+              sudo du -sh "$folder" 2>/dev/null || echo "Cannot access $folder"
+              echo ""
+              echo "Breakdown (2 levels deep):"
+              sudo du -h --max-depth=2 "$folder" 2>/dev/null | sort -hr | head -20 || echo "Cannot access subdirectories of $folder"
+              echo "=========================================="
+            fi
+          done
+
+      - name: Show all packages by size
+        run: |
+          echo "=== 📦 TOP 50 PACKAGES BY SIZE ==="
+          dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -50
+
+      - name: Show biggest files in key directories
+        run: |
+          echo "=== 📄 BIGGEST FILES IN /usr/bin ==="
+          find /usr/bin -maxdepth 1 -type f -printf '%s %f\n' 2>/dev/null | sort -hr | head -20 | numfmt --to=iec-i --suffix=B --field=1 || echo "Cannot access /usr/bin"
+          
+          echo ""
+          echo "=== 📄 BIGGEST FILES IN /usr/local/bin ==="
+          find /usr/local/bin -maxdepth 1 -type f -printf '%s %f\n' 2>/dev/null | sort -hr | head -20 | numfmt --to=iec-i --suffix=B --field=1 || echo "Cannot access /usr/local/bin"
+
 
   # Step 3: Quick tests (for PRs)
   quick_test_dotnet:
@@ -76,7 +119,7 @@ jobs:
 
   # Step 4: Main tests (feature tests)
   test_basic:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -85,7 +128,7 @@ jobs:
       remove_dotnet: true
 
   test_full:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -101,7 +144,7 @@ jobs:
 
   # Package removal test (one command)
   test_packages_one_command:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -111,7 +154,7 @@ jobs:
 
   # Package removal test (individual commands)
   test_packages_individual:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -121,7 +164,7 @@ jobs:
 
   # Folders removal test
   test_folders:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -130,7 +173,7 @@ jobs:
 
   # Tool cache and swap test
   test_tool_cache_swap:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -140,7 +183,7 @@ jobs:
 
   # Test Haskell removal specifically
   test_haskell:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -149,7 +192,7 @@ jobs:
 
   # Large removal test
   test_large_removal:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -165,7 +208,7 @@ jobs:
 
   # Step 5: Individual folder tests (for Size Savings table)
   test_folder_swift:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -173,7 +216,7 @@ jobs:
       remove_folders: "/usr/share/swift"
 
   test_folder_miniconda:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -181,7 +224,7 @@ jobs:
       remove_folders: "/usr/share/miniconda"
 
   test_folder_az:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -189,7 +232,7 @@ jobs:
       remove_folders: "/usr/share/az*"
 
   test_folder_node_modules:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -197,7 +240,7 @@ jobs:
       remove_folders: "/usr/local/lib/node_modules"
 
   test_folder_chromium:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -205,7 +248,7 @@ jobs:
       remove_folders: "/usr/local/share/chromium"
 
   test_folder_powershell:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -213,7 +256,7 @@ jobs:
       remove_folders: "/usr/local/share/powershell"
 
   test_folder_aws_cli:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -221,7 +264,7 @@ jobs:
       remove_folders: "/usr/local/aws-cli"
 
   test_folder_aws_sam_cli:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -229,7 +272,7 @@ jobs:
       remove_folders: "/usr/local/aws-sam-cli"
 
   test_folder_julia:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -237,7 +280,7 @@ jobs:
       remove_folders: "/usr/local/julia"
 
   test_folder_gradle:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -245,7 +288,7 @@ jobs:
       remove_folders: "/usr/share/gradle"
 
   test_folder_glade:
-    needs: [shellcheck, search_biggest_folders]
+    needs: [shellcheck, search_biggest]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
