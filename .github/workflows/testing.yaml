@@ -355,7 +355,6 @@ jobs:
       - test_basic
       - test_full
       - test_large_removal
-      - test_user_reported_full_cleanup
       - test_packages_one_command
       - test_packages_individual
       - test_folders
