@@ -22,7 +22,7 @@ jobs:
   # Step 1: Linter
   shellcheck:
     name: "🔍 Bashscript Linter"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
