@@ -106,7 +106,7 @@ if [[ -z "${GITHUB_REF}" ]]; then
 fi
 
 # Global Variables
-TOTAL_FREE_SPACE=0
+TOTAL_RECOVERED_SPACE=0
 
 # Verify Needed Packages
 
@@ -198,7 +198,7 @@ function update_and_echo_free_space(){
         FREEUP_SPACE=$(echo "scale=2; ${SPACE_AFTER} - ${SPACE_BEFORE}" | bc)
         echo "FreeUp Space: ${FREEUP_SPACE} MB"
         echo "Time Elapsed: $((LINUX_TIMESTAMP_AFTER - LINUX_TIMESTAMP_BEFORE)) seconds"
-        TOTAL_FREE_SPACE=$(echo "scale=2; ${TOTAL_FREE_SPACE} + ${FREEUP_SPACE}" | bc)
+        TOTAL_RECOVERED_SPACE=$(echo "scale=2; ${TOTAL_RECOVERED_SPACE} + ${FREEUP_SPACE}" | bc)
     fi
 }
 
@@ -356,4 +356,4 @@ if [[ ${REMOVE_FOLDERS} != "false" ]]; then
         remove_folder "${FOLDER}"
     done
 fi
-echo "Total Free Space: ${TOTAL_FREE_SPACE} MB"
+echo "Total Recovered Space: ${TOTAL_RECOVERED_SPACE} MB"
