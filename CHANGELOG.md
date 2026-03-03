@@ -11,6 +11,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [v3.2.2] — 2026-03-03 — Commit: `5eabf23`
+
+**Changed:**
+- 🤖 Enhance release-manager skill with terminal gotchas, tag-first workflow, CHANGELOG-based release notes, and updated agent DO/DON'Ts (`5eabf23`)
+
+---
+
 ## [v3.2.1] — 2026-03-03 — Commit: `9cf1114`
 
 **Added:**
