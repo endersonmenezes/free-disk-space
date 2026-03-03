@@ -23,8 +23,11 @@ A GitHub Action to free disk space on Ubuntu runners by removing unnecessary sof
 
 ## Compatibility
 
-- Ubuntu 22.04 - Tested on 21/08/2025.
-- Ubuntu Latest (24.04) - Tested on 30/10/2025.
+![Ubuntu 22.04](https://img.shields.io/badge/Ubuntu_22.04-supported-green?logo=ubuntu&logoColor=white)
+![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu_24.04_(Latest)-supported-green?logo=ubuntu&logoColor=white)
+![Ubuntu 24.04 ARM64](https://img.shields.io/badge/Ubuntu_24.04_ARM64-supported-green?logo=ubuntu&logoColor=white)
+
+All runners are tested on every push via the [CI workflow](https://github.com/endersonmenezes/free-disk-space/actions/workflows/testing.yaml).
 
 ## Available Options
 

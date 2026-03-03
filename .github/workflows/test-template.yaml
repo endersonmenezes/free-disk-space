@@ -58,6 +58,7 @@ jobs:
         rm_cmd: [rm, rmz]
         runner: 
           - ubuntu-latest
+          - ubuntu-22.04
           - ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
