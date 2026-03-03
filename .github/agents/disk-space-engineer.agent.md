@@ -87,6 +87,10 @@ Load skills from `.github/skills/` for specialized tasks:
 - Keep backward compatibility
 - Update docs when changing behavior
 - Read `AGENTS.md` for env var mapping and troubleshooting details
+- Use `git --no-pager` for all git commands that produce output (log, diff, show, etc.)
+- Use `--json ... -q` or `GH_PAGER=''` for gh CLI commands to avoid pager issues
+- Run terminal commands **one at a time** — do not chain with `&&` to avoid pager/buffer issues
+- Always use annotated tags with `-m` flag: `git tag <name> -m "<name>"`
 
 ### DON'T
 
@@ -98,6 +102,7 @@ Load skills from `.github/skills/` for specialized tasks:
 - Never bypass ShellCheck (`--no-verify` is forbidden)
 - Never break the 2×2 test matrix pattern
 - Never duplicate content already in `copilot-instructions.md`
+- Never chain multiple terminal commands with `&&` — run them separately
 
 ## Task Completion Feedback (Mandatory)
 
