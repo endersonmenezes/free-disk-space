@@ -19,7 +19,7 @@ A GitHub Action to free disk space on Ubuntu runners by removing unnecessary sof
 - [Size Savings](#size-savings)
 - [FAQ](#faq)
 - [Contributing](#contributing)
-- [Changelog](#changelog)
+- [Changelog](CHANGELOG.md)
 
 ## Compatibility
 
@@ -316,67 +316,9 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 
 This project, despite being on my personal profile purely formally, is part of an NGO we have in Brazil, responsible for helping young people and adults learn to program and tackle real-world projects. Learn more at [codaqui.dev](https://codaqui.dev).
 
-## Changelog (YYYY-MM-DD)
+## Changelog
 
-### v3.1.0 (2025-12-08)
-
-**CI/CD Improvements:**
-- 🔧 Changed linter runner from `ubuntu-latest` to `ubuntu-slim` for faster execution
-- 📊 Enhanced `search_biggest` job with multi-runner matrix (`ubuntu-24.04`, `ubuntu-22.04`, `ubuntu-24.04-arm`, `ubuntu-slim`)
-- 📦 Added listing of top 50 packages by size and biggest files in key directories
-
-**Test Reorganization:**
-- 🧪 Added use case-based tests: Docker Build, Python/ML, Node.js, Java/JVM, Remove Browsers, Remove Cloud CLIs, Remove LLVM
-- 🗂️ Replaced low-impact folder tests with high-impact ones (`/opt/hostedtoolcache`, `/usr/share/dotnet`, `/usr/local/.ghcup`, `/usr/local/lib/android`)
-
-**Cleanup:**
-- 🧹 Centralized package size listing in `search_biggest` job
-
-### v3.0.0 (2025-10-30) 🚀
-
-**New Features:**
-- ✨ Added `rmz` support for faster file deletion (up to 3x faster)
-  - ✨ Added `rm_cmd` and `rmz_version` inputs
-  - 🔧 Multi-architecture support for rmz (x86_64 and aarch64)
-- 🛠️ DevContainer configuration for easy development
-- ✅ Pre-commit hooks with shellcheck and actionlint
-- 📝 Enhanced documentation with examples and troubleshooting
-
-**Improvements:**
-- 🔧 Better error handling and validation
-- 🔧 Improved testing mode (echo commands instead of alias)
-- 📦 Reusable workflow templates for testing
-
-**Bug Fixes:**
-- 🐛 Fixed bc validation to exit gracefully instead of failing
-- 🐛 Improved permission handling in testing mode
-
-**Special Thanks:**
-- [fbnrst](https://github.com/fbnrst) for contributions, ideas, and testing!
-
-### v2.1.1 (2025-08-21)
-
-**Improvements:**
-- Streamlined BC verification
-- Improved testing mode
-- Better error messages
-
-### v2.0.0
-
-**Features:**
-- Package removal support
-- Folder removal support
-- Enhanced disk space reporting
-- Testing mode for local development
-
-### v1.0.0
-
-**Initial Release:**
-- Android library removal
-- .NET library removal
-- Haskell library removal
-- Tool cache removal
-- Swap storage removal
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ## License
 
