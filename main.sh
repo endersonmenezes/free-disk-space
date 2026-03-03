@@ -119,7 +119,7 @@ fi
 
 # Copy bc bin to ./
 cp "${COMMAND_BC}" ./
-alias bc='./bc'
+MY_BC='./bc'
 
 # Setup rmz if needed
 if [[ "${RM_CMD}" == "rmz" ]]; then
@@ -179,7 +179,7 @@ function verify_free_disk_space(){
 }
 
 function convert_bytes_to_mb(){
-    echo "scale=2; $1 / 1024 / 1024" | bc
+    echo "scale=2; $1 / 1024 / 1024" | ${MY_BC}
 }
 
 function verify_free_space_in_mb(){
@@ -195,10 +195,10 @@ function update_and_echo_free_space(){
     else
         SPACE_AFTER=$(verify_free_space_in_mb)
         LINUX_TIMESTAMP_AFTER=$(date +%s)
-        FREEUP_SPACE=$(echo "scale=2; ${SPACE_AFTER} - ${SPACE_BEFORE}" | bc)
+        FREEUP_SPACE=$(echo "scale=2; ${SPACE_AFTER} - ${SPACE_BEFORE}" | ${MY_BC})
         echo "FreeUp Space: ${FREEUP_SPACE} MB"
         echo "Time Elapsed: $((LINUX_TIMESTAMP_AFTER - LINUX_TIMESTAMP_BEFORE)) seconds"
-        TOTAL_RECOVERED_SPACE=$(echo "scale=2; ${TOTAL_RECOVERED_SPACE} + ${FREEUP_SPACE}" | bc)
+        TOTAL_RECOVERED_SPACE=$(echo "scale=2; ${TOTAL_RECOVERED_SPACE} + ${FREEUP_SPACE}" | ${MY_BC})
     fi
 }
 
