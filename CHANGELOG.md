@@ -11,6 +11,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [v3.2.1] — 2026-03-03 — Commit: `9cf1114`
+
+**Added:**
+- 🤖 Add Release Manager skill for managing semantic version releases and updating major version alias (`9cf1114`)
+
+**Changed:**
+- 📝 Update CHANGELOG.md and README.md with recent changes and performance improvements (`dcf58cd`)
+
+---
+
 ## [v3.2.0] — 2026-03-03 — Commit: `f63fea6`
 
 **Added:**
