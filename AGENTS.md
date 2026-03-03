@@ -9,6 +9,7 @@ Deep technical reference for contributors and AI agents. For coding conventions,
 | `.github/copilot-instructions.md` | Project conventions, coding standards, testing strategy (always loaded) |
 | `.github/agents/disk-space-engineer.agent.md` | Custom agent: workflows, behavioral rules, task feedback |
 | `.github/skills/changelog-maintainer/SKILL.md` | Skill for maintaining changelog entries |
+| `.github/skills/release-manager/SKILL.md` | Skill for creating releases and updating major version alias tag |
 
 > **Note**: `copilot-instructions.md` is the canonical source for code conventions, function patterns, ShellCheck, commit messages, testing matrix, and versioning. This file contains only supplementary technical details not covered there.
 

@@ -73,6 +73,7 @@ For deep technical details not in copilot-instructions, read these on-demand:
 Load skills from `.github/skills/` for specialized tasks:
 
 - **changelog-maintainer**: Analyze git changes and maintain CHANGELOG entries following Keep a Changelog format
+- **release-manager**: Create new semantic version releases and update the major version alias tag using `gh` CLI
 
 ## Do's and Don'ts
 
