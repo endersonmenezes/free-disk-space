@@ -9,9 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [v3.2.0] — 2026-03-03 — Commit: `f63fea6`
+
+**Added:**
+- 🧪 Add support for Ubuntu 22.04 in workflow templates and update README with compatibility badges (`2c1f01a`)
+- 📝 Create CHANGELOG.md and update README to link to it (`19c7ae6`)
+- 🤖 Add Copilot instructions and agent documentation (`403e664`)
+- 🤖 Add Changelog Maintainer skill to automate CHANGELOG.md updates (`c7496bb`)
+
 **Changed:**
 - 📊 Distinguish total free space from recovered space in output — fixes [#22](https://github.com/endersonmenezes/free-disk-space/issues/22) (`a89b4e5`)
 - 🛠️ Update GitHub Actions extension identifier in devcontainer configuration (`a9a4807`)
+- 🔧 Update workflow templates and improve cleanup validation (`225faab`)
+- 🔧 Update disk-space-engineer agent tools for enhanced functionality (`4ef9f03`)
+- 🔄 Pre-commit autoupdate (`17f6375`)
 
 **Fixed:**
 - 🐛 Replace `bc` alias with variable path to prevent breakage when `bc` is relocated during cleanup (`0d73123`)
@@ -19,6 +32,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 **CI/CD Improvements:**
 - 🧹 Remove user-reported full cleanup test from workflow jobs (`b40e4c8`)
+- 🧪 Expand folder removal list in package removal tests for improved cleanup (`f63fea6`)
+
+**Special Thanks:**
+- [cuiyf5516](https://github.com/cuiyf5516) for fixing the `bc` path issue on Ubuntu 22.04 ([#27](https://github.com/endersonmenezes/free-disk-space/pull/27)) — first contribution! 🎉
 
 ---
 

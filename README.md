@@ -181,39 +181,43 @@ For faster file deletion, you can use `rmz` instead of the default `rm` command:
 
 ## Size Savings
 
-`Updated at: 30/10/2025 - Based on Run #197`
+`Updated at: 03/03/2026 - Based on Run #234`
 
 ### Ubuntu Latest (x86_64)
 
 | Option | Size Freed | Time (rm) | Time (rmz) | Notes |
 |--------|------------|-----------|------------|-------|
-| `remove_android` | ~10 GB | 54s | 13s | Part of Basic test |
-| `remove_dotnet` | ~3 GB | Included | Included | Part of Basic test |
-| `remove_haskell` | 6 GB | 14s | 3s | ⚡ **78% faster with rmz** |
-| `remove_tool_cache` | 5 GB | 83s | 27s | ⚡ **67% faster with rmz** |
+| `remove_android` | ~10 GB | 50s | 6s | Part of Basic test |
+| `remove_dotnet` | ~4 GB | 13s | 6s | Part of Basic test |
+| `remove_haskell` | 4 GB | 6s | 6s | |
+| `remove_tool_cache` | 6 GB | 32s | 22s | ⚡ **31% faster with rmz** |
 | `remove_swap` | - | - | - | Included in tool_cache test |
-| `remove_packages` (example) | 5 GB | 69s | 43s | postgresql*, temurin-*, *llvm*, mysql*, dotnet-sdk-* |
-| **Full cleanup** | **31 GB** | **184s** | **238s** | All options enabled |
-| **Large removal** | **38 GB** | **538s** | **344s** | ⚡ **36% faster with rmz** |
+| `remove_packages` (example) | 6 GB | 17s | 19s | postgresql*, temurin-*, *llvm*, mysql*, dotnet-sdk-* |
+| **Full cleanup** | **33 GB** | **204s** | **153s** | ⚡ **25% faster with rmz** |
+| **Large removal** | **41 GB** | **467s** | **167s** | ⚡ **64% faster with rmz** |
 
 ### Ubuntu 24.04 ARM64
 
 | Option | Size Freed | Time (rm) | Time (rmz) | Notes |
 |--------|------------|-----------|------------|-------|
 | `remove_android` | 0 GB | - | - | Not available on ARM |
-| `remove_dotnet` | 0 GB | - | - | Not available on ARM |
+| `remove_dotnet` | 4 GB | 27s | 7s | Via /usr/share/dotnet folder |
 | `remove_haskell` | 0 GB | - | - | Not available on ARM |
 | `remove_tool_cache` | 0 GB | - | - | Not available on ARM |
-| `remove_packages` (example) | 4 GB | 80s | 67s | ⚡ **16% faster with rmz** |
-| **Full cleanup** | **3 GB** | **22s** | **45s** | Limited packages on ARM |
-| **Large removal** | **6 GB** | **66s** | **82s** | Limited packages on ARM |
+| `remove_packages` (example) | 2 GB | 38s | 35s | postgresql*, temurin-*, *llvm* |
+| **Full cleanup** | **9 GB** | **23s** | **27s** | More packages now pre-installed on ARM |
+| **Large removal** | **16 GB** | **35s** | **28s** | ⚡ **20% faster with rmz** |
 
 ### Individual Folders (Both Architectures)
 
 | Folder | Ubuntu Latest | Ubuntu ARM | Time (rm) | Time (rmz) | Notes |
 |--------|---------------|------------|-----------|------------|-------|
-| `/usr/share/swift` | 3 GB | 3 GB | 2s / 6s | 5s / 6s | Consistent across archs |
-| `/usr/local/share/powershell` | 1 GB | 1 GB | 2s / 7s | 2s / 6s | ~1.2 GB |
+| `/usr/local/lib/android` | 10 GB | 0 GB | 50s / 8s | 6s / 5s | ⚡ **88% faster with rmz** |
+| `/opt/hostedtoolcache` | 6 GB | 0 GB | 32s / 11s | 22s / 13s | Not available on ARM |
+| `/usr/share/dotnet` | 4 GB | 4 GB | 13s / 27s | 6s / 7s | Consistent across archs |
+| `/usr/share/swift` | 4 GB | 3 GB | 4s / 7s | 3s / 7s | Consistent across archs |
+| `/usr/local/.ghcup` | 4 GB | 0 GB | 2s / 6s | 5s / 8s | Not available on ARM |
+| `/usr/local/share/powershell` | 2 GB | 1 GB | 1s / 6s | 2s / 10s | ~1.2 GB |
 | `/usr/local/lib/node_modules` | 0 GB | 1 GB | 15s / 20s | 10s / 22s | ~463 MB |
 | `/usr/share/az*` | 0 GB | 1 GB | 6s / 8s | 3s / 6s | Azure CLI (~495 MB) |
 | `/usr/share/miniconda` | 0 GB | 0 GB | 18s / 5s | 5s / 6s | ~736 MB (when present) |
@@ -267,12 +271,12 @@ remove_folders: "/usr/share/swift /usr/local/share/powershell /usr/local/lib/nod
 
 ### Performance Notes
 
-- ⚡ **rmz is significantly faster** for large operations (up to 78% faster on Haskell removal)
-- 🔧 **ARM runners have fewer pre-installed packages** (49 GB initial vs 23 GB on x86_64)
-- 📊 **Full cleanup on x86_64** can free up to **38 GB** with Large removal
+- ⚡ **rmz is significantly faster** for large operations (up to 88% faster on Android folder, 64% on Large removal)
+- 🔧 **ARM runners now have more pre-installed software**, freeing up to 16 GB with Large removal
+- 📊 **Full cleanup on x86_64** can free up to **41 GB** with Large removal
 - 🎯 **For maximum speed**: Use `rmz` with `remove_packages_one_command: true`
 
-_The time can vary according to multiple factors. These measurements are based on [Run #197](https://github.com/endersonmenezes/free-disk-space/actions/runs/18948864052)_
+_The time can vary according to multiple factors. These measurements are based on [Run #234](https://github.com/endersonmenezes/free-disk-space/actions/runs/22636404159)_
 
 _In our action you can see more folders and packages to delete, but it is your responsibility to know what you are doing._
 
