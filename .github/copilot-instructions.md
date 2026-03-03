@@ -24,8 +24,7 @@ free-disk-space/
 │   └── workflows/
 │       ├── testing.yaml                # Main CI workflow
 │       ├── test-template.yaml          # Reusable full test
-│       ├── quick-test-template.yaml    # Reusable PR quick test
-│       └── search-folders-template.yaml
+│       └── quick-test-template.yaml    # Reusable PR quick test
 ├── .devcontainer/devcontainer.json
 ├── .editorconfig
 ├── .pre-commit-config.yaml

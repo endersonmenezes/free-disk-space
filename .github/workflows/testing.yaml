@@ -23,6 +23,7 @@ jobs:
   shellcheck:
     name: "🔍 Bashscript Linter"
     runs-on: ubuntu-slim
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,6 +40,7 @@ jobs:
     needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -119,7 +121,7 @@ jobs:
 
   # Step 4: Main tests (feature tests)
   test_basic:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -128,7 +130,7 @@ jobs:
       remove_dotnet: true
 
   test_full:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -144,7 +146,7 @@ jobs:
 
   # Package removal test (one command)
   test_packages_one_command:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -154,7 +156,7 @@ jobs:
 
   # Package removal test (individual commands)
   test_packages_individual:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -164,7 +166,7 @@ jobs:
 
   # Folders removal test
   test_folders:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -173,7 +175,7 @@ jobs:
 
   # Tool cache and swap test
   test_tool_cache_swap:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -183,7 +185,7 @@ jobs:
 
   # Test Haskell removal specifically
   test_haskell:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -192,7 +194,7 @@ jobs:
 
   # Large removal test
   test_large_removal:
-    needs: [shellcheck, search_biggest]
+    needs: shellcheck
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
@@ -206,10 +208,24 @@ jobs:
       remove_packages_one_command: true
       remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
 
+  # Testing mode validation (ensures echo-only mode works)
+  test_testing_mode:
+    needs: shellcheck
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    uses: ./.github/workflows/test-template.yaml
+    with:
+      job_name: "Testing mode"
+      remove_android: true
+      remove_dotnet: true
+      remove_packages: "azure-cli firefox"
+      remove_packages_one_command: true
+      remove_folders: "/usr/share/swift"
+      testing: true
+
   # Use Case: Docker/Container Build (removes Android SDK 12GB + unused tools)
   test_usecase_docker:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "UseCase: Docker Build"
@@ -222,8 +238,8 @@ jobs:
 
   # Use Case: Python/ML Workflow (keeps Python, removes others)
   test_usecase_python_ml:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "UseCase: Python/ML"
@@ -236,8 +252,8 @@ jobs:
 
   # Use Case: Node.js Project (keeps Node, removes heavy packages)
   test_usecase_nodejs:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "UseCase: Node.js"
@@ -250,8 +266,8 @@ jobs:
 
   # Use Case: Java/JVM Project (keeps JDKs, removes others)
   test_usecase_java:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "UseCase: Java/JVM"
@@ -264,8 +280,8 @@ jobs:
 
   # Use Case: Remove all browsers (saves ~1.5GB)
   test_usecase_browsers:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "UseCase: Remove Browsers"
@@ -275,8 +291,8 @@ jobs:
 
   # Use Case: Remove cloud CLIs (saves ~1.5GB)
   test_usecase_cloud_tools:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "UseCase: Remove Cloud CLIs"
@@ -286,8 +302,8 @@ jobs:
 
   # Use Case: Remove LLVM/Clang toolchain (saves ~2GB)
   test_usecase_llvm:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "UseCase: Remove LLVM"
@@ -297,16 +313,16 @@ jobs:
 
   # Step 5: Individual folder tests (for Size Savings table - only folders with >1GB savings)
   test_folder_swift:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "Folder /usr/share/swift"
       remove_folders: "/usr/share/swift"
 
   test_folder_powershell:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "Folder /usr/local/share/powershell"
@@ -314,32 +330,32 @@ jobs:
 
   # Test /opt folders (hostedtoolcache is huge on x86_64)
   test_folder_hostedtoolcache:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "Folder /opt/hostedtoolcache"
       remove_folders: "/opt/hostedtoolcache"
 
   test_folder_dotnet:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "Folder /usr/share/dotnet"
       remove_folders: "/usr/share/dotnet"
 
   test_folder_ghcup:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "Folder /usr/local/.ghcup"
       remove_folders: "/usr/local/.ghcup"
 
   test_folder_android:
-    needs: [shellcheck, search_biggest]
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: shellcheck
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     uses: ./.github/workflows/test-template.yaml
     with:
       job_name: "Folder /usr/local/lib/android"
@@ -349,9 +365,10 @@ jobs:
   consolidated_summary:
     name: "📊 Test Summary Report"
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'pull_request')
     needs: 
-      # Core tests
+      # Core tests (push + schedule)
       - test_basic
       - test_full
       - test_large_removal
@@ -360,7 +377,8 @@ jobs:
       - test_folders
       - test_tool_cache_swap
       - test_haskell
-      # Use case tests
+      - test_testing_mode
+      # Use case tests (schedule + dispatch only)
       - test_usecase_docker
       - test_usecase_python_ml
       - test_usecase_nodejs
@@ -373,7 +391,7 @@ jobs:
       - quick_test_android
       - quick_test_packages
       - quick_test_testing_mode
-      # Folder tests (only high-impact folders)
+      # Folder tests (schedule + dispatch only)
       - test_folder_swift
       - test_folder_powershell
       - test_folder_hostedtoolcache
@@ -497,5 +515,27 @@ jobs:
           done
           
           echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Regression detection
+          REGRESSIONS=$(jq -s 'map(select(.freed_space_gb < 0))' all-summaries/*.json)
+          REGRESSION_COUNT=$(echo "$REGRESSIONS" | jq 'length')
+          
+          if [ "$REGRESSION_COUNT" -gt 0 ]; then
+            echo "## ⚠️ Regressions Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The following tests freed **negative** disk space (possible regression):" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Test | Runner | rm_cmd | Space (GB) |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|--------|--------|------------|" >> $GITHUB_STEP_SUMMARY
+            
+            echo "$REGRESSIONS" | jq -r '.[] | "| \(.job_name) | `\(.runner)` | `\(.rm_cmd)` | \(.freed_space_gb) |"' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ✅ No Regressions" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All tests freed zero or positive disk space." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "*Generated automatically by Free Disk Space test suite*" >> $GITHUB_STEP_SUMMARY

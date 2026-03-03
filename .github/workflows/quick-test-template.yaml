@@ -61,6 +61,7 @@ jobs:
           - ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,9 +73,8 @@ jobs:
           echo "space=${INITIAL_SPACE}" >> $GITHUB_OUTPUT
           echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
 
-      - name: APT Updated
-        run: |
-          sudo apt-get update -y
+      - name: Update APT cache
+        run: sudo apt-get update -y
 
       - name: Check initial disk space and installed content
         run: |
@@ -95,11 +95,6 @@ jobs:
           echo ""
           echo "=== CHECKING FOR PACKAGES ==="
           dpkg -l | grep -E "(azure-cli|google-cloud-cli|firefox)" || echo "Target packages not found"
-
-      - name: Free Disk Space (with timing)
-        run: |
-          echo "Starting cleanup at $(date)"
-        shell: bash
 
       - name: Free Disk Space
         uses: ./

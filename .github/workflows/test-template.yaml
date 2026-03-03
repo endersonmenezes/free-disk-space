@@ -61,6 +61,7 @@ jobs:
           - ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
+    timeout-minutes: 25
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -107,6 +108,19 @@ jobs:
           START_TIME=${{ steps.initial_space.outputs.start_time }}
           DURATION=$((END_TIME - START_TIME))
           echo "duration=${DURATION}" >> $GITHUB_OUTPUT
+
+      - name: Validate cleanup results
+        if: ${{ !inputs.testing }}
+        run: |
+          INITIAL=${{ steps.initial_space.outputs.space }}
+          FINAL=${{ steps.final_space.outputs.space }}
+          FREED=$((FINAL - INITIAL))
+          
+          if [ "$FREED" -lt 0 ]; then
+            echo "::warning::Regression detected: disk space decreased by ${FREED} GB after cleanup"
+          else
+            echo "✅ Cleanup freed ${FREED} GB"
+          fi
 
       - name: Generate test summary
         id: generate_summary
