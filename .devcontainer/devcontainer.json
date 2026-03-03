@@ -12,7 +12,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "me-dutour-mathieu.vscode-github-actions",
+        "GitHub.vscode-github-actions",
         "ms-vscode-remote.remote-containers",
         "timonwong.shellcheck"
       ]
