@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Runners Disk Space Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f6f8fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #24292f;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #24292f;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #57606a;
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 1em;
+        }
+
+        .info-box {
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .info-box h2 {
+            color: #24292f;
+            font-size: 1.25em;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .info-box h3 {
+            color: #24292f;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .info-box p {
+            color: #57606a;
+            margin-bottom: 16px;
+        }
+
+        .info-box code {
+            background: #f6f8fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+            font-size: 0.875em;
+            color: #24292f;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-box li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .info-box li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #57606a;
+            font-weight: normal;
+        }
+
+        .info-box a {
+            color: #0969da;
+            text-decoration: none;
+            font-weight: normal;
+        }
+
+        .info-box a:hover {
+            text-decoration: underline;
+        }
+
+        .reports-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .report-card {
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 16px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .report-card:hover {
+            border-color: #0969da;
+        }
+
+        .report-card.expanded {
+            cursor: default;
+        }
+
+        .report-card.expanded:hover {
+            border-color: #d0d7de;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-header h2 {
+            color: #24292f;
+            font-size: 1.25em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .report-meta {
+            color: #57606a;
+            font-size: 0.875em;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .report-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .report-meta span::before {
+            content: '•';
+            color: #57606a;
+            font-weight: normal;
+        }
+
+        .expand-icon {
+            color: #57606a;
+            font-size: 1.2em;
+            transition: transform 0.2s ease;
+        }
+
+        .report-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .report-content {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #d0d7de;
+        }
+
+        .report-card.expanded .report-content {
+            display: block;
+        }
+
+        .tree-view {
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+            font-size: 0.875em;
+            max-height: 600px;
+            overflow-y: auto;
+            background: #f6f8fa;
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .tree-item {
+            padding: 4px 0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .tree-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .tree-item-name {
+            color: #24292f;
+        }
+
+        .tree-item-size {
+            color: #0969da;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .tree-item-dir {
+            color: #24292f;
+            font-weight: 600;
+        }
+
+        .indent {
+            display: inline-block;
+            width: 20px;
+        }
+
+        .expandable::before {
+            content: '▶ ';
+            color: #57606a;
+            font-size: 0.8em;
+        }
+
+        .expandable.expanded::before {
+            content: '▼ ';
+        }
+
+        .children {
+            display: none;
+        }
+
+        .children.visible {
+            display: block;
+        }
+
+
+
+        .loading {
+            text-align: center;
+            color: #57606a;
+            font-size: 1em;
+            padding: 40px;
+        }
+
+        .error {
+            background: #d1242f;
+            color: #ffffff;
+            padding: 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #57606a;
+            margin-top: 16px;
+            font-size: 0.875em;
+        }
+
+        .sort-controls {
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sort-controls label {
+            font-weight: 600;
+            color: #24292f;
+        }
+
+        .sort-controls input[type="radio"] {
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .sort-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .sort-option:hover {
+            background-color: #f6f8fa;
+        }
+
+        .more-items-notice {
+            font-style: italic;
+            color: #57606a;
+            padding: 8px 0;
+        }
+
+        .github-link {
+            display: inline-block;
+            text-align: center;
+            margin: 0 auto 24px auto;
+            padding: 8px 16px;
+            background: #ffffff;
+            color: #24292f;
+            text-decoration: none;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875em;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .github-link:hover {
+            background: #f6f8fa;
+            border-color: #0969da;
+        }
+
+        .github-link-container {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub runners Disk Space Overview</h1>
+        <p class="subtitle">Disk usage analysis for GitHub actions self-hosted runners</p>
+
+        <div class="github-link-container">
+            <a href="https://github.com/fbnrst/Github-Hosted-Runners-Disk-Space" class="github-link" target="_blank" rel="noopener noreferrer">
+                View on GitHub
+            </a>
+        </div>
+
+        <div class="info-box">
+            <h2>What This Page Shows</h2>
+            <p>
+                This page displays detailed disk space usage analysis for GitHub Actions runners across different architectures and Ubuntu versions.
+                The data is collected weekly using <code>ncdu</code> (NCurses Disk Usage) and helps you understand what's consuming disk space on GitHub runners.
+            </p>
+            <p>
+                <strong>Why is this important?</strong> Disk space limitations can cause CI/CD jobs to fail. By understanding which directories and files consume the most space,
+                you can make informed decisions about what data to delete to free up space for your workflows.
+            </p>
+            <h3>Cleanup Resources</h3>
+            <ul>
+                <li>
+                    <strong>Automated Cleanup Action:</strong>
+                    <a href="https://github.com/endersonmenezes/free-disk-space" target="_blank" rel="noopener noreferrer">free-disk-space</a>
+                    - A GitHub Action to automatically free disk space in your workflows
+                </li>
+                <li>
+                    <strong>If you want to read more, check out these blog posts:</strong>
+                    <ul>
+                        <li>
+                            <a href="https://www.geraldonit.com/mastering-disk-space-on-github-actions-runners-a-deep-dive-into-cleanup-strategies-for-x64-and-arm64-runners/" target="_blank" rel="noopener noreferrer">Mastering Disk Space on GitHub Actions Runners</a>
+                            - Deep dive into cleanup strategies for x64 and ARM64 runners
+                        </li>
+                        <li>
+                            <a href="https://dev.to/mathio/squeezing-disk-space-from-github-actions-runners-an-engineers-guide-3pjg" target="_blank" rel="noopener noreferrer">Squeezing Disk Space from GitHub Actions Runners</a>
+                            - An engineer's guide with practical optimization techniques
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div id="loading" class="loading">Loading disk space reports...</div>
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="sort-controls" id="sortControls" style="display: none;">
+            <label>Sort directories:</label>
+            <div class="sort-option">
+                <input type="radio" id="sortByName" name="sortOrder" value="name">
+                <label for="sortByName">By Name</label>
+            </div>
+            <div class="sort-option">
+                <input type="radio" id="sortBySize" name="sortOrder" value="size" checked>
+                <label for="sortBySize">By Size</label>
+            </div>
+        </div>
+
+        <div id="reports" class="reports-container" style="display: none;"></div>
+
+        <div class="last-updated" id="lastUpdated"></div>
+    </div>
+
+    <script>
+        // Configuration for data source
+        // Data files are stored in a separate 'data' branch to avoid conflicts with page design PRs
+        const DATA_BASE_URL = 'https://raw.githubusercontent.com/fbnrst/Github-Self-Hosted-Runners-Disk-Space/data/data/';
+
+        // Cache for full JSON data (lazy loaded)
+        const fullDataCache = {};
+        // Current sort order: 'name' or 'size'
+        let currentSortOrder = 'size';
+        // Track if event listeners have been set up
+        let sortListenersInitialized = false;
+
+        // All runners to display
+        // Note: Architecture identifiers must match the filenames in the data branch
+        // (e.g., 'x86_64-slim' corresponds to x86_64-slim.json and x86_64-slim-metadata.json)
+        // Naming conventions follow the workflow configuration in .github/workflows/collect-disk-space.yml
+        // Ubuntu versions are explicit where the runner provides them (24.04, 22.04)
+        // 'slim' variant doesn't include version in its identifier per workflow configuration
+        const RUNNERS = [
+            { architecture: 'x86_64', title: 'x86_64 (Intel/AMD) - Ubuntu 24.04' },
+            { architecture: 'aarch64', title: 'aarch64 (ARM64) - Ubuntu 24.04' },
+            { architecture: 'aarch64-22.04', title: 'aarch64 (ARM64) - Ubuntu 22.04' },
+            { architecture: 'x86_64-22.04', title: 'x86_64 (Intel/AMD) - Ubuntu 22.04' },
+            { architecture: 'x86_64-slim', title: 'x86_64 (Intel/AMD) - Ubuntu Slim' }
+        ];
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function calculateEntrySize(entry, seenInodes = null) {
+            // Calculate total size of an NCDU entry recursively
+            // In NCDU format, directory metadata contains only the inode size
+            // We need to recursively sum all children to get the total size
+            //
+            // Hard links (files with the same inode) are only counted once to avoid
+            // overestimation of disk usage.
+            if (seenInodes === null) {
+                seenInodes = new Set();
+            }
+
+            if (typeof entry === 'object' && !Array.isArray(entry)) {
+                // File entry: check for hard links
+                const ino = entry.ino;
+                if (ino !== undefined) {
+                    // This file has an inode number
+                    if (seenInodes.has(ino)) {
+                        // Already counted this inode (hard link)
+                        return 0;
+                    }
+                    // Mark this inode as seen
+                    seenInodes.add(ino);
+                }
+
+                // Return dsize (disk usage) only, not asize + dsize
+                return entry.dsize || 0;
+            } else if (Array.isArray(entry) && entry.length >= 1) {
+                // Directory entry: [metadata, children...]
+                // According to ncdu format, directory size = sum of children only
+                // The metadata dict contains only the directory inode size, not the total
+                let totalSize = 0;
+
+                // Sum only children's sizes, not the directory metadata
+                for (let i = 1; i < entry.length; i++) {
+                    totalSize += calculateEntrySize(entry[i], seenInodes);
+                }
+
+                return totalSize;
+            }
+            return 0;
+        }
+
+        function sortEntries(entries, sortOrder) {
+            // Sort entries by name or size
+            // Entry format: [size, name, has_children]
+            const sorted = [...entries]; // Create a copy to avoid mutating original
+
+            if (sortOrder === 'name') {
+                sorted.sort((a, b) => {
+                    const nameA = (Array.isArray(a) && a.length >= 2) ? a[1] : '';
+                    const nameB = (Array.isArray(b) && b.length >= 2) ? b[1] : '';
+                    return nameA.localeCompare(nameB);
+                });
+            } else if (sortOrder === 'size') {
+                sorted.sort((a, b) => {
+                    const sizeA = (Array.isArray(a) && a.length >= 1) ? a[0] : 0;
+                    const sizeB = (Array.isArray(b) && b.length >= 1) ? b[0] : 0;
+                    return sizeB - sizeA; // Descending order (largest first)
+                });
+            } else {
+                // Default to size sorting for invalid sort orders
+                console.warn(`Invalid sort order '${sortOrder}', defaulting to 'size'`);
+                return sortEntries(entries, 'size');
+            }
+
+            return sorted;
+        }
+
+        function sortFullEntries(entries, sortOrder) {
+            // Sort full NCDU entries
+            // Full entry format: [{name, asize, dsize}, ...children]
+
+            // ALWAYS calculate all sizes with a shared seenInodes set first
+            // to avoid overestimating when hard links exist between sibling entries
+            const sharedInodes = new Set();
+            const entriesWithSizes = entries.map(entry => ({
+                entry,
+                size: calculateEntrySize(entry, sharedInodes)
+            }));
+
+            // Cache the calculated sizes on the entries themselves
+            entriesWithSizes.forEach(({ entry, size }) => {
+                if (Array.isArray(entry) && entry.length > 0 && typeof entry[0] === 'object') {
+                    entry[0]._cachedSize = size;
+                } else if (typeof entry === 'object') {
+                    entry._cachedSize = size;
+                }
+            });
+
+            if (sortOrder === 'name') {
+                entriesWithSizes.sort((a, b) => {
+                    const nameA = (Array.isArray(a.entry) && a.entry.length > 0 && typeof a.entry[0] === 'object') ? (a.entry[0].name || '') : '';
+                    const nameB = (Array.isArray(b.entry) && b.entry.length > 0 && typeof b.entry[0] === 'object') ? (b.entry[0].name || '') : '';
+                    return nameA.localeCompare(nameB);
+                });
+            } else if (sortOrder === 'size') {
+                // Sort by size descending
+                entriesWithSizes.sort((a, b) => b.size - a.size);
+            } else {
+                // Default to size sorting for invalid sort orders
+                console.warn(`Invalid sort order '${sortOrder}', defaulting to 'size'`);
+                entriesWithSizes.sort((a, b) => b.size - a.size);
+            }
+
+            return entriesWithSizes.map(item => item.entry);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function parseNcduData(data) {
+            // NCDU format: [version, minor_version, metadata, root_entry]
+            // root_entry is a list: [root_metadata, child1, child2, ...]
+            if (Array.isArray(data) && data.length > 3) {
+                return data[3]; // Return the root entry
+            }
+            return [];
+        }
+
+        async function loadFullData(architecture) {
+            // Load full JSON data only when needed
+            if (fullDataCache[architecture]) {
+                return fullDataCache[architecture];
+            }
+
+            try {
+                const response = await fetch(`${DATA_BASE_URL}${architecture}.json`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load full ${architecture} data`);
+                }
+                const data = await response.json();
+                fullDataCache[architecture] = data.data;
+                return data.data;
+            } catch (error) {
+                console.error(`Error loading full ${architecture} data:`, error);
+                return null;
+            }
+        }
+
+        async function renderTreeItem(item, level, parentDiv, architecture, path = []) {
+            const div = document.createElement('div');
+            div.className = 'tree-item';
+
+            const indent = '&nbsp;'.repeat(level * 4);
+            let content = indent;
+
+            // Handle metadata-only format: [size, name, has_children]
+            if (Array.isArray(item) && item.length >= 2) {
+                const size = item[0];
+                const name = item[1];
+                const hasChildren = item.length > 2 ? item[2] : false;
+
+                if (hasChildren) {
+                    content += `<span class="expandable" data-arch="${architecture}" data-path='${JSON.stringify([...path, name])}'>`;
+                    content += `<span class="tree-item-dir">${name}</span>`;
+                    content += `<span class="tree-item-size">${formatBytes(size)}</span>`;
+                    content += `</span>`;
+
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.className = 'children';
+                    childrenDiv.dataset.loaded = 'false';
+
+                    div.addEventListener('click', async function(e) {
+                        e.stopPropagation();
+                        const expandable = this.querySelector('.expandable');
+                        const children = this.nextElementSibling;
+
+                        if (expandable && children) {
+                            const isExpanded = expandable.classList.contains('expanded');
+                            expandable.classList.toggle('expanded');
+                            children.classList.toggle('visible');
+
+                            // Lazy load children on first expand
+                            if (!isExpanded && children.dataset.loaded === 'false') {
+                                const arch = expandable.dataset.arch;
+                                const itemPath = JSON.parse(expandable.dataset.path);
+
+                                // Show loading indicator
+                                children.innerHTML = '<div style="padding: 10px; color: #666;">Loading...</div>';
+
+                                // Load full data and find the specific entry
+                                const fullData = await loadFullData(arch);
+                                if (fullData) {
+                                    const entry = findEntryByPath(fullData, itemPath);
+                                    if (entry && Array.isArray(entry) && entry.length > 1) {
+                                        children.innerHTML = '';
+                                        // Get all children (skip first element which is metadata)
+                                        const childEntries = entry.slice(1);
+                                        const sortedChildren = sortFullEntries(childEntries, currentSortOrder);
+
+                                        // Render all sorted children
+                                        for (const child of sortedChildren) {
+                                            await renderFullTreeItem(child, level + 1, children, arch, itemPath);
+                                        }
+                                        children.dataset.loaded = 'true';
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    div.innerHTML = content;
+                    parentDiv.appendChild(div);
+                    parentDiv.appendChild(childrenDiv);
+                    return;
+                } else {
+                    content += `<span class="tree-item-dir">${name}</span>`;
+                    content += `<span class="tree-item-size">${formatBytes(size)}</span>`;
+                }
+            }
+
+            div.innerHTML = content;
+            parentDiv.appendChild(div);
+        }
+
+        function findEntryByPath(ncduData, path) {
+            // Navigate through NCDU structure to find entry at path
+            // ncduData[3] is root entry: [metadata, ...children]
+            let current = ncduData[3];
+
+            for (const name of path) {
+                if (!Array.isArray(current) || current.length <= 1) {
+                    return null;
+                }
+
+                // Find child with matching name (skip index 0 which is metadata)
+                let found = false;
+                for (let i = 1; i < current.length; i++) {
+                    const child = current[i];
+                    let childName = null;
+
+                    if (Array.isArray(child) && child.length > 0 && typeof child[0] === 'object') {
+                        childName = child[0].name;
+                    } else if (typeof child === 'object' && child.name) {
+                        childName = child.name;
+                    }
+
+                    if (childName === name) {
+                        current = child;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    return null;
+                }
+            }
+
+            return current;
+        }
+
+        async function renderFullTreeItem(item, level, parentDiv, architecture, parentPath = []) {
+            // Render item from full NCDU data
+            const div = document.createElement('div');
+            div.className = 'tree-item';
+
+            const indent = '&nbsp;'.repeat(level * 4);
+            let content = indent;
+
+            if (Array.isArray(item) && item.length > 0) {
+                // Entry is [metadata, ...children]
+                const meta = item[0];
+                if (typeof meta === 'object' && meta.name) {
+                    const name = meta.name;
+                    // Use cached size (set by sortFullEntries).
+                    // Fallback to calculateEntrySize should never be hit in practice
+                    // since sortFullEntries is always called before rendering.
+                    const size = meta._cachedSize !== undefined ? meta._cachedSize : calculateEntrySize(item);
+                    const hasChildren = item.length > 1;
+
+                    if (hasChildren) {
+                        content += `<span class="expandable" data-arch="${architecture}" data-path='${JSON.stringify([...parentPath, name])}'>`;
+                        content += `<span class="tree-item-dir">${name}</span>`;
+                        content += `<span class="tree-item-size">${formatBytes(size)}</span>`;
+                        content += `</span>`;
+
+                        const childrenDiv = document.createElement('div');
+                        childrenDiv.className = 'children';
+                        childrenDiv.dataset.loaded = 'false';
+
+                        div.addEventListener('click', async function(e) {
+                            e.stopPropagation();
+                            const expandable = this.querySelector('.expandable');
+                            const children = this.nextElementSibling;
+
+                            if (expandable && children) {
+                                const isExpanded = expandable.classList.contains('expanded');
+                                expandable.classList.toggle('expanded');
+                                children.classList.toggle('visible');
+
+                                // Load children on first expand
+                                if (!isExpanded && children.dataset.loaded === 'false') {
+                                    const itemPath = JSON.parse(expandable.dataset.path);
+                                    children.innerHTML = '';
+                                    // Get all children (skip first element which is metadata)
+                                    const childEntries = item.slice(1);
+                                    const sortedChildren = sortFullEntries(childEntries, currentSortOrder);
+
+                                    // Render all sorted children
+                                    for (const child of sortedChildren) {
+                                        await renderFullTreeItem(child, level + 1, children, architecture, itemPath);
+                                    }
+                                    children.dataset.loaded = 'true';
+                                }
+                            }
+                        });
+
+                        div.innerHTML = content;
+                        parentDiv.appendChild(div);
+                        parentDiv.appendChild(childrenDiv);
+                        return;
+                    } else {
+                        content += `<span class="tree-item-dir">${name}</span>`;
+                        content += `<span class="tree-item-size">${formatBytes(size)}</span>`;
+                    }
+                }
+            } else if (typeof item === 'object' && item.name) {
+                // File entry (not a directory)
+                const name = item.name;
+                // Use cached size (set by sortFullEntries).
+                // For file entries, use dsize (disk usage) only
+                const size = item._cachedSize !== undefined ? item._cachedSize : (item.dsize || 0);
+                content += `<span class="tree-item-dir">${name}</span>`;
+                content += `<span class="tree-item-size">${formatBytes(size)}</span>`;
+            }
+
+            div.innerHTML = content;
+            parentDiv.appendChild(div);
+        }
+
+        async function loadMetadata(architecture) {
+            try {
+                const response = await fetch(`${DATA_BASE_URL}${architecture}-metadata.json`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${architecture} metadata`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(`Error loading ${architecture} metadata:`, error);
+                return null;
+            }
+        }
+
+        async function loadReports() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const reportsEl = document.getElementById('reports');
+            const lastUpdatedEl = document.getElementById('lastUpdated');
+
+            try {
+                // Load lightweight metadata files for all runners
+                const metadataPromises = RUNNERS.map(runner => loadMetadata(runner.architecture));
+                const metadataResults = await Promise.all(metadataPromises);
+
+                // Check if at least one report is available
+                const hasData = metadataResults.some(data => data !== null);
+                if (!hasData) {
+                    throw new Error('No reports available. Please wait for the workflow to run.');
+                }
+
+                loadingEl.style.display = 'none';
+                reportsEl.style.display = 'flex';
+
+                let latestTimestamp = null;
+
+                // Render each report using metadata
+                RUNNERS.forEach((runner, index) => {
+                    const data = metadataResults[index];
+                    if (!data) return;
+
+                    const reportCard = document.createElement('div');
+                    reportCard.className = 'report-card';
+                    // Store architecture for use in reloadExpandedViews when sort order changes
+                    reportCard.dataset.architecture = runner.architecture;
+                    // Add accessibility attributes
+                    reportCard.setAttribute('role', 'button');
+                    reportCard.setAttribute('aria-expanded', 'false');
+                    reportCard.setAttribute('aria-label', `Toggle ${runner.title} runner details`);
+                    reportCard.setAttribute('tabindex', '0');
+
+                    const totalSize = data.total_size || 0;
+                    const totalDiskSize = data.total_disk_size || 0;
+                    const availableSpace = data.available_space || 0;
+                    // Used space is the analyzed disk usage (total_size)
+                    const usedSpace = totalSize;
+
+                    if (!latestTimestamp || new Date(data.timestamp) > new Date(latestTimestamp)) {
+                        latestTimestamp = data.timestamp;
+                    }
+
+                    // Build disk space info string
+                    let diskSpaceInfo = '';
+                    if (totalDiskSize > 0) {
+                        diskSpaceInfo = `<span>Used: ${formatBytes(usedSpace)}</span>`;
+                        if (availableSpace > 0) {
+                            diskSpaceInfo += `<span>Free: ${formatBytes(availableSpace)}</span>`;
+                        }
+                    }
+
+                    reportCard.innerHTML = `
+                        <div class="report-header">
+                            <div>
+                                <h2>${runner.title}</h2>
+                                <div class="report-meta">
+                                    <span>Runner: ${data.runner}</span>
+                                    <span>Updated: ${formatDate(data.timestamp)}</span>
+                                    <span>Total: ${formatBytes(totalDiskSize)}</span>
+                                    ${diskSpaceInfo}
+                                </div>
+                            </div>
+                            <div class="expand-icon">▼</div>
+                        </div>
+                        <div class="report-content">
+                            <div class="tree-view" id="tree-${data.architecture}"></div>
+                        </div>
+                    `;
+
+                    // Add click handler to toggle expansion
+                    const toggleCard = function(e) {
+                        // Don't toggle if clicking on interactive elements within tree view
+                        // Check for expandable items, tree items (including files), links, and buttons
+                        const target = e.target;
+                        if (target.closest('.expandable') || target.closest('.tree-item') || target.closest('a') || target.closest('button')) {
+                            return;
+                        }
+
+                        const wasExpanded = reportCard.classList.contains('expanded');
+
+                        // Collapse all other cards
+                        document.querySelectorAll('.report-card').forEach(card => {
+                            card.classList.remove('expanded');
+                            card.setAttribute('aria-expanded', 'false');
+                        });
+
+                        // Toggle this card
+                        if (!wasExpanded) {
+                            reportCard.classList.add('expanded');
+                            reportCard.setAttribute('aria-expanded', 'true');
+
+                            // Load tree view if not already loaded
+                            const treeView = reportCard.querySelector('.tree-view');
+                            if (treeView && treeView.dataset.loaded !== 'true') {
+                                renderTreeView(treeView, data);
+                                treeView.dataset.loaded = 'true';
+                            }
+                        }
+                    };
+
+                    reportCard.addEventListener('click', toggleCard);
+
+                    // Add keyboard support for accessibility
+                    reportCard.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleCard(e);
+                        } else if (e.key === 'Escape') {
+                            // Collapse card on Escape key
+                            if (reportCard.classList.contains('expanded')) {
+                                reportCard.classList.remove('expanded');
+                                reportCard.setAttribute('aria-expanded', 'false');
+                            }
+                        }
+                    });
+
+                    reportsEl.appendChild(reportCard);
+                });
+
+                if (latestTimestamp) {
+                    lastUpdatedEl.textContent = `Last updated: ${formatDate(latestTimestamp)}`;
+                }
+
+                // Show sort controls
+                const sortControlsEl = document.getElementById('sortControls');
+                sortControlsEl.style.display = 'flex';
+
+                // Add event listeners for sort controls (only once)
+                if (!sortListenersInitialized) {
+                    document.getElementById('sortByName').addEventListener('change', function() {
+                        if (this.checked) {
+                            currentSortOrder = 'name';
+                            reloadExpandedViews();
+                        }
+                    });
+
+                    document.getElementById('sortBySize').addEventListener('change', function() {
+                        if (this.checked) {
+                            currentSortOrder = 'size';
+                            reloadExpandedViews();
+                        }
+                    });
+
+                    sortListenersInitialized = true;
+                }
+
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                errorEl.textContent = error.message;
+                errorEl.style.display = 'block';
+            }
+        }
+
+        function renderTreeView(treeView, data) {
+            const topEntries = data.top_entries || [];
+            const sortedTopEntries = sortEntries(topEntries, currentSortOrder);
+
+            sortedTopEntries.forEach(entry => {
+                renderTreeItem(entry, 0, treeView, data.architecture, []);
+            });
+
+            if (data.total_entries > topEntries.length) {
+                const moreDiv = document.createElement('div');
+                moreDiv.className = 'tree-item more-items-notice';
+                const remaining = data.total_entries - topEntries.length;
+                moreDiv.textContent = `... ${remaining} more item${remaining !== 1 ? 's' : ''} not shown (showing top ${topEntries.length} by size)`;
+                treeView.appendChild(moreDiv);
+            }
+        }
+
+        async function reloadExpandedViews() {
+            // Re-render expanded tree views with the new sort order
+            const expandedCards = document.querySelectorAll('.report-card.expanded');
+
+            for (const card of expandedCards) {
+                const architecture = card.dataset.architecture;
+                const treeView = card.querySelector('.tree-view');
+
+                if (treeView) {
+                    // Reload metadata
+                    const data = await loadMetadata(architecture);
+                    if (data) {
+                        treeView.innerHTML = '';
+                        renderTreeView(treeView, data);
+                        treeView.dataset.loaded = 'true';
+                    }
+                }
+            }
+        }
+
+        // Load reports when page loads
+        loadReports();
+    </script>
+</body>
+</html>
