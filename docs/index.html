@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Disk Space - Test Results</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f6f8fa;
+            color: #24292f;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 8px; font-size: 2em; }
+        .subtitle { text-align: center; color: #57606a; margin-bottom: 24px; }
+        .github-link-container { text-align: center; margin-bottom: 24px; }
+        .github-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #fff;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            color: #24292f;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875em;
+        }
+        .github-link:hover { border-color: #0969da; background: #f6f8fa; }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 16px;
+        }
+        .card h3 { font-size: 0.875em; color: #57606a; margin-bottom: 8px; }
+        .card .value { font-size: 1.5em; font-weight: 600; }
+        .table-wrap {
+            background: #fff;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875em; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #d0d7de; }
+        th { background: #f6f8fa; font-weight: 600; cursor: pointer; user-select: none; }
+        th:hover { background: #eff2f5; }
+        tr:hover { background: #f6f8fa; }
+        .positive { color: #1a7f37; font-weight: 600; }
+        .negative { color: #cf222e; font-weight: 600; }
+        .loading, .error { text-align: center; padding: 40px; }
+        .error { color: #cf222e; }
+        .footer {
+            text-align: center;
+            color: #57606a;
+            font-size: 0.875em;
+            margin-top: 32px;
+        }
+        .footer a { color: #0969da; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Free Disk Space - Test Results</h1>
+        <p class="subtitle">Results from the Free Disk Space action CI runs across Ubuntu runners</p>
+
+        <div class="github-link-container">
+            <a class="github-link" href="https://github.com/endersonmenezes/free-disk-space" target="_blank" rel="noopener noreferrer">
+                View on GitHub
+            </a>
+        </div>
+
+        <div id="loading" class="loading">Loading test results...</div>
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="content" style="display: none;">
+            <div class="cards" id="cards"></div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-key="job_name">Test</th>
+                            <th data-key="runner">Runner</th>
+                            <th data-key="rm_cmd">Command</th>
+                            <th data-key="initial_space_gb">Initial (GB)</th>
+                            <th data-key="final_space_gb">Final (GB)</th>
+                            <th data-key="freed_space_gb">Freed (GB)</th>
+                            <th data-key="duration_seconds">Duration (s)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <p id="last-updated" style="text-align: center; color: #57606a; font-size: 0.875em;"></p>
+        </div>
+
+        <div class="footer">
+            <p>
+                Visualization concept by
+                <a href="https://github.com/fbnrst" target="_blank" rel="noopener noreferrer">Fabian Rost</a>
+                —
+                <a href="https://github.com/endersonmenezes/free-disk-space/pull/28" target="_blank" rel="noopener noreferrer">PR #28</a>
+                |
+                <a href="https://github.com/fbnrst/Github-Hosted-Runners-Disk-Space" target="_blank" rel="noopener noreferrer">original project</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let currentData = [];
+        let sortKey = 'freed_space_gb';
+        let sortAsc = false;
+
+        function formatNumber(n) {
+            return Number(n).toFixed(2);
+        }
+
+        function avg(arr, key) {
+            if (!arr.length) return 0;
+            return arr.reduce((s, x) => s + (Number(x[key]) || 0), 0) / arr.length;
+        }
+
+        function sum(arr, key) {
+            return arr.reduce((s, x) => s + (Number(x[key]) || 0), 0);
+        }
+
+        function sortData() {
+            const sorted = [...currentData];
+            sorted.sort((a, b) => {
+                let va = a[sortKey];
+                let vb = b[sortKey];
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                if (va < vb) return sortAsc ? -1 : 1;
+                if (va > vb) return sortAsc ? 1 : -1;
+                return 0;
+            });
+            return sorted;
+        }
+
+        function renderCards() {
+            const rm = currentData.filter(x => x.rm_cmd === 'rm');
+            const rmz = currentData.filter(x => x.rm_cmd === 'rmz');
+            const cards = document.getElementById('cards');
+            cards.innerHTML = `
+                <div class="card"><h3>Total tests</h3><div class="value">${currentData.length}</div></div>
+                <div class="card"><h3>Total freed</h3><div class="value">${formatNumber(sum(currentData, 'freed_space_gb'))} GB</div></div>
+                <div class="card"><h3>Avg freed</h3><div class="value">${formatNumber(avg(currentData, 'freed_space_gb'))} GB</div></div>
+                <div class="card"><h3>rm avg duration</h3><div class="value">${formatNumber(avg(rm, 'duration_seconds'))} s</div></div>
+                <div class="card"><h3>rmz avg duration</h3><div class="value">${formatNumber(avg(rmz, 'duration_seconds'))} s</div></div>
+            `;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            sortData().forEach(row => {
+                const tr = document.createElement('tr');
+                const cls = Number(row.freed_space_gb) >= 0 ? 'positive' : 'negative';
+                tr.innerHTML = `
+                    <td>${row.job_name}</td>
+                    <td><code>${row.runner}</code></td>
+                    <td><code>${row.rm_cmd}</code></td>
+                    <td>${row.initial_space_gb}</td>
+                    <td>${row.final_space_gb}</td>
+                    <td class="${cls}">${row.freed_space_gb >= 0 ? '+' : ''}${row.freed_space_gb}</td>
+                    <td>${row.duration_seconds}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setupSorting() {
+            document.querySelectorAll('th[data-key]').forEach(th => {
+                th.addEventListener('click', () => {
+                    const key = th.dataset.key;
+                    if (sortKey === key) {
+                        sortAsc = !sortAsc;
+                    } else {
+                        sortKey = key;
+                        sortAsc = true;
+                    }
+                    renderTable();
+                });
+            });
+        }
+
+        async function loadData() {
+            try {
+                const [summariesRes, metaRes] = await Promise.all([
+                    fetch('data/summaries.json'),
+                    fetch('data/meta.json')
+                ]);
+                if (!summariesRes.ok) throw new Error('Failed to load summaries');
+                if (!metaRes.ok) throw new Error('Failed to load metadata');
+                currentData = await summariesRes.json();
+                const meta = await metaRes.json();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+                renderCards();
+                renderTable();
+                setupSorting();
+
+                if (meta.generated_at) {
+                    document.getElementById('last-updated').textContent =
+                        `Last updated: ${new Date(meta.generated_at).toLocaleString()}`;
+                }
+            } catch (err) {
+                document.getElementById('loading').style.display = 'none';
+                const errorEl = document.getElementById('error');
+                errorEl.style.display = 'block';
+                errorEl.textContent = err.message;
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
