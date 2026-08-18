@@ -77,14 +77,14 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Get initial disk space
         id: initial_space
         run: |
           INITIAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
-          echo "space=${INITIAL_SPACE}" >> $GITHUB_OUTPUT
-          echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
+          echo "space=${INITIAL_SPACE}" >> "$GITHUB_OUTPUT"
+          echo "start_time=$(date +%s)" >> "$GITHUB_OUTPUT"
 
       - name: Free Disk Space
         id: free_space
@@ -115,12 +115,12 @@ jobs:
         id: final_space
         run: |
           FINAL_SPACE=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
-          echo "space=${FINAL_SPACE}" >> $GITHUB_OUTPUT
-          
+          echo "space=${FINAL_SPACE}" >> "$GITHUB_OUTPUT"
+
           END_TIME=$(date +%s)
           START_TIME=${{ steps.initial_space.outputs.start_time }}
           DURATION=$((END_TIME - START_TIME))
-          echo "duration=${DURATION}" >> $GITHUB_OUTPUT
+          echo "duration=${DURATION}" >> "$GITHUB_OUTPUT"
 
       - name: Validate cleanup results
         if: ${{ !inputs.testing }}
@@ -139,21 +139,22 @@ jobs:
         id: generate_summary
         if: ${{ inputs.generate_summary }}
         run: |
+          # shellcheck disable=SC2086,SC2001,SC2129
           INITIAL=${{ steps.initial_space.outputs.space }}
           FINAL=${{ steps.final_space.outputs.space }}
           FREED=$((FINAL - INITIAL))
           DURATION=${{ steps.final_space.outputs.duration }}
-          
+
           # Cria diretório para summaries
           mkdir -p test-summaries
-          
+
           # Gera identificador único para este teste
           TEST_ID="${{ inputs.job_name }}-${{ matrix.rm_cmd }}-${{ matrix.runner }}"
-          TEST_ID_CLEAN=$(echo "$TEST_ID" | sed 's/[^a-zA-Z0-9-]/_/g')
-          
+          TEST_ID_CLEAN=${TEST_ID//[^a-zA-Z0-9-]/_}
+
           # Exporta o nome sanitizado para uso no upload do artefato
-          echo "artifact_name=${TEST_ID_CLEAN}" >> $GITHUB_OUTPUT
-          
+          echo "artifact_name=${TEST_ID_CLEAN}" >> "$GITHUB_OUTPUT"
+
           # Gera arquivo de summary
           cat > "test-summaries/${TEST_ID_CLEAN}.json" << EOF
           {
@@ -178,7 +179,7 @@ jobs:
             "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           }
           EOF
-          
+
           echo "✅ Summary gerado: ${TEST_ID_CLEAN}.json"
 
       - name: Upload test summary

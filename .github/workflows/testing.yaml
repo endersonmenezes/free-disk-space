@@ -32,7 +32,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install ShellCheck
         run: sudo apt-get install shellcheck -y
@@ -416,6 +416,7 @@ jobs:
 
       - name: Generate consolidated report
         run: |
+          # shellcheck disable=SC2086,SC2012,SC2129
           echo "# 📊 Free Disk Space - Test Results Summary" > $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
@@ -483,7 +484,7 @@ jobs:
           echo "## 📊 Overall Statistics" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          TOTAL_TESTS=$(ls -1 all-summaries/*.json 2>/dev/null | wc -l)
+          TOTAL_TESTS=$(find all-summaries -maxdepth 1 -name '*.json' 2>/dev/null | wc -l)
           TOTAL_FREED=$(jq -s 'map(.freed_space_gb) | add' all-summaries/*.json)
           AVG_FREED=$(jq -s 'map(.freed_space_gb) | add / length' all-summaries/*.json)
           MAX_FREED=$(jq -s 'map(.freed_space_gb) | max' all-summaries/*.json)
@@ -550,8 +551,9 @@ jobs:
 
       - name: Generate Pages data
         run: |
+          # shellcheck disable=SC2086,SC2012,SC2129
           mkdir -p pages-data
-          if [ -d "all-summaries" ] && [ -n "$(ls -A all-summaries 2>/dev/null)" ]; then
+          if [ -d "all-summaries" ] && [ -n "$(find all-summaries -maxdepth 1 -type f 2>/dev/null)" ]; then
             jq -s 'sort_by(.runner, .job_name, .rm_cmd)' all-summaries/*.json > pages-data/summaries.json
           else
             echo "[]" > pages-data/summaries.json
@@ -580,7 +582,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download Pages data
         uses: actions/download-artifact@v8
