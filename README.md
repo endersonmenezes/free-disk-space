@@ -26,6 +26,8 @@ A GitHub Action to free disk space on Ubuntu runners by removing unnecessary sof
 ![Ubuntu 22.04](https://img.shields.io/badge/Ubuntu_22.04-supported-green?logo=ubuntu&logoColor=white)
 ![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu_24.04_(Latest)-supported-green?logo=ubuntu&logoColor=white)
 ![Ubuntu 24.04 ARM64](https://img.shields.io/badge/Ubuntu_24.04_ARM64-supported-green?logo=ubuntu&logoColor=white)
+![Ubuntu 26.04](https://img.shields.io/badge/Ubuntu_26.04-preview-yellow?logo=ubuntu&logoColor=white)
+![Ubuntu 26.04 ARM64](https://img.shields.io/badge/Ubuntu_26.04_ARM64-preview-yellow?logo=ubuntu&logoColor=white)
 
 All runners are tested on every push via the [CI workflow](https://github.com/endersonmenezes/free-disk-space/actions/workflows/testing.yaml).
 
@@ -46,39 +48,44 @@ All runners are tested on every push via the [CI workflow](https://github.com/en
 | `rmz_version` | Version of rmz to use (required if `rm_cmd=rmz`) | No | `3.1.1` |
 | `testing` | Testing mode (echoes commands instead of running) | No | `false` |
 
-## What's New in v3 🚀 (Working in Progress)
+## What's New in v4 🚀
 
+- **🧪 Ubuntu 26.04 Preview Support**: Tested on `ubuntu-26.04` and `ubuntu-26.04-arm` runners (experimental)
+- **🌐 GitHub Pages Dashboard**: CI test results are published to GitHub Pages
 - **🔥 rmz Support**: Use `rmz` for up to 3x faster file deletion
 - **🛠️ DevContainer**: Full development environment with Docker-in-Docker
 - **✅ Pre-commit Hooks**: Automated code quality checks with shellcheck and actionlint
 - **📦 Workflow Templates**: Refactored tests using reusable workflows
-- **🔧 Better Error Handling**: Improved validation and error messages
 - **📝 Enhanced Documentation**: Complete API reference and examples
 
-### Migration from v2 to v3
+### Migration from v3 to v4
 
-The v3 is fully backward compatible with v2. To migrate:
+The v4 is fully backward compatible with v3. To migrate:
 
 ```yaml
-# Before (v2)
-- uses: endersonmenezes/free-disk-space@v2
+# Before (v3)
+- uses: endersonmenezes/free-disk-space@v4
   with:
     remove_android: true
 
-# After (v3) - works the same
-- uses: endersonmenezes/free-disk-space@v3
+# After (v4) - works the same
+- uses: endersonmenezes/free-disk-space@v4
   with:
     remove_android: true
     
-# After (v3) - with new features
-- uses: endersonmenezes/free-disk-space@v3
+# After (v4) - with new features
+- uses: endersonmenezes/free-disk-space@v4
   with:
     remove_android: true
-    rm_cmd: "rmz"        # NEW: Faster deletion
-    rmz_version: "3.1.1" # NEW: Specify rmz version
+    rm_cmd: "rmz"        # Faster deletion
+    rmz_version: "3.1.1" # Specify rmz version
 ```
 
-**Breaking Changes:** None! All v2 configurations work in v3.
+**Breaking Changes:** None! All v3 configurations work in v4.
+
+**New in v4:**
+- Support for `ubuntu-26.04` and `ubuntu-26.04-arm` preview runners
+- GitHub Pages dashboard with CI test results
 
 **New Optional Parameters:**
 - `rm_cmd`: Choose between `rm` (default) or `rmz` (faster)
@@ -106,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk Space
-        uses: endersonmenezes/free-disk-space@v3  # Use @main for latest, @v3 for stable
+        uses: endersonmenezes/free-disk-space@v4  # Use @main for latest, @v3 for stable
         with:
           remove_android: true
           remove_dotnet: true
@@ -126,7 +133,7 @@ jobs:
 #### Docker Build with Large Images
 ```yaml
 - name: Free Disk Space for Docker
-  uses: endersonmenezes/free-disk-space@v3
+  uses: endersonmenezes/free-disk-space@v4
   with:
     remove_android: true
     remove_dotnet: true
@@ -140,7 +147,7 @@ jobs:
 #### Node.js Project with Many Dependencies
 ```yaml
 - name: Free Disk Space for Node
-  uses: endersonmenezes/free-disk-space@v3
+  uses: endersonmenezes/free-disk-space@v4
   with:
     remove_android: true
     remove_haskell: true
@@ -153,7 +160,7 @@ jobs:
 #### Python Data Science Workflow
 ```yaml
 - name: Free Disk Space for Python
-  uses: endersonmenezes/free-disk-space@v3
+  uses: endersonmenezes/free-disk-space@v4
   with:
     remove_android: true
     remove_dotnet: true
@@ -169,7 +176,7 @@ For faster file deletion, you can use `rmz` instead of the default `rm` command:
 
 ```yaml
 - name: Free Disk Space (with rmz)
-  uses: endersonmenezes/free-disk-space@v3
+  uses: endersonmenezes/free-disk-space@v4
   with:
     remove_android: true
     remove_dotnet: true
@@ -322,6 +329,13 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 ## Acknowledgements
 
 This project, despite being on my personal profile purely formally, is part of an NGO we have in Brazil, responsible for helping young people and adults learn to program and tackle real-world projects. Learn more at [codaqui.dev](https://codaqui.dev).
+
+The GitHub Pages dashboard concept used to visualise CI test results was proposed by
+[Fabian Rost](https://github.com/fbnrst) in
+[PR #28](https://github.com/endersonmenezes/free-disk-space/pull/28)
+and is based on his
+[GitHub Hosted Runners Disk Space](https://github.com/fbnrst/Github-Hosted-Runners-Disk-Space)
+project.
 
 ## Changelog
 

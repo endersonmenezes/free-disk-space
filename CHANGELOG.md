@@ -11,6 +11,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [v4.0.0] — 2026-08-18
+
+**Added:**
+- 🧪 Add `ubuntu-26.04` and `ubuntu-26.04-arm` preview runners to the test matrix
+- 🌐 Add GitHub Pages dashboard to visualise CI test results (concept by Fabian Rost)
+- 🔒 Declare minimal workflow permissions to resolve code-scanning alerts
+
+**Changed:**
+- 🚀 Update GitHub Actions to Node.js 24-compatible versions (`actions/checkout@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`)
+- 📚 Update README for the v4 release
+
+---
+
 ## [v3.2.2] — 2026-03-03 — Commit: `5eabf23`
 
 **Changed:**
