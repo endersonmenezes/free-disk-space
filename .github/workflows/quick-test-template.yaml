@@ -68,8 +68,16 @@ jobs:
         experimental: [false]
         include:
           - runner: ubuntu-26.04
+            rm_cmd: rm
+            experimental: true
+          - runner: ubuntu-26.04
+            rm_cmd: rmz
             experimental: true
           - runner: ubuntu-26.04-arm
+            rm_cmd: rm
+            experimental: true
+          - runner: ubuntu-26.04-arm
+            rm_cmd: rmz
             experimental: true
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
