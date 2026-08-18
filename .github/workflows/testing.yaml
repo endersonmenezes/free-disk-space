@@ -571,7 +571,9 @@ jobs:
     name: "🌐 Deploy GitHub Pages"
     runs-on: ubuntu-latest
     needs: consolidated_summary
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # always() + result check: needed jobs with skipped transitive deps (quick tests on
+    # non-PR events) otherwise cause this job to be skipped even when its condition is true
+    if: always() && needs.consolidated_summary.result == 'success' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
       actions: write
