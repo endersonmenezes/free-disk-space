@@ -7,7 +7,7 @@ This repository contains the **Free Disk Space** GitHub Action — a composite a
 - **Type**: GitHub Action (composite)
 - **Language**: Bash (`main.sh`)
 - **Action Definition**: `action.yaml`
-- **Target OS**: Ubuntu 22.04, Ubuntu Latest (24.04), ARM64
+- **Target OS**: Ubuntu 22.04, Ubuntu Latest (24.04), Ubuntu 26.04 (preview), ARM64
 - **Repository**: `endersonmenezes/free-disk-space`
 
 ## Repository Structure
@@ -90,7 +90,7 @@ Scopes: action, script, tests, workflows, docs, deps
 
 ### Test Matrix
 
-Every test runs on a 2x2 matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-24.04-arm}`.
+Every test runs on a matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-26.04 (preview), ubuntu-26.04-arm (preview)}`.
 
 - **Quick tests** (`quick-test-template.yaml`): Run on PRs. Fast validation of key features.
 - **Full tests** (`test-template.yaml`): Run on push/schedule. Comprehensive coverage with disk space metrics.
