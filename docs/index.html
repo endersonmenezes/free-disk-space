@@ -59,6 +59,29 @@
         .negative { color: #cf222e; font-weight: 600; }
         .loading, .error { text-align: center; padding: 40px; }
         .error { color: #cf222e; }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 16px;
+        }
+        .filters label {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.875em;
+            color: #57606a;
+            gap: 4px;
+        }
+        .filters select, .filters button {
+            padding: 6px 10px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 0.875em;
+            color: #24292f;
+        }
+        .filters button:hover { background: #f6f8fa; cursor: pointer; }
         .footer {
             text-align: center;
             color: #57606a;
@@ -85,6 +108,19 @@
 
         <div id="content" style="display: none;">
             <div class="cards" id="cards"></div>
+
+            <div class="filters">
+                <label>
+                    Runner
+                    <select id="filter-runner"><option value="">All runners</option></select>
+                </label>
+                <label>
+                    Command
+                    <select id="filter-cmd"><option value="">All commands</option></select>
+                </label>
+                <button id="reset-filters">Reset</button>
+            </div>
+
             <div class="table-wrap">
                 <table>
                     <thead>
@@ -106,18 +142,20 @@
 
         <div class="footer">
             <p>
-                Visualization concept by
+                Dashboard concept proposed by
                 <a href="https://github.com/fbnrst" target="_blank" rel="noopener noreferrer">Fabian Rost</a>
-                —
+                in
                 <a href="https://github.com/endersonmenezes/free-disk-space/pull/28" target="_blank" rel="noopener noreferrer">PR #28</a>
-                |
-                <a href="https://github.com/fbnrst/Github-Hosted-Runners-Disk-Space" target="_blank" rel="noopener noreferrer">original project</a>
+                and based on his
+                <a href="https://github.com/fbnrst/Github-Hosted-Runners-Disk-Space" target="_blank" rel="noopener noreferrer">GitHub Hosted Runners Disk Space</a>
+                project.
             </p>
         </div>
     </div>
 
     <script>
-        let currentData = [];
+        let allData = [];
+        let filteredData = [];
         let sortKey = 'freed_space_gb';
         let sortAsc = false;
 
@@ -135,7 +173,7 @@
         }
 
         function sortData() {
-            const sorted = [...currentData];
+            const sorted = [...filteredData];
             sorted.sort((a, b) => {
                 let va = a[sortKey];
                 let vb = b[sortKey];
@@ -149,13 +187,13 @@
         }
 
         function renderCards() {
-            const rm = currentData.filter(x => x.rm_cmd === 'rm');
-            const rmz = currentData.filter(x => x.rm_cmd === 'rmz');
+            const rm = filteredData.filter(x => x.rm_cmd === 'rm');
+            const rmz = filteredData.filter(x => x.rm_cmd === 'rmz');
             const cards = document.getElementById('cards');
             cards.innerHTML = `
-                <div class="card"><h3>Total tests</h3><div class="value">${currentData.length}</div></div>
-                <div class="card"><h3>Total freed</h3><div class="value">${formatNumber(sum(currentData, 'freed_space_gb'))} GB</div></div>
-                <div class="card"><h3>Avg freed</h3><div class="value">${formatNumber(avg(currentData, 'freed_space_gb'))} GB</div></div>
+                <div class="card"><h3>Tests shown</h3><div class="value">${filteredData.length}</div></div>
+                <div class="card"><h3>Total freed</h3><div class="value">${formatNumber(sum(filteredData, 'freed_space_gb'))} GB</div></div>
+                <div class="card"><h3>Avg freed</h3><div class="value">${formatNumber(avg(filteredData, 'freed_space_gb'))} GB</div></div>
                 <div class="card"><h3>rm avg duration</h3><div class="value">${formatNumber(avg(rm, 'duration_seconds'))} s</div></div>
                 <div class="card"><h3>rmz avg duration</h3><div class="value">${formatNumber(avg(rmz, 'duration_seconds'))} s</div></div>
             `;
@@ -195,6 +233,42 @@
             });
         }
 
+        function populateFilters() {
+            const runnerSelect = document.getElementById('filter-runner');
+            const cmdSelect = document.getElementById('filter-cmd');
+
+            const runners = [...new Set(allData.map(x => x.runner))].sort();
+            const cmds = [...new Set(allData.map(x => x.rm_cmd))].sort();
+
+            runnerSelect.innerHTML = '<option value="">All runners</option>' +
+                runners.map(r => `<option value="${r}">${r}</option>`).join('');
+            cmdSelect.innerHTML = '<option value="">All commands</option>' +
+                cmds.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function applyFilters() {
+            const runner = document.getElementById('filter-runner').value;
+            const cmd = document.getElementById('filter-cmd').value;
+
+            filteredData = allData.filter(row => {
+                return (!runner || row.runner === runner) && (!cmd || row.rm_cmd === cmd);
+            });
+
+            renderCards();
+            renderTable();
+        }
+
+        function setupFilters() {
+            populateFilters();
+            document.getElementById('filter-runner').addEventListener('change', applyFilters);
+            document.getElementById('filter-cmd').addEventListener('change', applyFilters);
+            document.getElementById('reset-filters').addEventListener('click', () => {
+                document.getElementById('filter-runner').value = '';
+                document.getElementById('filter-cmd').value = '';
+                applyFilters();
+            });
+        }
+
         async function loadData() {
             try {
                 const [summariesRes, metaRes] = await Promise.all([
@@ -203,12 +277,14 @@
                 ]);
                 if (!summariesRes.ok) throw new Error('Failed to load summaries');
                 if (!metaRes.ok) throw new Error('Failed to load metadata');
-                currentData = await summariesRes.json();
+                allData = await summariesRes.json();
+                filteredData = [...allData];
                 const meta = await metaRes.json();
 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
 
+                setupFilters();
                 renderCards();
                 renderTable();
                 setupSorting();

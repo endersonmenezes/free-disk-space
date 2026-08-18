@@ -17,10 +17,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - 🧪 Add `ubuntu-26.04` and `ubuntu-26.04-arm` preview runners to the test matrix
 - 🌐 Add GitHub Pages dashboard to visualise CI test results (concept by Fabian Rost)
 - 🔒 Declare minimal workflow permissions to resolve code-scanning alerts
+- 🔧 Add `actionlint` configuration for the new preview runner labels
 
 **Changed:**
-- 🚀 Update GitHub Actions to Node.js 24-compatible versions (`actions/checkout@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`)
+- 🚀 Update GitHub Actions to Node.js 24-compatible versions (`actions/checkout@v7`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`)
 - 📚 Update README for the v4 release
+
+**Fixed:**
+- 🐛 Fix GitHub Pages deployment being skipped by allowing the `main` branch in the `github-pages` environment deployment branch policy and enabling Pages with source `main`
 
 ---
 

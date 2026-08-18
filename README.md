@@ -51,7 +51,7 @@ All runners are tested on every push via the [CI workflow](https://github.com/en
 ## What's New in v4 🚀
 
 - **🧪 Ubuntu 26.04 Preview Support**: Tested on `ubuntu-26.04` and `ubuntu-26.04-arm` runners (experimental)
-- **🌐 GitHub Pages Dashboard**: CI test results are published to GitHub Pages
+- **🌐 GitHub Pages Dashboard**: CI test results are published to GitHub Pages — see it live at [endersonmenezes.github.io/free-disk-space](https://endersonmenezes.github.io/free-disk-space/)
 - **🔥 rmz Support**: Use `rmz` for up to 3x faster file deletion
 - **🛠️ DevContainer**: Full development environment with Docker-in-Docker
 - **✅ Pre-commit Hooks**: Automated code quality checks with shellcheck and actionlint
