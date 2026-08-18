@@ -51,21 +51,33 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         rm_cmd: [rm, rmz]
-        runner: 
+        runner:
           - ubuntu-latest
           - ubuntu-22.04
           - ubuntu-24.04-arm
+        experimental: [false]
+        include:
+          - runner: ubuntu-26.04
+            experimental: true
+          - runner: ubuntu-26.04-arm
+            experimental: true
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
     timeout-minutes: 25
+    continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get initial disk space
         id: initial_space
@@ -171,7 +183,7 @@ jobs:
 
       - name: Upload test summary
         if: ${{ inputs.generate_summary }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-summary-${{ steps.generate_summary.outputs.artifact_name }}
           path: test-summaries/*.json
