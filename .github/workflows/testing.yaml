@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-24.04, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-slim, ubuntu-26.04, ubuntu-26.04-arm]
+        runner: [ubuntu-24.04, ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04-arm, ubuntu-slim, ubuntu-26.04, ubuntu-26.04-arm]
     continue-on-error: ${{ contains(matrix.runner, 'ubuntu-26.04') }}
     steps:
       - name: Show initial disk space
