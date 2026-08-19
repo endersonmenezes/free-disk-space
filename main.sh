@@ -108,6 +108,10 @@ fi
 # Global Variables
 TOTAL_RECOVERED_SPACE=0
 
+# Package removals must never block CI: no interactive debconf prompts,
+# no stdin reads, and a hard timeout per apt-get call
+export DEBIAN_FRONTEND=noninteractive
+
 # Verify Needed Packages
 
 # Verify BC
@@ -154,6 +158,12 @@ fi
 # If testing mode is enabled, run_rm will echo the commands (see run_rm definition).
 
 # Functions
+
+function apt_get() {
+    # apt-get wrapper: bounded by timeout, never reads from stdin, output stays visible
+    # so a stuck removal is diagnosable in CI logs instead of hanging silently
+    timeout 600 sudo apt-get "$@" < /dev/null
+}
 
 function run_rm() {
     # RM wrapper: use RM_CMD to run either rm or rmz. In testing mode the command is echoed.
@@ -216,9 +226,10 @@ function remove_android_library_folder(){
     ANDROID_PACKAGES=$(dpkg -l | grep -E "^ii.*(android|adb)" | awk '{print $2}' | tr '\n' ' ' || true)
     if [[ -n "${ANDROID_PACKAGES}" ]]; then
         echo "Removing Android packages: ${ANDROID_PACKAGES}"
-        sudo apt-get remove -y "${ANDROID_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
-        sudo apt-get autoremove -y > /dev/null 2>&1 || true
-        sudo apt-get clean > /dev/null 2>&1 || true
+        # shellcheck disable=SC2086
+        apt_get remove -y ${ANDROID_PACKAGES} --fix-missing || true
+        apt_get autoremove -y || true
+        apt_get clean || true
     fi
     
     update_and_echo_free_space "after"
@@ -239,9 +250,10 @@ function remove_dot_net_library_folder(){
     DOTNET_PACKAGES=$(dpkg -l | grep -E "^ii.*dotnet" | awk '{print $2}' | tr '\n' ' ' || true)
     if [[ -n "${DOTNET_PACKAGES}" ]]; then
         echo "Removing .NET packages: ${DOTNET_PACKAGES}"
-        sudo apt-get remove -y "${DOTNET_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
-        sudo apt-get autoremove -y > /dev/null 2>&1 || true
-        sudo apt-get clean > /dev/null 2>&1 || true
+        # shellcheck disable=SC2086
+        apt_get remove -y ${DOTNET_PACKAGES} --fix-missing || true
+        apt_get autoremove -y || true
+        apt_get clean || true
     fi
     
     update_and_echo_free_space "after"
@@ -263,9 +275,10 @@ function remove_haskell_library_folder(){
     HASKELL_PACKAGES=$(dpkg -l | grep -E "^ii.*(ghc|haskell|cabal)" | awk '{print $2}' | tr '\n' ' ' || true)
     if [[ -n "${HASKELL_PACKAGES}" ]]; then
         echo "Removing Haskell packages: ${HASKELL_PACKAGES}"
-        sudo apt-get remove -y "${HASKELL_PACKAGES}" --fix-missing > /dev/null 2>&1 || true
-        sudo apt-get autoremove -y > /dev/null 2>&1 || true
-        sudo apt-get clean > /dev/null 2>&1 || true
+        # shellcheck disable=SC2086
+        apt_get remove -y ${HASKELL_PACKAGES} --fix-missing || true
+        apt_get autoremove -y || true
+        apt_get clean || true
     fi
     
     update_and_echo_free_space "after"
@@ -276,24 +289,22 @@ function remove_package(){
     PACKAGE_NAME=$1
     echo "📦 Removing ${PACKAGE_NAME}"
     update_and_echo_free_space "before"
-    sudo apt-get remove -y "${PACKAGE_NAME}" --fix-missing > /dev/null
-    sudo apt-get autoremove -y > /dev/null
-    sudo apt-get clean > /dev/null
+    apt_get remove -y "${PACKAGE_NAME}" --fix-missing || true
+    apt_get autoremove -y || true
+    apt_get clean || true
     update_and_echo_free_space "after"
     echo "-"
 }
 
 function remove_multi_packages_one_command(){
     PACKAGES_TO_REMOVE=$1
-    MOUNT_COMMAND="sudo apt-get remove -y"
-    for PACKAGE in ${PACKAGES_TO_REMOVE}; do
-        MOUNT_COMMAND+=" ${PACKAGE}"
-    done
     echo "📦 Removing ${PACKAGES_TO_REMOVE}"
     update_and_echo_free_space "before"
-    ${MOUNT_COMMAND} --fix-missing > /dev/null
-    sudo apt-get autoremove -y > /dev/null
-    sudo apt-get clean > /dev/null
+    # Unquoted on purpose: apt-get resolves the glob patterns itself
+    # shellcheck disable=SC2086
+    apt_get remove -y ${PACKAGES_TO_REMOVE} --fix-missing || true
+    apt_get autoremove -y || true
+    apt_get clean || true
     update_and_echo_free_space "after"
     echo "-"
 }
