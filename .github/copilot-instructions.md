@@ -83,7 +83,7 @@ Scopes: action, script, tests, workflows, docs, deps
 | `remove_packages_one_command` | `false` | Remove all packages at once |
 | `remove_folders` | `false` | Space-separated folder list |
 | `rm_cmd` | `rm` | `rm` (safe) or `rmz` (faster) |
-| `rmz_version` | `3.1.1` | rmz version when using rmz |
+| `rmz_version` | `3.2.0` | rmz version when using rmz |
 | `testing` | `false` | Echo commands instead of running |
 
 ## Testing Strategy

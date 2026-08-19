@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+**Added:**
+- 🧪 Add `ubuntu-24.04` and `ubuntu-22.04-arm` to the test matrices
+- 🖼️ Add live dashboard screenshot to README, replacing the manually maintained size tables
+
+**Changed:**
+- ⬆️ Upgrade default `rmz` version from 3.1.1 to 3.2.0 (fixes "Directory not empty" errors and improves performance on large flat directories; `rm` remains the default `rm_cmd`)
+- 🔧 Harden `apt-get` removals: non-interactive frontend, closed stdin, 600s timeout and visible output so a stalled removal can no longer hang a CI job silently
+
+**Fixed:**
+- 🐛 Fix `deploy_pages` job being skipped by evaluating it with `always()` and an explicit `needs` result check
+- 🐛 Fix `ubuntu-26.04` matrix entries running without `rm_cmd`, which made those tests no-ops
+- 🐛 Fix quoted package lists being passed to `apt-get` as a single package name
+
 ---
 
 ## [v4.0.0] — 2026-08-18

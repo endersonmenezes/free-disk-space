@@ -19,7 +19,7 @@
 # REMOVE_ONE_COMMAND: Boolean (true or false)
 # REMOVE_FOLDERS: String (separated by space)
 # RM_CMD: String (rm or rmz)
-# RMZ_VERSION: String (default: 3.1.1)
+# RMZ_VERSION: String (default: 3.2.0)
 
 # Environment Variables
 # AGENT_TOOLSDIRECTORY: String
