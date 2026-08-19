@@ -32,17 +32,26 @@ Deep technical reference for contributors and AI agents. For coding conventions,
 
 System-provided: `AGENT_TOOLSDIRECTORY`, `GITHUB_REF`
 
-## ARM64 Differences
+## Runner Image Differences
 
-| Aspect | x86_64 (`ubuntu-latest`) | ARM64 (`ubuntu-24.04-arm`) |
-|--------|--------------------------|---------------------------|
-| Initial disk used | ~49 GB | ~23 GB |
-| Android SDK | Present | Absent |
-| .NET runtime | Present | Absent |
-| Haskell (GHC) | Present | Absent |
-| Tool cache | Smaller | Smaller |
+Measured by the `search_biggest` CI job and the test dashboard (August 2026):
 
-Tests MUST pass on both architectures. Some cleanup functions are no-ops on ARM64.
+| Aspect | x86_64 (22.04 / 24.04 / latest) | ARM64 (22.04 / 24.04) | `ubuntu-26.04` (preview) | `ubuntu-26.04-arm` (preview) |
+|--------|--------------------------------|------------------------|--------------------------|------------------------------|
+| Initial free disk | ~87-88 GB | ~109 GB | ~94 GB | ~114 GB |
+| Android SDK | Present (~11 GB) | Absent | Present (~11 GB) | Absent |
+| .NET (`/usr/share/dotnet`) | Present | Present (~4 GB) | Present (~5 GB) | Present (~6 GB) |
+| Haskell (`/usr/local/.ghcup`) | Present | Absent | Present (~4 GB) | Absent |
+| Swift (`/usr/share/swift`) | Present | Present | Removed from image | Removed from image |
+
+Notes on the 26.04 preview images:
+
+- Toolchain bumps: LLVM 20/21/22 (was 16-18), Temurin 11/17/21/**25**, gcc 13/14/15 side by side, Python 3.14, kernel 7.0 (`linux-azure`).
+- New large items: `/opt/runner-cache` (~1.1 GB), CodeQL inside the tool cache (~1.7 GB).
+- Azure CLI is split across three locations: `azure-cli` package, `/opt/az` and `/usr/share/az_*`.
+- The preview apt archive (`azure.archive.ubuntu.com/ubuntu resolute`) has been observed stalling mid-download; the `apt_get` wrapper bounds this with a 600s timeout.
+
+Tests MUST pass on all architectures. The 26.04 runners run with `continue-on-error` (`experimental`) until they reach GA. Some cleanup functions are no-ops where the software is absent (e.g. Android/Haskell on ARM64, Swift on 26.04).
 
 ## Test Categories
 
@@ -68,6 +77,7 @@ bash main.sh
 |-------|-------|---------|
 | "bc is not installed" | `bc` removed by `apt-get` | Script copies `bc` to `./bc` before cleanup — handled automatically |
 | rmz installation fails | Network or unsupported arch | Script exits gracefully (`exit 0`), user can fall back to `rm` |
+| Package removal hangs | Interactive debconf prompt or stalled archive download | Handled since v4: `DEBIAN_FRONTEND=noninteractive`, stdin closed (`< /dev/null`), `timeout 600` per `apt-get` call |
 | Permission denied | Missing `sudo` | All system operations use `sudo`; append `|| true` |
 | Disk space not freed | Path doesn't exist on runner | Check with `find` before removal; ARM64 has fewer pre-installed packages |
 

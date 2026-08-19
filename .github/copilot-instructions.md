@@ -90,7 +90,7 @@ Scopes: action, script, tests, workflows, docs, deps
 
 ### Test Matrix
 
-Every test runs on a matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-26.04 (preview), ubuntu-26.04-arm (preview)}`.
+Every test runs on a matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm, ubuntu-24.04-arm, ubuntu-26.04 (preview), ubuntu-26.04-arm (preview)}`.
 
 - **Quick tests** (`quick-test-template.yaml`): Run on PRs. Fast validation of key features.
 - **Full tests** (`test-template.yaml`): Run on push/schedule. Comprehensive coverage with disk space metrics.
