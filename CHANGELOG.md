@@ -7,37 +7,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [Unreleased]
-
-**Added:**
-- 🧪 Add `ubuntu-24.04` and `ubuntu-22.04-arm` to the test matrices
-- 🖼️ Add live dashboard screenshot to README, replacing the manually maintained size tables
-
-**Changed:**
-- ⬆️ Upgrade default `rmz` version from 3.1.1 to 3.2.0 (fixes "Directory not empty" errors and improves performance on large flat directories; `rm` remains the default `rm_cmd`)
-- 🔧 Harden `apt-get` removals: non-interactive frontend, closed stdin, 600s timeout and visible output so a stalled removal can no longer hang a CI job silently
-
-**Fixed:**
-- 🐛 Fix `deploy_pages` job being skipped by evaluating it with `always()` and an explicit `needs` result check
-- 🐛 Fix `ubuntu-26.04` matrix entries running without `rm_cmd`, which made those tests no-ops
-- 🐛 Fix quoted package lists being passed to `apt-get` as a single package name
-
----
-
-## [v4.0.0] — 2026-08-18
+## [v4.0.0] — 2026-08-19
 
 **Added:**
 - 🧪 Add `ubuntu-26.04` and `ubuntu-26.04-arm` preview runners to the test matrix
+- 🧪 Add `ubuntu-24.04` and `ubuntu-22.04-arm` to the test matrices
 - 🌐 Add GitHub Pages dashboard to visualise CI test results (concept by Fabian Rost)
+- 🖼️ Add live dashboard screenshot to README, replacing the manually maintained size tables
 - 🔒 Declare minimal workflow permissions to resolve code-scanning alerts
 - 🔧 Add `actionlint` configuration for the new preview runner labels
 
 **Changed:**
+- ⬆️ Upgrade default `rmz` version from 3.1.1 to 3.2.0 (fixes "Directory not empty" errors and improves performance on large flat directories; `rm` remains the default `rm_cmd`)
+- ⚡ Parallelize folder removal when using `rm` (one `rm` per folder, up to `nproc` workers; `rmz` stays serial as it already parallelizes internally)
+- 🔧 Run a single `apt-get autoremove`/`clean` pass at the end of the packages phase instead of one per package
+- 🔧 Harden `apt-get` removals: non-interactive frontend, closed stdin, 600s timeout and visible output so a stalled removal can no longer hang a CI job silently
 - 🚀 Update GitHub Actions to Node.js 24-compatible versions (`actions/checkout@v7`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`)
 - 📚 Update README for the v4 release
 
 **Fixed:**
-- 🐛 Fix GitHub Pages deployment being skipped by allowing the `main` branch in the `github-pages` environment deployment branch policy and enabling Pages with source `main`
+- 🐛 Fix GitHub Pages deployment being skipped: correct the Pages `build_type` to `workflow` and evaluate the deploy job with `always()` plus an explicit `needs` result check
+- 🐛 Fix `ubuntu-26.04` matrix entries running without `rm_cmd`, which made those tests no-ops
+- 🐛 Fix quoted package lists being passed to `apt-get` as a single package name
 
 ---
 
