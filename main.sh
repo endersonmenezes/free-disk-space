@@ -290,8 +290,6 @@ function remove_package(){
     echo "📦 Removing ${PACKAGE_NAME}"
     update_and_echo_free_space "before"
     apt_get remove -y "${PACKAGE_NAME}" --fix-missing || true
-    apt_get autoremove -y || true
-    apt_get clean || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -303,8 +301,6 @@ function remove_multi_packages_one_command(){
     # Unquoted on purpose: apt-get resolves the glob patterns itself
     # shellcheck disable=SC2086
     apt_get remove -y ${PACKAGES_TO_REMOVE} --fix-missing || true
-    apt_get autoremove -y || true
-    apt_get clean || true
     update_and_echo_free_space "after"
     echo "-"
 }
@@ -332,9 +328,29 @@ function remove_swap_storage(){
 function remove_folder(){
     FOLDER=$1
     echo "📁 Removing ${FOLDER}"
-    update_and_echo_free_space "before"
     run_rm -f "${FOLDER}" || true
+}
+
+function remove_folders(){
+    # Removes a space-separated list of folders, measuring freed space once for
+    # the whole phase (per-folder df measurements would race under parallelism).
+    FOLDERS_TO_REMOVE=$1
+    echo "📁 Removing folders: ${FOLDERS_TO_REMOVE}"
+    update_and_echo_free_space "before"
+    if [[ "${RM_CMD}" == "rm" && "${TESTING}" != "true" ]]; then
+        # One rm per folder, up to nproc workers. rmz is skipped here: it already
+        # parallelizes internally, so concurrent rmz processes would oversubscribe.
+        # Unquoted on purpose: shell word-splitting and glob expansion apply here.
+        # shellcheck disable=SC2086
+        printf '%s\n' ${FOLDERS_TO_REMOVE} | xargs -n1 -P "$(nproc)" sudo rm -rf || true
+    else
+        # shellcheck disable=SC2086
+        for FOLDER in ${FOLDERS_TO_REMOVE}; do
+            remove_folder "${FOLDER}"
+        done
+    fi
     update_and_echo_free_space "after"
+    echo "-"
 }
 
 # Remove Libraries
@@ -355,6 +371,14 @@ if [[ ${PACKAGES} != "false" ]]; then
             remove_package "${PACKAGE}"
         done
     fi
+    # Single autoremove/clean pass for the whole packages phase instead of one per
+    # package: each autoremove re-resolves the full dependency tree
+    echo "📦 Running final autoremove and clean"
+    update_and_echo_free_space "before"
+    apt_get autoremove -y || true
+    apt_get clean || true
+    update_and_echo_free_space "after"
+    echo "-"
 fi
 if [[ ${TOOL_CACHE} == "true" ]]; then
     remove_tool_cache
@@ -363,8 +387,6 @@ if [[ ${SWAP_STORAGE} == "true" ]]; then
     remove_swap_storage
 fi
 if [[ ${REMOVE_FOLDERS} != "false" ]]; then
-    for FOLDER in ${REMOVE_FOLDERS}; do
-        remove_folder "${FOLDER}"
-    done
+    remove_folders "${REMOVE_FOLDERS}"
 fi
 echo "Total Recovered Space: ${TOTAL_RECOVERED_SPACE} MB"
