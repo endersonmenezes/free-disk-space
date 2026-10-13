@@ -23,13 +23,15 @@ A GitHub Action to free disk space on Ubuntu runners by removing unnecessary sof
 
 ## Compatibility
 
-![Ubuntu 22.04](https://img.shields.io/badge/Ubuntu_22.04-supported-green?logo=ubuntu&logoColor=white)
-![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu_24.04_(Latest)-supported-green?logo=ubuntu&logoColor=white)
-![Ubuntu 24.04 ARM64](https://img.shields.io/badge/Ubuntu_24.04_ARM64-supported-green?logo=ubuntu&logoColor=white)
-![Ubuntu 26.04](https://img.shields.io/badge/Ubuntu_26.04-preview-yellow?logo=ubuntu&logoColor=white)
-![Ubuntu 26.04 ARM64](https://img.shields.io/badge/Ubuntu_26.04_ARM64-preview-yellow?logo=ubuntu&logoColor=white)
+![Ubuntu 26.04](https://img.shields.io/badge/Ubuntu_26.04_(Latest)-supported-green?logo=ubuntu&logoColor=white)
+![Ubuntu 26.04 ARM64](https://img.shields.io/badge/Ubuntu_26.04_ARM64-supported-green?logo=ubuntu&logoColor=white)
+![Ubuntu 24.04](https://img.shields.io/badge/Ubuntu_24.04-maintenance_only-yellow?logo=ubuntu&logoColor=white)
+![Ubuntu 24.04 ARM64](https://img.shields.io/badge/Ubuntu_24.04_ARM64-maintenance_only-yellow?logo=ubuntu&logoColor=white)
+![Ubuntu 22.04](https://img.shields.io/badge/Ubuntu_22.04-maintenance_only-yellow?logo=ubuntu&logoColor=white)
 
 All runners are tested on every push via the [CI workflow](https://github.com/endersonmenezes/free-disk-space/actions/workflows/testing.yaml).
+
+> **Note:** The `ubuntu-latest` label is migrating from Ubuntu 24.04 to **26.04** between October 19 and November 19, 2026 ([announcement](https://github.com/actions/runner-images/issues/14748)). The `ubuntu-22.04` and `ubuntu-24.04` labels remain available and are kept in the test matrix as **maintenance only**.
 
 ## Available Options
 
@@ -50,7 +52,7 @@ All runners are tested on every push via the [CI workflow](https://github.com/en
 
 ## What's New in v4 🚀
 
-- **🧪 Ubuntu 26.04 Preview Support**: Tested on `ubuntu-26.04` and `ubuntu-26.04-arm` runners (experimental)
+- **🧪 Ubuntu 26.04 Support**: Tested on `ubuntu-26.04` and `ubuntu-26.04-arm` runners (now GA and the target of the `ubuntu-latest` label)
 - **🌐 GitHub Pages Dashboard**: CI test results are published to GitHub Pages — see it live at [endersonmenezes.github.io/free-disk-space](https://endersonmenezes.github.io/free-disk-space/)
 - **🔥 rmz Support**: Use `rmz` for up to 3x faster file deletion
 - **🛠️ DevContainer**: Full development environment with Docker-in-Docker
@@ -84,7 +86,7 @@ The v4 is fully backward compatible with v3. To migrate:
 **Breaking Changes:** None! All v3 configurations work in v4.
 
 **New in v4:**
-- Support for `ubuntu-26.04` and `ubuntu-26.04-arm` preview runners
+- Support for `ubuntu-26.04` and `ubuntu-26.04-arm` runners
 - GitHub Pages dashboard with CI test results
 
 **New Optional Parameters:**

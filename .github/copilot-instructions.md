@@ -7,7 +7,7 @@ This repository contains the **Free Disk Space** GitHub Action — a composite a
 - **Type**: GitHub Action (composite)
 - **Language**: Bash (`main.sh`)
 - **Action Definition**: `action.yaml`
-- **Target OS**: Ubuntu 22.04, Ubuntu Latest (24.04), Ubuntu 26.04 (preview), ARM64
+- **Target OS**: Ubuntu Latest (26.04), Ubuntu 26.04 ARM64, Ubuntu 24.04 / 22.04 (maintenance only), ARM64
 - **Repository**: `endersonmenezes/free-disk-space`
 
 ## Repository Structure
@@ -90,7 +90,7 @@ Scopes: action, script, tests, workflows, docs, deps
 
 ### Test Matrix
 
-Every test runs on a matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm, ubuntu-24.04-arm, ubuntu-26.04 (preview), ubuntu-26.04-arm (preview)}`.
+Every test runs on a matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-26.04, ubuntu-26.04-arm, ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm, ubuntu-24.04-arm (maintenance only)}`. Ubuntu 26.04 is GA and `ubuntu-latest` migrates to it between 2026-10-19 and 2026-11-19; the 22.04/24.04 labels stay in the matrix until GitHub retires them.
 
 - **Quick tests** (`quick-test-template.yaml`): Run on PRs. Fast validation of key features.
 - **Full tests** (`test-template.yaml`): Run on push/schedule. Comprehensive coverage with disk space metrics.

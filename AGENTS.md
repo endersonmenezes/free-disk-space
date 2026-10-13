@@ -36,7 +36,7 @@ System-provided: `AGENT_TOOLSDIRECTORY`, `GITHUB_REF`
 
 Measured by the `search_biggest` CI job and the test dashboard (August 2026):
 
-| Aspect | x86_64 (22.04 / 24.04 / latest) | ARM64 (22.04 / 24.04) | `ubuntu-26.04` (preview) | `ubuntu-26.04-arm` (preview) |
+| Aspect | x86_64 (22.04 / 24.04, maintenance only) | ARM64 (22.04 / 24.04, maintenance only) | `ubuntu-26.04` (GA; target of `ubuntu-latest`) | `ubuntu-26.04-arm` (GA) |
 |--------|--------------------------------|------------------------|--------------------------|------------------------------|
 | Initial free disk | ~87-88 GB | ~109 GB | ~94 GB | ~114 GB |
 | Android SDK | Present (~11 GB) | Absent | Present (~11 GB) | Absent |
@@ -44,14 +44,18 @@ Measured by the `search_biggest` CI job and the test dashboard (August 2026):
 | Haskell (`/usr/local/.ghcup`) | Present | Absent | Present (~4 GB) | Absent |
 | Swift (`/usr/share/swift`) | Present | Present | Removed from image | Removed from image |
 
-Notes on the 26.04 preview images:
+`ubuntu-latest` migration: the label moves from Ubuntu 24.04 to 26.04 between 2026-10-19 and 2026-11-19 ([runner-images#14748](https://github.com/actions/runner-images/issues/14748)). The `ubuntu-22.04` / `ubuntu-24.04` labels (x86_64 and ARM64) remain available and are kept in the test matrices as **maintenance only** until GitHub retires them.
+
+Public-repository runner specs (October 2026): standard Linux runners are 4 vCPU / 16 GB RAM. The single-CPU `ubuntu-slim` label (1 vCPU / 5 GB, unprivileged container, 15-min job timeout, minimal toolset) is used for the `shellcheck` job and is covered by `search_biggest`; it cannot run Docker-in-Docker or privileged mounts.
+
+Notes on the 26.04 images:
 
 - Toolchain bumps: LLVM 20/21/22 (was 16-18), Temurin 11/17/21/**25**, gcc 13/14/15 side by side, Python 3.14, kernel 7.0 (`linux-azure`).
 - New large items: `/opt/runner-cache` (~1.1 GB), CodeQL inside the tool cache (~1.7 GB).
 - Azure CLI is split across three locations: `azure-cli` package, `/opt/az` and `/usr/share/az_*`.
-- The preview apt archive (`azure.archive.ubuntu.com/ubuntu resolute`) has been observed stalling mid-download; the `apt_get` wrapper bounds this with a 600s timeout.
+- The 26.04 apt archive (`azure.archive.ubuntu.com/ubuntu resolute`) has been observed stalling mid-download; the `apt_get` wrapper bounds this with a 600s timeout.
 
-Tests MUST pass on all architectures. The 26.04 runners run with `continue-on-error` (`experimental`) until they reach GA. Some cleanup functions are no-ops where the software is absent (e.g. Android/Haskell on ARM64, Swift on 26.04).
+Tests MUST pass on all architectures. Some cleanup functions are no-ops where the software is absent (e.g. Android/Haskell on ARM64, Swift on 26.04).
 
 ## Test Categories
 
