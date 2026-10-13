@@ -34,15 +34,17 @@ System-provided: `AGENT_TOOLSDIRECTORY`, `GITHUB_REF`
 
 ## Runner Image Differences
 
-Measured by the `search_biggest` CI job and the test dashboard (August 2026):
+Measured by the `search_biggest` CI job and the test dashboard (October 2026):
 
 | Aspect | x86_64 (22.04 / 24.04, maintenance only) | ARM64 (22.04 / 24.04, maintenance only) | `ubuntu-26.04` (GA; target of `ubuntu-latest`) | `ubuntu-26.04-arm` (GA) |
 |--------|--------------------------------|------------------------|--------------------------|------------------------------|
-| Initial free disk | ~87-88 GB | ~109 GB | ~94 GB | ~114 GB |
+| Initial free disk | ~86 GB | ~108 GB | ~91 GB | ~111 GB |
 | Android SDK | Present (~11 GB) | Absent | Present (~11 GB) | Absent |
-| .NET (`/usr/share/dotnet`) | Present | Present (~4 GB) | Present (~5 GB) | Present (~6 GB) |
-| Haskell (`/usr/local/.ghcup`) | Present | Absent | Present (~4 GB) | Absent |
+| .NET (`/usr/share/dotnet`) | Present | Present (~4 GB) | Present (~5.8 GB) | Present (~6.1 GB) |
+| Haskell (`/usr/local/.ghcup`) | Present | Absent | Present (~3.7 GB) | Absent |
 | Swift (`/usr/share/swift`) | Present | Present | Removed from image | Removed from image |
+| Julia (`/usr/local/julia*`) / Miniconda | Present | Present | Removed from image | Removed from image |
+| Pre-seeded container images | `/var/lib/docker` (~1.9 GB) | `/var/lib/docker` (~1.9 GB) | `/var/lib/containerd` (~2.6 GB) | `/var/lib/containerd` (~2.6 GB) |
 
 `ubuntu-latest` migration: the label moves from Ubuntu 24.04 to 26.04 between 2026-10-19 and 2026-11-19 ([runner-images#14748](https://github.com/actions/runner-images/issues/14748)). The `ubuntu-22.04` / `ubuntu-24.04` labels (x86_64 and ARM64) remain available and are kept in the test matrices as **maintenance only** until GitHub retires them.
 
@@ -50,10 +52,13 @@ Public-repository runner specs (October 2026): standard Linux runners are 4 vCPU
 
 Notes on the 26.04 images:
 
-- Toolchain bumps: LLVM 20/21/22 (was 16-18), Temurin 11/17/21/**25**, gcc 13/14/15 side by side, Python 3.14, kernel 7.0 (`linux-azure`).
-- New large items: `/opt/runner-cache` (~1.1 GB), CodeQL inside the tool cache (~1.7 GB).
+- Toolchain bumps: LLVM 20/21/22 (was 16-18), Temurin 11/17/21/**25** (8 dropped), gcc 13/14/15 side by side, Python 3.14, kernel 7.0 (`linux-azure`).
 - Azure CLI is split across three locations: `azure-cli` package, `/opt/az` and `/usr/share/az_*`.
+- PowerShell is no longer a deb package on 26.04 — only `remove_folders` (`/usr/local/share/powershell`, ~1.4 GB) removes it there.
+- On 26.04-arm, Google Cloud SDK moved to `/opt/google-cloud-sdk` (~890 MB) and is not a deb package — `remove_packages: google-cloud-cli` does not remove it there; use `remove_folders`.
 - The 26.04 apt archive (`azure.archive.ubuntu.com/ubuntu resolute`) has been observed stalling mid-download; the `apt_get` wrapper bounds this with a 600s timeout.
+
+Large items present on all current images but NOT covered by the action (candidates, measured October 2026): `/opt/runner-cache` (~1.3 GB x64 / ~820 MB arm — removal untested), CodeQL inside the tool cache (~1.4 GB, covered only by `remove_tool_cache`), `/opt/pipx` (~510 MB), and the tripled Rust toolchain (`/home/runner/.rustup`, `/etc/skel/.rustup`, `/home/packer`; ~2 GB combined). Pre-seeded container images live in `/var/lib/containerd` on 26.04 (~2.6 GB) — reclaiming them requires `docker system prune`, not `rm`.
 
 Tests MUST pass on all architectures. Some cleanup functions are no-ops where the software is absent (e.g. Android/Haskell on ARM64, Swift on 26.04).
 
