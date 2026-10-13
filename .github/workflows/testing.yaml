@@ -34,9 +34,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: Install ShellCheck
-        run: sudo apt-get install shellcheck -y
-
       - name: Run ShellCheck
         run: shellcheck main.sh -o all -e SC2033,SC2032
   
