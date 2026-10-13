@@ -7,7 +7,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [v4.0.1] — Working in Progress
+## [v4.0.1] — 2026-10-13
 
 **CI/CD Improvements:**
 - 🧪 Promote `ubuntu-26.04` and `ubuntu-26.04-arm` from experimental (`continue-on-error`) entries to the regular test matrix — Ubuntu 26.04 is GA and `ubuntu-latest` migrates to it between 2026-10-19 and 2026-11-19 ([runner-images#14748](https://github.com/actions/runner-images/issues/14748))
