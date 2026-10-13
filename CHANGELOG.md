@@ -13,6 +13,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - 🧪 Promote `ubuntu-26.04` and `ubuntu-26.04-arm` from experimental (`continue-on-error`) entries to the regular test matrix — Ubuntu 26.04 is GA and `ubuntu-latest` migrates to it between 2026-10-19 and 2026-11-19 ([runner-images#14748](https://github.com/actions/runner-images/issues/14748))
 - 🧪 Keep `ubuntu-22.04` / `ubuntu-24.04` (x86_64 and ARM64) in the test matrices as maintenance-only runners until GitHub retires the labels
 - ⚡ Drop the redundant `apt-get install shellcheck` step from the linter job — `shellcheck` ships preinstalled on the `ubuntu-slim` image
+- 🧪 Add `ubuntu-slim` to the test matrices so it appears on the dashboard; the full-test template skips the Docker step there (unprivileged container without a Docker daemon) and uses `python3` for the sanity check
 
 **Documentation:**
 - 📝 Mark Ubuntu 26.04 as supported (latest) and Ubuntu 22.04/24.04 as maintenance only in README badges, `AGENTS.md` and Copilot instructions

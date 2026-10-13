@@ -65,6 +65,8 @@ jobs:
           - ubuntu-latest
           - ubuntu-26.04
           - ubuntu-26.04-arm
+          # 1 vCPU unprivileged container: no Docker daemon, 15-min job limit
+          - ubuntu-slim
           # Maintenance only: legacy labels, kept until GitHub retires them
           - ubuntu-22.04
           - ubuntu-24.04
@@ -104,10 +106,12 @@ jobs:
         run: df -h
 
       - name: Docker Hello World
+        # ubuntu-slim is an unprivileged container without a Docker daemon
+        if: matrix.runner != 'ubuntu-slim'
         run: docker run hello-world
 
       - name: Run Python Hello World
-        run: python -c "print('Hello, World!')"
+        run: python3 -c "print('Hello, World!')"
 
       - name: Get final disk space
         id: final_space

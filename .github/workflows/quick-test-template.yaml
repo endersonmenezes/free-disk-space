@@ -65,6 +65,8 @@ jobs:
           - ubuntu-latest
           - ubuntu-26.04
           - ubuntu-26.04-arm
+          # 1 vCPU unprivileged container: no Docker daemon, 15-min job limit
+          - ubuntu-slim
           # Maintenance only: legacy labels, kept until GitHub retires them
           - ubuntu-22.04
           - ubuntu-24.04

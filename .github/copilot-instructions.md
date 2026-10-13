@@ -90,7 +90,7 @@ Scopes: action, script, tests, workflows, docs, deps
 
 ### Test Matrix
 
-Every test runs on a matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-26.04, ubuntu-26.04-arm, ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm, ubuntu-24.04-arm (maintenance only)}`. Ubuntu 26.04 is GA and `ubuntu-latest` migrates to it between 2026-10-19 and 2026-11-19; the 22.04/24.04 labels stay in the matrix until GitHub retires them.
+Every test runs on a matrix: `{rm, rmz} × {ubuntu-latest, ubuntu-26.04, ubuntu-26.04-arm, ubuntu-slim, ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm, ubuntu-24.04-arm (maintenance only)}`. Ubuntu 26.04 is GA and `ubuntu-latest` migrates to it between 2026-10-19 and 2026-11-19; the 22.04/24.04 labels stay in the matrix until GitHub retires them. `ubuntu-slim` is a 1 vCPU unprivileged container (no Docker daemon, 15-min job limit) — the full-test template skips the Docker step there.
 
 - **Quick tests** (`quick-test-template.yaml`): Run on PRs. Fast validation of key features.
 - **Full tests** (`test-template.yaml`): Run on push/schedule. Comprehensive coverage with disk space metrics.
