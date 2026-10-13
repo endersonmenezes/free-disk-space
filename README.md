@@ -124,7 +124,7 @@ jobs:
           remove_swap: true
           remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
           remove_packages_one_command: true
-          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
+          remove_folders: "/usr/share/az* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle /opt/pipx"
           rm_cmd: "rm"  # Use 'rmz' for faster deletion (default: 'rm')
           rmz_version: "3.2.0"  # Required when rm_cmd is 'rmz'
           testing: false
@@ -166,7 +166,7 @@ jobs:
   with:
     remove_android: true
     remove_dotnet: true
-    remove_folders: "/usr/share/swift /usr/local/julia"
+    remove_folders: "/usr/local/share/powershell /usr/local/lib/node_modules"
     
 - name: Install Python Packages
   run: pip install pandas numpy scikit-learn
@@ -218,13 +218,15 @@ remove_packages: "azure-cli dotnet-sdk-8.0 temurin-* *llvm* mysql* firefox"
 
 **Ubuntu Latest (x86_64):**
 ```yaml
-remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle"
+remove_folders: "/usr/share/az* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle /opt/pipx"
 ```
 
 **Ubuntu ARM64:**
 ```yaml
-remove_folders: "/usr/share/swift /usr/local/share/powershell /usr/local/lib/node_modules /usr/share/az* /usr/local/aws-cli"
+remove_folders: "/usr/local/share/powershell /usr/local/lib/node_modules /usr/share/az* /usr/local/aws-cli /opt/google-cloud-sdk"
 ```
+
+> **Notes:** On Ubuntu 26.04, PowerShell is no longer a deb package and Google Cloud SDK on ARM64 lives at `/opt/google-cloud-sdk` (also not a deb package) — only `remove_folders` cleans them there. On the legacy 22.04/24.04 images you can additionally list `/usr/share/swift` (~3.5 GB), `/usr/share/miniconda` (~1 GB) and `/usr/local/julia*` (~1.1 GB); these folders were removed from the Ubuntu 26.04 image.
 
 _In our action you can see more folders and packages to delete, but it is your responsibility to know what you are doing._
 
