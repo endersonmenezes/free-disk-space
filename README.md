@@ -13,13 +13,17 @@ A GitHub Action to free disk space on Ubuntu runners by removing unnecessary sof
 
 - [Compatibility](#compatibility)
 - [Available Options](#available-options)
-- [What's New in v3](#whats-new-in-v3-)
+- [What's New in v4](#whats-new-in-v4-)
+- [Inspiration](#inspiration)
+- [Motivation](#motivation)
 - [Quick Start](#quick-start)
 - [Common Use Cases](#common-use-cases)
 - [Size Savings](#size-savings)
 - [FAQ](#faq)
 - [Contributing](#contributing)
-- [Changelog](CHANGELOG.md)
+- [Acknowledgements](#acknowledgements)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Compatibility
 
@@ -194,7 +198,7 @@ These numbers are no longer maintained by hand — every CI run publishes fresh 
 
 [![Free Disk Space - CI test results dashboard](docs/assets/dashboard.png)](https://endersonmenezes.github.io/free-disk-space/)
 
-📊 **Live dashboard:** [endersonmenezes.github.io/free-disk-space](https://endersonmenezes.github.io/free-disk-space/) — filter by runner (`ubuntu-22.04` → `ubuntu-26.04`, x86_64 and ARM64) and by removal command (`rm` vs `rmz`) to see what each option frees and how long it takes.
+📊 **Live dashboard:** [endersonmenezes.github.io/free-disk-space](https://endersonmenezes.github.io/free-disk-space/) — filter by runner (`ubuntu-slim`, `ubuntu-22.04` → `ubuntu-26.04`, x86_64 and ARM64) and by removal command (`rm` vs `rmz`) to see what each option frees and how long it takes.
 
 Rule of thumb from the latest runs:
 
