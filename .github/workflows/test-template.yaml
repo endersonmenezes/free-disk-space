@@ -63,28 +63,16 @@ jobs:
         rm_cmd: [rm, rmz]
         runner:
           - ubuntu-latest
+          - ubuntu-26.04
+          - ubuntu-26.04-arm
+          # Maintenance only: legacy labels, kept until GitHub retires them
           - ubuntu-22.04
           - ubuntu-24.04
           - ubuntu-22.04-arm
           - ubuntu-24.04-arm
-        experimental: [false]
-        include:
-          - runner: ubuntu-26.04
-            rm_cmd: rm
-            experimental: true
-          - runner: ubuntu-26.04
-            rm_cmd: rmz
-            experimental: true
-          - runner: ubuntu-26.04-arm
-            rm_cmd: rm
-            experimental: true
-          - runner: ubuntu-26.04-arm
-            rm_cmd: rmz
-            experimental: true
     runs-on: ${{ matrix.runner }}
     name: ${{ inputs.job_name }} with ${{ matrix.rm_cmd }} on ${{ matrix.runner }}
     timeout-minutes: 25
-    continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
