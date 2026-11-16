@@ -232,6 +232,8 @@ remove_folders: "/usr/local/share/powershell /usr/local/lib/node_modules /usr/sh
 
 > **Notes:** On Ubuntu 26.04, PowerShell is no longer a deb package and Google Cloud SDK on ARM64 lives at `/opt/google-cloud-sdk` (also not a deb package) — only `remove_folders` cleans them there. On the legacy 22.04/24.04 images you can additionally list `/usr/share/swift` (~3.5 GB), `/usr/share/miniconda` (~1 GB) and `/usr/local/julia*` (~1.1 GB); these folders were removed from the Ubuntu 26.04 image.
 
+> **Runner runtime protection:** `remove_folders` never deletes the runner's active Node.js runtime. If a requested path overlaps it — for example under `/opt/runner-cache`, where the runner's cached externals resolve — the path is skipped and a `::warning::` is emitted, while safe siblings are still removed.
+
 _In our action you can see more folders and packages to delete, but it is your responsibility to know what you are doing._
 
 _Initially I created this project with the intention of doing all this and then being able to use Docker and Python, our tests will prove this._

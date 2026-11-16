@@ -36,7 +36,10 @@ jobs:
 
       - name: Run ShellCheck
         run: shellcheck main.sh -o all -e SC2033,SC2032
-  
+
+      - name: Run runner runtime protection regression
+        run: bash tests/test_runner_runtime_protection.sh
+
   # Step 2: Search biggest folders and packages
   search_biggest:
     name: "🔍 Search Biggest (${{ matrix.runner }})"
@@ -146,7 +149,7 @@ jobs:
       remove_swap: true
       remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox"
       remove_packages_one_command: true
-      remove_folders: "/usr/share/swift /usr/share/miniconda /etc/skel /home/packer /opt/pipx /opt/actionarchivecache /opt/runner-cache"
+      remove_folders: "/usr/share/swift /usr/share/miniconda /etc/skel /home/packer /opt/pipx /opt/actionarchivecache"
 
   # Package removal test (one command)
   test_packages_one_command:
@@ -210,7 +213,7 @@ jobs:
       remove_swap: true
       remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-* julia*"
       remove_packages_one_command: true
-      remove_folders: "/usr/share/swift /usr/share/miniconda /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle /etc/skel /home/packer /home/linuxbrew /opt/pipx /opt/actionarchivecache /opt/runner-cache /usr/local/share/vcpkg /usr/lib/jvm /usr/lib/llvm-16 /usr/lib/llvm-17 /usr/lib/llvm-18 /opt/microsoft /opt/google /usr/lib/firefox"
+      remove_folders: "/usr/share/swift /usr/share/miniconda /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/julia /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle /etc/skel /home/packer /home/linuxbrew /opt/pipx /opt/actionarchivecache /usr/local/share/vcpkg /usr/lib/jvm /usr/lib/llvm-16 /usr/lib/llvm-17 /usr/lib/llvm-18 /opt/microsoft /opt/google /usr/lib/firefox"
 
   # Testing mode validation (ensures echo-only mode works)
   test_testing_mode:
