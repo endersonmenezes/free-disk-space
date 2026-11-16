@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [v4.0.2] — 2026-11-16
+
+**Fixed:**
+- 🐛 Prevent `remove_folders` from deleting the active GitHub Actions Node.js runtime when cached externals resolve under `/opt/runner-cache`; skip overlapping paths with a warning in `rm`, `rmz`, and testing modes
+
+**CI/CD Improvements:**
+- 🧪 Add isolated runner-runtime regression coverage for parent, nested, root, and unrelated paths across `rm` and `rmz`, and run it in the ShellCheck job
+
+**Documentation:**
+- 📝 Document the `/opt/runner-cache/externals` hazard and the automatic runtime-protection behavior
+
+---
+
 ## [v4.0.1] — 2026-10-13
 
 **CI/CD Improvements:**
