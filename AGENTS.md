@@ -58,7 +58,9 @@ Notes on the 26.04 images:
 - On 26.04-arm, Google Cloud SDK moved to `/opt/google-cloud-sdk` (~890 MB) and is not a deb package — `remove_packages: google-cloud-cli` does not remove it there; use `remove_folders`.
 - The 26.04 apt archive (`azure.archive.ubuntu.com/ubuntu resolute`) has been observed stalling mid-download; the `apt_get` wrapper bounds this with a 600s timeout.
 
-Large items present on all current images but NOT covered by the action (candidates, measured October 2026): `/opt/runner-cache` (~1.3 GB x64 / ~820 MB arm — removal untested), CodeQL inside the tool cache (~1.4 GB, covered only by `remove_tool_cache`), `/opt/pipx` (~510 MB), and the tripled Rust toolchain (`/home/runner/.rustup`, `/etc/skel/.rustup`, `/home/packer`; ~2 GB combined). Pre-seeded container images live in `/var/lib/containerd` on 26.04 (~2.6 GB) — reclaiming them requires `docker system prune`, not `rm`.
+Large items present on all current images but NOT covered by the action (candidates, measured October 2026): CodeQL inside the tool cache (~1.4 GB, covered only by `remove_tool_cache`), `/opt/pipx` (~510 MB), and the tripled Rust toolchain (`/home/runner/.rustup`, `/etc/skel/.rustup`, `/home/packer`; ~2 GB combined). Pre-seeded container images live in `/var/lib/containerd` on 26.04 (~2.6 GB) — reclaiming them requires `docker system prune`, not `rm`.
+
+`/opt/runner-cache` is NOT a cleanup candidate: the runner's cached externals links make the active Node.js runtime (used by running and post-job actions) resolve inside it, so deleting the tree can kill the runner mid-job. `remove_folders` automatically skips any requested path that overlaps the active runner runtime — the runtime itself, its parent, or anything below it — and emits a `::warning::` instead; safe siblings (e.g. `*.tar.gz` archives, unrelated subdirectories) are still removed. Regression coverage: `tests/test_runner_runtime_protection.sh`, wired into the `shellcheck` CI job.
 
 Tests MUST pass on all architectures. Some cleanup functions are no-ops where the software is absent (e.g. Android/Haskell on ARM64, Swift on 26.04).
 

@@ -325,6 +325,38 @@ function remove_swap_storage(){
     echo "-"
 }
 
+function get_active_runner_runtime_paths(){
+    # Prints the canonical paths of the Node.js runtimes referenced by the
+    # runner's cached externals links; prints nothing when the layout does not
+    # exist (e.g. runners without cached externals).
+    local RUNNER_HOME_DIR="${RUNNER_HOME:-/home/runner/actions-runner}"
+    local RUNTIME_PATH
+    for RUNTIME_PATH in "${RUNNER_HOME_DIR}"/cached/*/externals/node*; do
+        if [[ -e "${RUNTIME_PATH}" ]]; then
+            realpath "${RUNTIME_PATH}" 2>/dev/null || true
+        fi
+    done
+}
+
+function is_active_runner_runtime_path(){
+    # Returns 0 when the candidate overlaps an active runner runtime (it is the
+    # runtime, contains it, or is contained by it), 1 otherwise.
+    local CANDIDATE
+    if ! CANDIDATE=$(realpath "$1" 2>/dev/null); then
+        CANDIDATE="$1"
+    fi
+    local RUNTIME_PATHS
+    RUNTIME_PATHS=$(get_active_runner_runtime_paths) || true
+    local RUNTIME_PATH
+    while IFS= read -r RUNTIME_PATH; do
+        [[ -z "${RUNTIME_PATH}" ]] && continue
+        if [[ "${CANDIDATE}" == "/" || "${CANDIDATE}" == "${RUNTIME_PATH}" || "${CANDIDATE}" == "${RUNTIME_PATH}"/* || "${RUNTIME_PATH}" == "${CANDIDATE}"/* ]]; then
+            return 0
+        fi
+    done <<< "${RUNTIME_PATHS}"
+    return 1
+}
+
 function remove_folder(){
     FOLDER=$1
     echo "📁 Removing ${FOLDER}"
@@ -334,18 +366,28 @@ function remove_folder(){
 function remove_folders(){
     # Removes a space-separated list of folders, measuring freed space once for
     # the whole phase (per-folder df measurements would race under parallelism).
+    # Paths overlapping the active runner runtime are skipped with a warning.
     FOLDERS_TO_REMOVE=$1
     echo "📁 Removing folders: ${FOLDERS_TO_REMOVE}"
     update_and_echo_free_space "before"
+    SAFE_FOLDERS_TO_REMOVE=()
+    # Unquoted on purpose: shell word-splitting and glob expansion apply here.
+    # shellcheck disable=SC2086
+    for FOLDER in ${FOLDERS_TO_REMOVE}; do
+        if is_active_runner_runtime_path "${FOLDER}"; then
+            echo "::warning::Skipping ${FOLDER}: it overlaps the active GitHub Actions Node.js runtime"
+        else
+            SAFE_FOLDERS_TO_REMOVE+=("${FOLDER}")
+        fi
+    done
     if [[ "${RM_CMD}" == "rm" && "${TESTING}" != "true" ]]; then
         # One rm per folder, up to nproc workers. rmz is skipped here: it already
         # parallelizes internally, so concurrent rmz processes would oversubscribe.
-        # Unquoted on purpose: shell word-splitting and glob expansion apply here.
-        # shellcheck disable=SC2086
-        printf '%s\n' ${FOLDERS_TO_REMOVE} | xargs -n1 -P "$(nproc)" sudo rm -rf || true
+        if [[ ${#SAFE_FOLDERS_TO_REMOVE[@]} -gt 0 ]]; then
+            printf '%s\n' "${SAFE_FOLDERS_TO_REMOVE[@]}" | xargs -n1 -P "$(nproc)" sudo rm -rf || true
+        fi
     else
-        # shellcheck disable=SC2086
-        for FOLDER in ${FOLDERS_TO_REMOVE}; do
+        for FOLDER in "${SAFE_FOLDERS_TO_REMOVE[@]}"; do
             remove_folder "${FOLDER}"
         done
     fi
