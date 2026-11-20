@@ -52,6 +52,7 @@ All runners are tested on every push via the [CI workflow](https://github.com/en
 | `remove_folders` | Space-separated list of folders to remove | No | `false` |
 | `rm_cmd` | Removal command: `rm` (safe) or `rmz` (faster) | No | `rm` |
 | `rmz_version` | Version of rmz to use (required if `rm_cmd=rmz`) | No | `3.2.0` |
+| `rmz_sha256` | SHA-256 checksum for rmz; required for versions without a pinned checksum | No | `""` |
 | `testing` | Testing mode (echoes commands instead of running) | No | `false` |
 
 ## What's New in v4 🚀
@@ -191,6 +192,8 @@ For faster file deletion, you can use `rmz` instead of the default `rm` command:
 ```
 
 **Note:** `rmz` is a Rust-based alternative to `rm`, providing significantly faster deletion for large directories. Learn more at [SUPERCILEX/fuc](https://github.com/SUPERCILEX/fuc).
+
+**Checksum verification:** Every `rmz` download is verified with SHA-256 before installation. Version `3.2.0` has pinned checksums for x86_64 and aarch64, so existing configurations need no changes. For any other version, set `rmz_sha256` to the asset's expected 64-character SHA-256 checksum. An explicit value overrides a built-in pin. Missing or malformed checksums and checksum mismatches prevent installation.
 
 ## Size Savings
 
