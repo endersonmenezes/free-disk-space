@@ -40,6 +40,9 @@ jobs:
       - name: Run runner runtime protection regression
         run: bash tests/test_runner_runtime_protection.sh
 
+      - name: Run temporary bc regression
+        run: bash tests/test_temporary_bc.sh
+
   # Step 2: Search biggest folders and packages
   search_biggest:
     name: "🔍 Search Biggest (${{ matrix.runner }})"

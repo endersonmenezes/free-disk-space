@@ -120,7 +120,7 @@ function function_name(){
 
 - **rmz**: Rust-based fast rm alternative from [SUPERCILEX/fuc](https://github.com/SUPERCILEX/fuc). Supports x86_64 and aarch64.
 - **`run_rm` wrapper**: Handles `rm`/`rmz` switching and testing mode echo.
-- **`bc` dependency**: Copied to local `./bc` before any `apt-get remove` to avoid self-destruction.
+- **`bc` dependency**: Copied to a temporary directory under `$RUNNER_TEMP` (falling back to `$TMPDIR` or `/tmp`) before any `apt-get remove`, then removed on exit.
 - **Disk space tracking**: `update_and_echo_free_space` measures before/after with `df -B1` and `bc`.
 
 ## Versioning
