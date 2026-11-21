@@ -86,7 +86,7 @@ bash main.sh
 
 | Issue | Cause | Solution |
 |-------|-------|---------|
-| "bc is not installed" | `bc` removed by `apt-get` | Script copies `bc` to `./bc` before cleanup — handled automatically |
+| "bc is not installed" | `bc` removed by `apt-get` | Script copies `bc` to a temporary directory before cleanup and removes the copy on exit — handled automatically |
 | rmz installation fails | Network or unsupported arch | Script exits gracefully (`exit 0`), user can fall back to `rm` |
 | Package removal hangs | Interactive debconf prompt or stalled archive download | Handled since v4: `DEBIAN_FRONTEND=noninteractive`, stdin closed (`< /dev/null`), `timeout 600` per `apt-get` call |
 | Permission denied | Missing `sudo` | All system operations use `sudo`; append `|| true` |
