@@ -40,6 +40,9 @@ jobs:
       - name: Run runner runtime protection regression
         run: bash tests/test_runner_runtime_protection.sh
 
+      - name: Run temporary bc regression
+        run: bash tests/test_temporary_bc.sh
+
       - name: Run rmz checksum regression
         run: bash tests/test_rmz_checksum.sh
 
