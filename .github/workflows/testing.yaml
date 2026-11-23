@@ -43,6 +43,9 @@ jobs:
       - name: Run temporary bc regression
         run: bash tests/test_temporary_bc.sh
 
+      - name: Run rmz checksum regression
+        run: bash tests/test_rmz_checksum.sh
+
   # Step 2: Search biggest folders and packages
   search_biggest:
     name: "🔍 Search Biggest (${{ matrix.runner }})"

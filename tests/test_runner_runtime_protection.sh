@@ -77,7 +77,7 @@ fi
 
 export PRINCIPAL_DIR="${WORK}" TESTING=false ANDROID_FILES=false DOTNET_FILES=false \
     HASKELL_FILES=false TOOL_CACHE=false SWAP_STORAGE=false PACKAGES=false \
-    REMOVE_ONE_COMMAND=false REMOVE_FOLDERS=false RM_CMD=rm RMZ_VERSION=3.2.0 \
+    REMOVE_ONE_COMMAND=false REMOVE_FOLDERS=false RM_CMD=rm RMZ_VERSION=3.2.1 \
     AGENT_TOOLSDIRECTORY=/usr/local/bin GITHUB_REF=refs/heads/test RUNNER_TEMP="${WORK}"
 
 # Isolate main.sh's EXIT trap so early exits cannot replace the harness cleanup.

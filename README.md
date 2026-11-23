@@ -51,7 +51,8 @@ All runners are tested on every push via the [CI workflow](https://github.com/en
 | `remove_packages_one_command` | Remove all packages in one command | No | `false` |
 | `remove_folders` | Space-separated list of folders to remove | No | `false` |
 | `rm_cmd` | Removal command: `rm` (safe) or `rmz` (faster) | No | `rm` |
-| `rmz_version` | Version of rmz to use (required if `rm_cmd=rmz`) | No | `3.2.0` |
+| `rmz_version` | Version of rmz to use (required if `rm_cmd=rmz`) | No | `3.2.1` |
+| `rmz_sha256` | SHA-256 checksum for rmz; required for versions without a pinned checksum | No | `""` |
 | `testing` | Testing mode (echoes commands instead of running) | No | `false` |
 
 ## What's New in v4 🚀
@@ -84,7 +85,7 @@ The v4 is fully backward compatible with v3. To migrate:
   with:
     remove_android: true
     rm_cmd: "rmz"        # Faster deletion
-    rmz_version: "3.2.0" # Specify rmz version
+    rmz_version: "3.2.1" # Specify rmz version
 ```
 
 **Breaking Changes:** None! All v3 configurations work in v4.
@@ -130,7 +131,7 @@ jobs:
           remove_packages_one_command: true
           remove_folders: "/usr/share/az* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell /usr/local/aws-cli /usr/local/aws-sam-cli /usr/share/gradle /opt/pipx"
           rm_cmd: "rm"  # Use 'rmz' for faster deletion (default: 'rm')
-          rmz_version: "3.2.0"  # Required when rm_cmd is 'rmz'
+          rmz_version: "3.2.1"  # Required when rm_cmd is 'rmz'
           testing: false
 ```
 
@@ -187,10 +188,12 @@ For faster file deletion, you can use `rmz` instead of the default `rm` command:
     remove_android: true
     remove_dotnet: true
     rm_cmd: "rmz"  # Faster deletion (~3x faster)
-    rmz_version: "3.2.0"
+    rmz_version: "3.2.1"
 ```
 
 **Note:** `rmz` is a Rust-based alternative to `rm`, providing significantly faster deletion for large directories. Learn more at [SUPERCILEX/fuc](https://github.com/SUPERCILEX/fuc).
+
+**Checksum verification:** Every `rmz` download is verified with SHA-256 before installation. Versions `3.2.1` (the default) and `3.2.0` have pinned checksums for x86_64 and aarch64, so configurations using these versions need no additional input. For any other version, set `rmz_sha256` to the asset's expected 64-character SHA-256 checksum. An explicit value overrides a built-in pin. Missing or malformed checksums and checksum mismatches prevent installation.
 
 ## Size Savings
 

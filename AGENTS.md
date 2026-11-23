@@ -28,6 +28,7 @@ Deep technical reference for contributors and AI agents. For coding conventions,
 | `remove_folders` | `REMOVE_FOLDERS` |
 | `rm_cmd` | `RM_CMD` |
 | `rmz_version` | `RMZ_VERSION` |
+| `rmz_sha256` | `RMZ_SHA256` |
 | `testing` | `TESTING` |
 
 System-provided: `AGENT_TOOLSDIRECTORY`, `GITHUB_REF`
@@ -77,7 +78,7 @@ Tests MUST pass on all architectures. Some cleanup functions are no-ops where th
 ```bash
 export TESTING=true PRINCIPAL_DIR=/ ANDROID_FILES=true DOTNET_FILES=false \
   HASKELL_FILES=false TOOL_CACHE=false SWAP_STORAGE=false PACKAGES=false \
-  REMOVE_ONE_COMMAND=false REMOVE_FOLDERS=false RM_CMD=rm RMZ_VERSION=3.2.0 \
+  REMOVE_ONE_COMMAND=false REMOVE_FOLDERS=false RM_CMD=rm RMZ_VERSION=3.2.1 \
   AGENT_TOOLSDIRECTORY=/usr/local/bin
 bash main.sh
 ```
@@ -88,6 +89,7 @@ bash main.sh
 |-------|-------|---------|
 | "bc is not installed" | `bc` removed by `apt-get` | Script copies `bc` to a temporary directory before cleanup and removes the copy on exit — handled automatically |
 | rmz installation fails | Network or unsupported arch | Script exits gracefully (`exit 0`), user can fall back to `rm` |
+| rmz checksum is missing, malformed, or does not match | Unpinned version without `rmz_sha256`, invalid hash, or unexpected binary | Provide the asset's expected 64-character SHA-256; the script refuses installation before or immediately after download |
 | Package removal hangs | Interactive debconf prompt or stalled archive download | Handled since v4: `DEBIAN_FRONTEND=noninteractive`, stdin closed (`< /dev/null`), `timeout 600` per `apt-get` call |
 | Permission denied | Missing `sudo` | All system operations use `sudo`; append `|| true` |
 | Disk space not freed | Path doesn't exist on runner | Check with `find` before removal; ARM64 has fewer pre-installed packages |
