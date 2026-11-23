@@ -46,7 +46,7 @@ All runners are tested on every push via the [CI workflow](https://github.com/en
 | `remove_dotnet` | Remove .NET runtime and SDKs | No | `false` |
 | `remove_haskell` | Remove Haskell (GHC) | No | `false` |
 | `remove_tool_cache` | Remove tool cache directory | No | `false` |
-| `remove_swap` | Remove swap storage | No | `false` |
+| `remove_swap` | Disable and remove active swap files | No | `false` |
 | `remove_packages` | Space-separated list of packages to remove | No | `false` |
 | `remove_packages_one_command` | Remove all packages in one command | No | `false` |
 | `remove_folders` | Space-separated list of folders to remove | No | `false` |
