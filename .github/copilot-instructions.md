@@ -45,7 +45,7 @@ free-disk-space/
 - **Quoting**: Always `"${VARIABLE}"` — never unquoted
 - **Conditionals**: `[[ ]]` not `[ ]`
 - **Error handling**: Append `|| true` to removal operations
-- **Exit codes**: Use `exit 0` for validation failures (graceful degradation)
+- **Exit codes**: Use `exit 0` for expected validation failures (graceful degradation); temporary `bc` setup failures intentionally use `exit 1`
 - **Indentation**: 4 spaces (`.editorconfig`)
 
 ### YAML Files (workflows, action.yaml)
@@ -121,7 +121,7 @@ function function_name(){
 
 - **rmz**: Rust-based fast rm alternative from [SUPERCILEX/fuc](https://github.com/SUPERCILEX/fuc). Supports x86_64 and aarch64.
 - **`run_rm` wrapper**: Handles `rm`/`rmz` switching and testing mode echo.
-- **`bc` dependency**: Copied to a temporary directory under `$RUNNER_TEMP` (falling back to `$TMPDIR` or `/tmp`) before any `apt-get remove`, then removed on exit.
+- **`bc` dependency**: Copied to a temporary directory under `$RUNNER_TEMP` (falling back to `$TMPDIR` or `/tmp`) before any `apt-get remove`, then removed on exit. Temporary-directory and copy failures return status 1.
 - **Disk space tracking**: `update_and_echo_free_space` measures before/after with `df -B1` and `bc`.
 
 ## Versioning

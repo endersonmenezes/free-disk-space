@@ -256,6 +256,10 @@ _Initially I created this project with the intention of doing all this and then 
 - Test with your specific needs first
 - Use `testing: true` to see what would be removed
 
+**Q: Does the action leave helper files in the workspace?**
+- No. The `bc` helper is stored in a unique directory under `$RUNNER_TEMP`, falling back to `$TMPDIR` or `/tmp`, and is removed on exit.
+- If the temporary directory or helper cannot be created, the step intentionally returns status 1 rather than silently continuing without cleanup.
+
 **Q: How can I debug issues?**
 - Enable disk space logging before and after (see examples above)
 - Use `testing: true` to see what would be removed without actually removing

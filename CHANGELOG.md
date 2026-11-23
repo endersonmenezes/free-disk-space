@@ -14,12 +14,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 **Changed:**
 - ⬆️ Upgrade the default `rmz` version from 3.2.0 to 3.2.1 while retaining pinned checksums for both versions
+- ⚠️ Return status 1 when the temporary `bc` directory or helper cannot be created, making setup failures visible instead of silently skipping cleanup
 
 **Fixed:**
 - 🔒 Verify every downloaded rmz binary with SHA-256 before `sudo install`, using pinned checksums for the 3.2.1 and 3.2.0 x86_64 and aarch64 assets
+- 🐛 Keep the temporary `bc` helper outside the workspace in a unique `$RUNNER_TEMP` directory (with `$TMPDIR` or `/tmp` fallback) and remove it on exit, including failures
 
 **CI/CD Improvements:**
 - 🧪 Add isolated regression coverage for pinned architectures, custom checksums, malformed or missing hashes, mismatches, and the unchanged `rm` path
+- 🧪 Add temporary `bc` regression coverage for normal and failed exits, temporary-path fallback, paths containing spaces, and setup failures
+
+**Documentation:**
+- 📝 Document temporary `bc` storage, automatic cleanup, and intentional nonzero status for helper setup failures
 
 ---
 

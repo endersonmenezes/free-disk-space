@@ -87,7 +87,8 @@ bash main.sh
 
 | Issue | Cause | Solution |
 |-------|-------|---------|
-| "bc is not installed" | `bc` removed by `apt-get` | Script copies `bc` to a temporary directory before cleanup and removes the copy on exit — handled automatically |
+| "bc is not installed" | `bc` removed by `apt-get` | Script copies `bc` to a unique directory under `$RUNNER_TEMP` (falling back to `$TMPDIR` or `/tmp`) and removes the copy on exit — handled automatically |
+| Failed to create a temporary directory or copy `bc` | Invalid or unwritable temporary path, insufficient disk space, or copy failure | The step intentionally returns status 1 instead of silently skipping cleanup; check `$RUNNER_TEMP` / `$TMPDIR`, permissions, and available space |
 | rmz installation fails | Network or unsupported arch | Script exits gracefully (`exit 0`), user can fall back to `rm` |
 | rmz checksum is missing, malformed, or does not match | Unpinned version without `rmz_sha256`, invalid hash, or unexpected binary | Provide the asset's expected 64-character SHA-256; the script refuses installation before or immediately after download |
 | Package removal hangs | Interactive debconf prompt or stalled archive download | Handled since v4: `DEBIAN_FRONTEND=noninteractive`, stdin closed (`< /dev/null`), `timeout 600` per `apt-get` call |
