@@ -19,7 +19,8 @@
 # REMOVE_ONE_COMMAND: Boolean (true or false)
 # REMOVE_FOLDERS: String (separated by space)
 # RM_CMD: String (rm or rmz)
-# RMZ_VERSION: String (default: 3.2.0)
+# RMZ_VERSION: String (default: 3.2.1)
+# RMZ_SHA256: String (optional; required for unpinned rmz versions)
 
 # Environment Variables
 # AGENT_TOOLSDIRECTORY: String
@@ -135,12 +136,43 @@ if [[ "${RM_CMD}" == "rmz" ]]; then
         *) echo "Unsupported arch: ${arch}"; exit 0 ;;
     esac
 
+    EXPECTED_RMZ_SHA256="${RMZ_SHA256:-}"
+    if [[ -z "${EXPECTED_RMZ_SHA256}" ]]; then
+        case "${RMZ_VERSION}:${ASSET}" in
+            3.2.1:x86_64-unknown-linux-gnu-rmz)
+                EXPECTED_RMZ_SHA256="e2c2c07e731d9422dfe3f14e17e010c6dd5f7a4ad54a9c9bcd141cb8a5ec4fb1"
+                ;;
+            3.2.1:aarch64-unknown-linux-gnu-rmz)
+                EXPECTED_RMZ_SHA256="62059f80a71715d6c4197c0729f157a9c1bbe537a5bdfa830397c47b3ae1ed74"
+                ;;
+            3.2.0:x86_64-unknown-linux-gnu-rmz)
+                EXPECTED_RMZ_SHA256="7dc19b56caeab9611b578355bbc58c791d1830177651817dec339e0e926286ce"
+                ;;
+            3.2.0:aarch64-unknown-linux-gnu-rmz)
+                EXPECTED_RMZ_SHA256="49f6aaddf00ac3e4ae2a7928d1d651ea708b0bedd577a94d08ece44414cf3a36"
+                ;;
+            *)
+                echo "RMZ_SHA256 is required for unpinned rmz version ${RMZ_VERSION} (${ASSET})"
+                exit 0
+                ;;
+        esac
+    fi
+    if ! [[ "${EXPECTED_RMZ_SHA256}" =~ ^[0-9a-fA-F]{64}$ ]]; then
+        echo "RMZ_SHA256 must be exactly 64 hexadecimal characters"
+        exit 0
+    fi
+
     RMZ_RELEASE_URL="https://github.com/SUPERCILEX/fuc/releases/download/${RMZ_VERSION}/${ASSET}"
 
     # Download to a temporary file first so curl failures are detected, then install atomically
     tmpfile=$(mktemp)
     if ! curl -fsSL -o "${tmpfile}" "${RMZ_RELEASE_URL}"; then
         echo "Failed to download rmz from ${RMZ_RELEASE_URL}"
+        rm -f "${tmpfile}"
+        exit 0
+    fi
+    if ! printf '%s  %s\n' "${EXPECTED_RMZ_SHA256}" "${tmpfile}" | sha256sum -c -; then
+        echo "rmz checksum verification failed; refusing installation"
         rm -f "${tmpfile}"
         exit 0
     fi
