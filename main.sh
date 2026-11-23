@@ -353,13 +353,27 @@ function remove_tool_cache(){
     echo "-"
 }
 
+function get_active_swap_files(){
+    local PROC_SWAPS_FILE="${1:-/proc/swaps}"
+    awk 'NR > 1 && $2 == "file" {print $1}' "${PROC_SWAPS_FILE}"
+}
+
 function remove_swap_storage(){
     # eye emoji see swap
     echo "👁️‍🗨️ See Swap"
     free -h
     echo "🧹 Removing Swap Storage"
-    sudo swapoff -a || true
-    run_rm -f "/mnt/swapfile" || true
+    local ACTIVE_SWAP_FILES
+    ACTIVE_SWAP_FILES=$(get_active_swap_files "${PROC_SWAPS_FILE:-/proc/swaps}") || true
+    local SWAP_FILE
+    while IFS= read -r SWAP_FILE; do
+        [[ -z "${SWAP_FILE}" ]] && continue
+        if sudo swapoff "${SWAP_FILE}"; then
+            run_rm -f "${SWAP_FILE}" || true
+        else
+            echo "::warning::Could not disable swap file ${SWAP_FILE}; leaving it in place"
+        fi
+    done <<< "${ACTIVE_SWAP_FILES}"
     echo "🧹 Removed Swap Storage"
     free -h
     echo "-"

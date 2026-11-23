@@ -19,10 +19,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 **Fixed:**
 - 🔒 Verify every downloaded rmz binary with SHA-256 before `sudo install`, using pinned checksums for the 3.2.1 and 3.2.0 x86_64 and aarch64 assets
 - 🐛 Keep the temporary `bc` helper outside the workspace in a unique `$RUNNER_TEMP` directory (with `$TMPDIR` or `/tmp` fallback) and remove it on exit, including failures
+- 🐛 Discover and remove active swap backing files, including `/swapfile`, instead of assuming only `/mnt/swapfile`; preserve files whose `swapoff` fails
 
 **CI/CD Improvements:**
 - 🧪 Add isolated regression coverage for pinned architectures, custom checksums, malformed or missing hashes, mismatches, and the unchanged `rm` path
 - 🧪 Add temporary `bc` regression coverage for normal and failed exits, temporary-path fallback, paths containing spaces, and setup failures
+- 🧪 Add active swap-file regression coverage for discovery, multiple files, partitions, failed `swapoff`, and both removal backends
 
 **Documentation:**
 - 📝 Document temporary `bc` storage, automatic cleanup, and intentional nonzero status for helper setup failures

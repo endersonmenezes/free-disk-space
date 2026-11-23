@@ -43,6 +43,9 @@ jobs:
       - name: Run temporary bc regression
         run: bash tests/test_temporary_bc.sh
 
+      - name: Run active swap files regression
+        run: bash tests/test_active_swap_files.sh
+
       - name: Run rmz checksum regression
         run: bash tests/test_rmz_checksum.sh
 
