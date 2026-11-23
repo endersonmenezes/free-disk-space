@@ -78,7 +78,7 @@ Tests MUST pass on all architectures. Some cleanup functions are no-ops where th
 ```bash
 export TESTING=true PRINCIPAL_DIR=/ ANDROID_FILES=true DOTNET_FILES=false \
   HASKELL_FILES=false TOOL_CACHE=false SWAP_STORAGE=false PACKAGES=false \
-  REMOVE_ONE_COMMAND=false REMOVE_FOLDERS=false RM_CMD=rm RMZ_VERSION=3.2.0 \
+  REMOVE_ONE_COMMAND=false REMOVE_FOLDERS=false RM_CMD=rm RMZ_VERSION=3.2.1 \
   AGENT_TOOLSDIRECTORY=/usr/local/bin
 bash main.sh
 ```

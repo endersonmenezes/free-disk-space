@@ -12,8 +12,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 **Added:**
 - 🔒 Add optional `rmz_sha256` input for explicit checksum verification of custom rmz versions and overrides
 
+**Changed:**
+- ⬆️ Upgrade the default `rmz` version from 3.2.0 to 3.2.1 while retaining pinned checksums for both versions
+
 **Fixed:**
-- 🔒 Verify every downloaded rmz binary with SHA-256 before `sudo install`, using pinned checksums for the default 3.2.0 x86_64 and aarch64 assets
+- 🔒 Verify every downloaded rmz binary with SHA-256 before `sudo install`, using pinned checksums for the 3.2.1 and 3.2.0 x86_64 and aarch64 assets
 
 **CI/CD Improvements:**
 - 🧪 Add isolated regression coverage for pinned architectures, custom checksums, malformed or missing hashes, mismatches, and the unchanged `rm` path

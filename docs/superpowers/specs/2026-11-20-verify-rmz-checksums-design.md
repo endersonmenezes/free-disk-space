@@ -6,15 +6,15 @@ Close issue #32 by ensuring the action never installs a downloaded `rmz` binary 
 
 ## Goals
 
-- Pin the SHA-256 of both supported Linux `rmz` 3.2.0 assets.
-- Preserve the existing `rm_cmd: rmz` and `rmz_version: 3.2.0` behavior without requiring new inputs.
+- Pin the SHA-256 of both supported Linux `rmz` 3.2.1 assets and retain the 3.2.0 pins.
+- Preserve explicit `rmz_version: 3.2.0` configurations without requiring new inputs, while using 3.2.1 by default.
 - Add optional `rmz_sha256` for explicit verification of other versions or an intentional override of a pinned checksum.
 - Refuse missing, malformed, or mismatching checksums before installation.
 - Keep the default `rm_cmd: rm` path unchanged.
 
 ## Non-goals
 
-- Do not remove or rename existing inputs or change their defaults.
+- Do not remove or rename existing inputs or change their defaults, except for the reviewed `rmz_version` bump from 3.2.0 to 3.2.1.
 - Do not add signature infrastructure, dependencies, or support for new architectures.
 - Do not execute downloaded binaries during checksum verification.
 
@@ -32,9 +32,9 @@ Close issue #32 by ensuring the action never installs a downloaded `rmz` binary 
 
 ## Design
 
-Add `rmz_sha256` as an optional action input mapped to `RMZ_SHA256`, with an empty default. During `rmz` setup, select the asset from `uname -m` as today. Use the supplied checksum when present; otherwise look up the pinned checksum for `3.2.0` and the selected x86_64 or aarch64 asset. Require exactly 64 hexadecimal characters. An unpinned version without a checksum fails before download.
+Add `rmz_sha256` as an optional action input mapped to `RMZ_SHA256`, with an empty default. During `rmz` setup, select the asset from `uname -m` as today. Use the supplied checksum when present; otherwise look up the pinned checksum for `3.2.1` or `3.2.0` and the selected x86_64 or aarch64 asset. Require exactly 64 hexadecimal characters. An unpinned version without a checksum fails before download.
 
-Download to the existing temporary file, verify it with `sha256sum -c`, delete the temporary file and stop on mismatch, and invoke `sudo install` only after successful verification. The two pinned hashes were confirmed both through the GitHub release asset metadata and direct downloads.
+Download to the existing temporary file, verify it with `sha256sum -c`, delete the temporary file and stop on mismatch, and invoke `sudo install` only after successful verification. The four pinned hashes were confirmed both through the GitHub release asset metadata and direct downloads.
 
 Add an isolated subprocess regression harness with fake `curl`, `sudo`, `sha256sum`, `uname`, `bc`, and `rmz` commands. Cover both pinned architectures, custom versions, missing and malformed checksums, mismatches, explicit overrides, and the unaffected `rm` path. Wire the harness into the ShellCheck CI job and document the new input and failure behavior.
 

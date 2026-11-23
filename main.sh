@@ -19,7 +19,7 @@
 # REMOVE_ONE_COMMAND: Boolean (true or false)
 # REMOVE_FOLDERS: String (separated by space)
 # RM_CMD: String (rm or rmz)
-# RMZ_VERSION: String (default: 3.2.0)
+# RMZ_VERSION: String (default: 3.2.1)
 # RMZ_SHA256: String (optional; required for unpinned rmz versions)
 
 # Environment Variables
@@ -139,6 +139,12 @@ if [[ "${RM_CMD}" == "rmz" ]]; then
     EXPECTED_RMZ_SHA256="${RMZ_SHA256:-}"
     if [[ -z "${EXPECTED_RMZ_SHA256}" ]]; then
         case "${RMZ_VERSION}:${ASSET}" in
+            3.2.1:x86_64-unknown-linux-gnu-rmz)
+                EXPECTED_RMZ_SHA256="e2c2c07e731d9422dfe3f14e17e010c6dd5f7a4ad54a9c9bcd141cb8a5ec4fb1"
+                ;;
+            3.2.1:aarch64-unknown-linux-gnu-rmz)
+                EXPECTED_RMZ_SHA256="62059f80a71715d6c4197c0729f157a9c1bbe537a5bdfa830397c47b3ae1ed74"
+                ;;
             3.2.0:x86_64-unknown-linux-gnu-rmz)
                 EXPECTED_RMZ_SHA256="7dc19b56caeab9611b578355bbc58c791d1830177651817dec339e0e926286ce"
                 ;;

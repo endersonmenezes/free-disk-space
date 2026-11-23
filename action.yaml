@@ -50,7 +50,7 @@ inputs:
   rmz_version:
     description: "Version of rmz to use if rmz is selected as rm_cmd."
     required: false
-    default: "3.2.0"
+    default: "3.2.1"
   rmz_sha256:
     description: "SHA-256 checksum for the rmz binary; required for versions without a pinned checksum."
     required: false

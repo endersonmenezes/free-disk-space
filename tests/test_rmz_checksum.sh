@@ -7,8 +7,10 @@ WORK=$(mktemp -d)
 FAKE_BIN="${WORK}/fake-bin"
 trap 'rm -rf "${WORK}"' EXIT
 
-X86_64_SHA="7dc19b56caeab9611b578355bbc58c791d1830177651817dec339e0e926286ce"
-AARCH64_SHA="49f6aaddf00ac3e4ae2a7928d1d651ea708b0bedd577a94d08ece44414cf3a36"
+X86_64_3_2_0_SHA="7dc19b56caeab9611b578355bbc58c791d1830177651817dec339e0e926286ce"
+AARCH64_3_2_0_SHA="49f6aaddf00ac3e4ae2a7928d1d651ea708b0bedd577a94d08ece44414cf3a36"
+X86_64_3_2_1_SHA="e2c2c07e731d9422dfe3f14e17e010c6dd5f7a4ad54a9c9bcd141cb8a5ec4fb1"
+AARCH64_3_2_1_SHA="62059f80a71715d6c4197c0729f157a9c1bbe537a5bdfa830397c47b3ae1ed74"
 CUSTOM_SHA="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 TESTS_RUN=0
 TEST_FAILURES=0
@@ -152,26 +154,44 @@ assert_file_empty() {
     fi
 }
 
-run_case pinned-x86_64 3.2.0 x86_64 "${X86_64_SHA}" rmz ""
-assert_file_equals "${CASE_DIR}/sha.log" "${X86_64_SHA}" \
-    "pinned x86_64: verifies the pinned checksum"
+run_case pinned-3-2-1-x86_64 3.2.1 x86_64 "${X86_64_3_2_1_SHA}" rmz ""
+assert_file_equals "${CASE_DIR}/sha.log" "${X86_64_3_2_1_SHA}" \
+    "3.2.1 x86_64: verifies the pinned checksum"
+assert_file_equals "${CASE_DIR}/curl.log" \
+    "https://github.com/SUPERCILEX/fuc/releases/download/3.2.1/x86_64-unknown-linux-gnu-rmz" \
+    "3.2.1 x86_64: downloads the new default asset"
+assert_file_contains "${CASE_DIR}/sudo.log" "install -m 0755" \
+    "3.2.1 x86_64: valid checksum permits installation"
+
+run_case pinned-3-2-1-aarch64 3.2.1 aarch64 "${AARCH64_3_2_1_SHA}" rmz ""
+assert_file_equals "${CASE_DIR}/sha.log" "${AARCH64_3_2_1_SHA}" \
+    "3.2.1 aarch64: verifies the architecture-specific checksum"
+assert_file_equals "${CASE_DIR}/curl.log" \
+    "https://github.com/SUPERCILEX/fuc/releases/download/3.2.1/aarch64-unknown-linux-gnu-rmz" \
+    "3.2.1 aarch64: downloads the new default asset"
+assert_file_contains "${CASE_DIR}/sudo.log" "install -m 0755" \
+    "3.2.1 aarch64: valid checksum permits installation"
+
+run_case pinned-3-2-0-x86_64 3.2.0 x86_64 "${X86_64_3_2_0_SHA}" rmz ""
+assert_file_equals "${CASE_DIR}/sha.log" "${X86_64_3_2_0_SHA}" \
+    "3.2.0 x86_64: legacy version keeps its pinned checksum"
 assert_file_equals "${CASE_DIR}/curl.log" \
     "https://github.com/SUPERCILEX/fuc/releases/download/3.2.0/x86_64-unknown-linux-gnu-rmz" \
-    "pinned x86_64: downloads the existing asset"
+    "3.2.0 x86_64: legacy version keeps its asset"
 assert_file_contains "${CASE_DIR}/sudo.log" "install -m 0755" \
-    "pinned x86_64: valid checksum permits installation"
+    "3.2.0 x86_64: valid checksum permits installation"
 
-run_case pinned-aarch64 3.2.0 aarch64 "${AARCH64_SHA}" rmz ""
-assert_file_equals "${CASE_DIR}/sha.log" "${AARCH64_SHA}" \
-    "pinned aarch64: verifies the architecture-specific checksum"
+run_case pinned-3-2-0-aarch64 3.2.0 aarch64 "${AARCH64_3_2_0_SHA}" rmz ""
+assert_file_equals "${CASE_DIR}/sha.log" "${AARCH64_3_2_0_SHA}" \
+    "3.2.0 aarch64: legacy version keeps its pinned checksum"
 assert_file_equals "${CASE_DIR}/curl.log" \
     "https://github.com/SUPERCILEX/fuc/releases/download/3.2.0/aarch64-unknown-linux-gnu-rmz" \
-    "pinned aarch64: downloads the existing asset"
+    "3.2.0 aarch64: legacy version keeps its asset"
 assert_file_contains "${CASE_DIR}/sudo.log" "install -m 0755" \
-    "pinned aarch64: valid checksum permits installation"
+    "3.2.0 aarch64: valid checksum permits installation"
 
-run_case checksum-mismatch 3.2.0 x86_64 "${CUSTOM_SHA}" rmz ""
-assert_file_equals "${CASE_DIR}/sha.log" "${X86_64_SHA}" \
+run_case checksum-mismatch 3.2.1 x86_64 "${CUSTOM_SHA}" rmz ""
+assert_file_equals "${CASE_DIR}/sha.log" "${X86_64_3_2_1_SHA}" \
     "mismatch: checks the downloaded file against the pin"
 assert_file_empty "${CASE_DIR}/sudo.log" "mismatch: never invokes sudo install"
 assert_contains "$(<"${CASE_DIR}/output.log")" \
@@ -201,13 +221,13 @@ assert_file_equals "${CASE_DIR}/curl.log" \
 assert_file_contains "${CASE_DIR}/sudo.log" "install -m 0755" \
     "custom valid: valid checksum permits installation"
 
-run_case pinned-override 3.2.0 x86_64 "${CUSTOM_SHA}" rmz "${CUSTOM_SHA}"
+run_case pinned-override 3.2.1 x86_64 "${CUSTOM_SHA}" rmz "${CUSTOM_SHA}"
 assert_file_equals "${CASE_DIR}/sha.log" "${CUSTOM_SHA}" \
     "pinned override: an explicit checksum takes precedence"
 assert_file_contains "${CASE_DIR}/sudo.log" "install -m 0755" \
     "pinned override: valid explicit checksum permits installation"
 
-run_case rm-unchanged 3.2.0 x86_64 "${X86_64_SHA}" rm ""
+run_case rm-unchanged 3.2.1 x86_64 "${X86_64_3_2_1_SHA}" rm ""
 assert_file_empty "${CASE_DIR}/curl.log" "rm: does not download rmz"
 assert_file_empty "${CASE_DIR}/sudo.log" "rm: does not install rmz"
 assert_file_empty "${CASE_DIR}/sha.log" "rm: does not require an rmz checksum"

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Verify every downloaded `rmz` binary with SHA-256 before privileged installation while preserving existing action inputs and defaults.
+**Goal:** Verify every downloaded `rmz` binary with SHA-256 before privileged installation while preserving the action schema and explicit 3.2.0 configurations.
 
 **Architecture:** Resolve an explicit or pinned checksum after architecture selection, validate it before download, and gate `sudo install` on `sha256sum -c`. An isolated subprocess harness uses command doubles to prove which binaries would be downloaded and installed without executing or installing `rmz`.
 
@@ -12,7 +12,8 @@
 
 ## Global Constraints
 
-- Preserve all existing input names and defaults; add only optional `rmz_sha256` with default `""`.
+- Preserve all existing input names and defaults except `rmz_version`, which moves from 3.2.0 to 3.2.1; add only optional `rmz_sha256` with default `""`.
+- Pin `3.2.1` x86_64 to `e2c2c07e731d9422dfe3f14e17e010c6dd5f7a4ad54a9c9bcd141cb8a5ec4fb1` and aarch64 to `62059f80a71715d6c4197c0729f157a9c1bbe537a5bdfa830397c47b3ae1ed74`; use 3.2.1 by default.
 - Pin `3.2.0` x86_64 to `7dc19b56caeab9611b578355bbc58c791d1830177651817dec339e0e926286ce` and aarch64 to `49f6aaddf00ac3e4ae2a7928d1d651ea708b0bedd577a94d08ece44414cf3a36`.
 - Never call `sudo install` before successful checksum verification.
 - Use graceful `exit 0` for expected validation and download failures, consistently with `main.sh`.
@@ -82,7 +83,7 @@ Add `rmz_sha256` with `required: false` and `default: ""`, map it to `RMZ_SHA256
 
 - [ ] **Step 2: Update user and maintainer documentation**
 
-Add the input to the README and maintainer tables. Explain that 3.2.0 is pinned on both architectures and other versions require a 64-character SHA-256. Add checksum mismatch/missing-checksum troubleshooting and an Unreleased changelog entry.
+Add the input to the README and maintainer tables. Explain that 3.2.1 and 3.2.0 are pinned on both architectures and other versions require a 64-character SHA-256. Add checksum mismatch/missing-checksum troubleshooting and an Unreleased changelog entry.
 
 - [ ] **Step 3: Validate the final deliverable locally**
 
