@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [v4.1.0] — 2026-11-23
+
 **Added:**
 - 🔒 Add optional `rmz_sha256` input for explicit checksum verification of custom rmz versions and overrides
 
